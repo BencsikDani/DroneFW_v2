@@ -18,9 +18,25 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "cmsis_os.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+
+#include "stdio.h"
+#include "string.h"
+#include "stdbool.h"
+#include "core_cm4.h"
+#include "Globals.h"
+
+#include "TaskSensorData.h"
+#include "TaskController.h"
+#include "TaskRemote.h"
+#include "TaskMotor.h"
+#include "TaskPower.h"
+#include "TaskDiagnostics.h"
+
+#include "Debug.h"
 
 /* USER CODE END Includes */
 
@@ -53,6 +69,20 @@ UART_HandleTypeDef huart4;
 UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
 
+osThreadId TaskSensorDataHandle;
+osThreadId TaskControllerHandle;
+osThreadId TaskRemoteHandle;
+osThreadId TaskMotorHandle;
+osThreadId TaskPowerHandle;
+osThreadId TaskDiagnosticsHandle;
+osMutexId MagnMutexHandle;
+osMutexId RemoteDataMutexHandle;
+osMutexId ImuMutexHandle;
+osMutexId GpsDataMutexHandle;
+osMutexId DistMutexHandle;
+osSemaphoreId RemoteBufferSemaphoreHandle;
+osSemaphoreId DistSemaphoreHandle;
+osSemaphoreId GpsBufferSemaphoreHandle;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -68,13 +98,120 @@ static void MX_TIM3_Init(void);
 static void MX_UART4_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART3_UART_Init(void);
+void RunTaskSensorData(void const * argument);
+void RunTaskController(void const * argument);
+void RunTaskRemote(void const * argument);
+void RunTaskMotor(void const * argument);
+void RunTaskPower(void const * argument);
+void RunTaskDiagnostics(void const * argument);
+
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	if (huart == &huart2)
+	{
+		Uart2CallbackCounter++;
 
+		// If we are just getting the header bytes or the actual data
+		if ((IbusPackageIndex == 0 && Uart2Buffer == 0x20)
+				|| (IbusPackageIndex == 1 && Uart2Buffer == 0x40)
+				|| (1 < IbusPackageIndex && IbusPackageIndex < IBUS_BUFFSIZE))
+		{
+			IbusPackageBuffer[IbusPackageIndex] = Uart2Buffer;
+
+			if (IbusPackageIndex < IBUS_BUFFSIZE-1)
+				IbusPackageIndex++;
+			else
+			{
+				IbusPackageIndex = 0;
+				ProcessIbusPackageBuffer = true;
+
+				osSemaphoreRelease(RemoteBufferSemaphoreHandle);
+			}
+		}
+		else
+		{
+			IbusPackageIndex = 0;
+
+			char str[32];
+			sprintf(str, "UART Receive Error: [%d]\r\n", Uart2CallbackCounter);
+			HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
+		}
+
+
+		HAL_UART_Receive_IT(&huart2, &Uart2Buffer, 1);
+	}
+	else if (huart == &huart4)
+	{
+		if ((GPSPackageIndex == 0 && Uart4Buffer == '$')
+				|| (GPSPackageIndex == 1 && Uart4Buffer == 'G')
+				|| (1 < GPSPackageIndex && GPSPackageIndex < GPS_BUFFSIZE))
+		{
+			GPSPackageBuffer[GPSPackageIndex] = Uart4Buffer;
+
+			if (GPSPackageIndex < GPS_BUFFSIZE-1)
+				GPSPackageIndex++;
+			else
+			{
+				GPSPackageIndex = 0;
+				ProcessGPSPackageBuffer = true;
+
+				osSemaphoreRelease(GpsBufferSemaphoreHandle);
+			}
+		}
+		else
+		{
+			GPSPackageIndex = 0;
+
+			// TODO
+			//char str[32];
+			//sprintf(str, "UART Receive Error: GPS\r\n");
+			//HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
+		}
+
+		HAL_UART_Receive_DMA(&huart4, &Uart4Buffer, 1);
+	}
+
+}
+
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+{
+	if (huart == &huart2)
+	{
+		if (huart->ErrorCode != 0)
+		{
+			Diag = false;
+
+			char str[32];
+			sprintf(str, "UART2 Error Callback: %d\r\n", huart->ErrorCode);
+			HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
+		}
+	}
+	else if (huart == &huart4)
+		{
+			if (huart->ErrorCode != 0)
+			{
+				Diag = false;
+
+				char str[32];
+				sprintf(str, "UART4 Error Callback: %d\r\n", huart->ErrorCode);
+				HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
+			}
+		}
+}
+
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
+{
+	if (htim == &htim1)
+	{
+		HCSR04_TMR_IC_ISR(&HCSR04, htim);
+	}
+}
 /* USER CODE END 0 */
 
 /**
@@ -115,10 +252,122 @@ int main(void)
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
 
+  // Init IMU
+  	if(MPU_Init(&hspi2, &MPU9250) == 0 && BMP280_initialize(&hspi2, &BMP280) == 0)
+  		IsImuAvailable = true;
+  	else
+  		IsImuAvailable = false;
+
+  	// Init Magnetometer
+  	if (HMC5883L_Init() == 0)
+  		IsMagnAvailable = true;
+  	else
+  		IsMagnAvailable = false;
+
+  	// Init Distance sensor
+  	if (HCSR04_Init(&HCSR04, &htim1) == 0)
+  		IsDistAvailable = true;
+  	else
+  		IsDistAvailable = false;
+
+  	// Init GPS
+  //	if (GPS_Init() == 0)
+  //		IsGpsAvailable = true;
+  //	else
+  //		IsGpsAvailable = false;
+
   /* USER CODE END 2 */
 
+  /* Create the mutex(es) */
+  /* definition and creation of MagnMutex */
+  osMutexDef(MagnMutex);
+  MagnMutexHandle = osMutexCreate(osMutex(MagnMutex));
+
+  /* definition and creation of RemoteDataMutex */
+  osMutexDef(RemoteDataMutex);
+  RemoteDataMutexHandle = osMutexCreate(osMutex(RemoteDataMutex));
+
+  /* definition and creation of ImuMutex */
+  osMutexDef(ImuMutex);
+  ImuMutexHandle = osMutexCreate(osMutex(ImuMutex));
+
+  /* definition and creation of GpsDataMutex */
+  osMutexDef(GpsDataMutex);
+  GpsDataMutexHandle = osMutexCreate(osMutex(GpsDataMutex));
+
+  /* definition and creation of DistMutex */
+  osMutexDef(DistMutex);
+  DistMutexHandle = osMutexCreate(osMutex(DistMutex));
+
+  /* USER CODE BEGIN RTOS_MUTEX */
+  /* add mutexes, ... */
+  /* USER CODE END RTOS_MUTEX */
+
+  /* Create the semaphores(s) */
+  /* definition and creation of RemoteBufferSemaphore */
+  osSemaphoreDef(RemoteBufferSemaphore);
+  RemoteBufferSemaphoreHandle = osSemaphoreCreate(osSemaphore(RemoteBufferSemaphore), 1);
+
+  /* definition and creation of DistSemaphore */
+  osSemaphoreDef(DistSemaphore);
+  DistSemaphoreHandle = osSemaphoreCreate(osSemaphore(DistSemaphore), 1);
+
+  /* definition and creation of GpsBufferSemaphore */
+  osSemaphoreDef(GpsBufferSemaphore);
+  GpsBufferSemaphoreHandle = osSemaphoreCreate(osSemaphore(GpsBufferSemaphore), 1);
+
+  /* USER CODE BEGIN RTOS_SEMAPHORES */
+  /* add semaphores, ... */
+  /* USER CODE END RTOS_SEMAPHORES */
+
+  /* USER CODE BEGIN RTOS_TIMERS */
+  /* start timers, add new ones, ... */
+  /* USER CODE END RTOS_TIMERS */
+
+  /* USER CODE BEGIN RTOS_QUEUES */
+  /* add queues, ... */
+  /* USER CODE END RTOS_QUEUES */
+
+  /* Create the thread(s) */
+  /* definition and creation of TaskSensorData */
+  osThreadDef(TaskSensorData, RunTaskSensorData, osPriorityRealtime, 0, 512);
+  TaskSensorDataHandle = osThreadCreate(osThread(TaskSensorData), NULL);
+
+  /* definition and creation of TaskController */
+  osThreadDef(TaskController, RunTaskController, osPriorityAboveNormal, 0, 128);
+  TaskControllerHandle = osThreadCreate(osThread(TaskController), NULL);
+
+  /* definition and creation of TaskRemote */
+  osThreadDef(TaskRemote, RunTaskRemote, osPriorityHigh, 0, 512);
+  TaskRemoteHandle = osThreadCreate(osThread(TaskRemote), NULL);
+
+  /* definition and creation of TaskMotor */
+  osThreadDef(TaskMotor, RunTaskMotor, osPriorityNormal, 0, 128);
+  TaskMotorHandle = osThreadCreate(osThread(TaskMotor), NULL);
+
+  /* definition and creation of TaskPower */
+  osThreadDef(TaskPower, RunTaskPower, osPriorityBelowNormal, 0, 128);
+  TaskPowerHandle = osThreadCreate(osThread(TaskPower), NULL);
+
+  /* definition and creation of TaskDiagnostics */
+  osThreadDef(TaskDiagnostics, RunTaskDiagnostics, osPriorityLow, 0, 512);
+  TaskDiagnosticsHandle = osThreadCreate(osThread(TaskDiagnostics), NULL);
+
+  /* USER CODE BEGIN RTOS_THREADS */
+  /* add threads, ... */
+  /* USER CODE END RTOS_THREADS */
+
+  /* Start scheduler */
+  osKernelStart();
+  /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
+  osMutexRelease(MagnMutexHandle);
+  osMutexRelease(RemoteDataMutexHandle);
+  osMutexRelease(ImuMutexHandle);
+  osMutexRelease(GpsDataMutexHandle);
+
   while (1)
   {
     /* USER CODE END WHILE */
@@ -589,6 +838,111 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
+
+/* USER CODE BEGIN Header_RunTaskSensorData */
+/**
+  * @brief  Function implementing the TaskSensorData thread.
+  * @param  argument: Not used
+  * @retval None
+  */
+/* USER CODE END Header_RunTaskSensorData */
+void RunTaskSensorData(void const * argument)
+{
+  /* USER CODE BEGIN 5 */
+	TaskSensorData(argument);
+  /* USER CODE END 5 */
+}
+
+/* USER CODE BEGIN Header_RunTaskController */
+/**
+* @brief Function implementing the TaskController thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_RunTaskController */
+void RunTaskController(void const * argument)
+{
+  /* USER CODE BEGIN RunTaskController */
+	TaskController(argument);
+  /* USER CODE END RunTaskController */
+}
+
+/* USER CODE BEGIN Header_RunTaskRemote */
+/**
+* @brief Function implementing the TaskRemote thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_RunTaskRemote */
+void RunTaskRemote(void const * argument)
+{
+  /* USER CODE BEGIN RunTaskRemote */
+	TaskRemote(argument);
+  /* USER CODE END RunTaskRemote */
+}
+
+/* USER CODE BEGIN Header_RunTaskMotor */
+/**
+* @brief Function implementing the TaskMotor thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_RunTaskMotor */
+void RunTaskMotor(void const * argument)
+{
+  /* USER CODE BEGIN RunTaskMotor */
+	TaskMotor(argument);
+  /* USER CODE END RunTaskMotor */
+}
+
+/* USER CODE BEGIN Header_RunTaskPower */
+/**
+* @brief Function implementing the TaskPower thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_RunTaskPower */
+void RunTaskPower(void const * argument)
+{
+  /* USER CODE BEGIN RunTaskPower */
+	TaskPower(argument);
+  /* USER CODE END RunTaskPower */
+}
+
+/* USER CODE BEGIN Header_RunTaskDiagnostics */
+/**
+* @brief Function implementing the TaskDiagnostics thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_RunTaskDiagnostics */
+void RunTaskDiagnostics(void const * argument)
+{
+  /* USER CODE BEGIN RunTaskDiagnostics */
+	TaskDiagnostics(argument);
+  /* USER CODE END RunTaskDiagnostics */
+}
+
+/**
+  * @brief  Period elapsed callback in non blocking mode
+  * @note   This function is called  when TIM6 interrupt took place, inside
+  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+  * a global variable "uwTick" used as application time base.
+  * @param  htim : TIM handle
+  * @retval None
+  */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  /* USER CODE BEGIN Callback 0 */
+
+  /* USER CODE END Callback 0 */
+  if (htim->Instance == TIM6) {
+    HAL_IncTick();
+  }
+  /* USER CODE BEGIN Callback 1 */
+
+  /* USER CODE END Callback 1 */
+}
 
 /**
   * @brief  This function is executed in case of error occurrence.
