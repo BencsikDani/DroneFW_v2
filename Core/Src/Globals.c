@@ -8,7 +8,9 @@
 
 #include "stdbool.h"
 
-bool Diag = true;
+bool Diag = false;
+bool DebugIsOn = true;
+
 int Uart2CallbackCounter = 0;
 
 bool Rotors = true;
@@ -64,7 +66,6 @@ float Distance = 0.0;
 volatile uint8_t Uart2Buffer = 0;
 volatile uint8_t IbusPackageIndex = 0;	// Current position in the ibus packet
 volatile uint8_t IbusPackageBuffer[IBUS_BUFFSIZE] = { 0 };	// Ibus packet buffer
-volatile bool ProcessIbusPackageBuffer = false;
 
 GPS_t GPS;
 volatile uint8_t Uart4Buffer = 0;

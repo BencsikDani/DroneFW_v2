@@ -64,7 +64,7 @@ uint8_t MPU_Init(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250)
 	// Check if IMU configured properly and block if it didn't
 	if (MPU_begin(SPIx, pMPU9250) != true)
 	{
-		char str[100] = "ERROR: IMU ID is wrong.";
+		char str[100] = "ERROR: MPU9250 ID is wrong.";
 		HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
 		return 1;
 	}

@@ -33,6 +33,8 @@
 #define MPU9250_SPI hspi2
 
 extern bool Diag;
+extern bool DebugIsOn;
+
 extern int Uart2CallbackCounter;
 
 extern bool Rotors;
@@ -88,7 +90,6 @@ extern float Distance;
 extern volatile uint8_t Uart2Buffer;
 extern volatile uint8_t IbusPackageIndex;	// Current position in the ibus packet
 extern volatile uint8_t IbusPackageBuffer[IBUS_BUFFSIZE];	// Ibus packet buffer
-extern volatile bool ProcessIbusPackageBuffer;
 
 extern GPS_t GPS;
 extern volatile uint8_t Uart4Buffer;
