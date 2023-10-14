@@ -29,8 +29,12 @@ void TaskSensorData(void const *argument)
 		// IMU Data
 		if (IsImuAvailable)
 		{
+			//Log("SD-IA");
+			//Log("SD-IMW-S");
 			if (osMutexWait(ImuMutexHandle, osWaitForever) == osOK)
 			{
+				//Log("SD-IMW-E");
+
 				//MPU9250_GetData(AccData, &TempData, GyroData, MagData, false);
 				//MPU_readRawData(&hspi2, &MPU9250);
 				MPU_readProcessedData(&hspi2, &MPU9250);
@@ -49,18 +53,21 @@ void TaskSensorData(void const *argument)
 				BMP_Pres = BMP280.measurement.pressure;
 				BMP_Alt = BMP280.measurement.altitude;
 
-				//Log("SenDat - IMutRelease");
-				//osMutexRelease(ImuMutexHandle);
-				//Log("SenDat - IMutReleased");
+				//Log("SD-IMR-S");
 			}
 			osMutexRelease(ImuMutexHandle);
+			//Log("SD-IMR-E");
 		}
 
 		// Magnetometer Data
 		if (IsMagnAvailable)
 		{
+			//Log("SD-MA");
+			//Log("SD-MMW-S");
 			if (osMutexWait(MagnMutexHandle, osWaitForever) == osOK)
 			{
+				//Log("SD-MMW-E");
+
 				struct Vector res = HMC5883L_readRaw();
 				MAG_X_RAW = res.XAxis;
 				MAG_Y_RAW = res.YAxis;
@@ -98,32 +105,49 @@ void TaskSensorData(void const *argument)
 					MAG_dir += 360.0f;
 				if (MAG_dir > 360.0f)
 					MAG_dir -= 360.0f;
+
+				//Log("SD-MMR-S");
 			}
 			osMutexRelease(MagnMutexHandle);
+			//Log("SD-MMR-E");
 		}
 
 		// Distance Data
 		if (IsDistAvailable)
 		{
+			//Log("SD-DA");
 			if (!HCSR04.Triggered)
 			{
 				HCSR04_Trigger(&HCSR04);
 				HCSR04.Triggered = true;
 			}
-			else if (HCSR04.Triggered && osSemaphoreWait(DistSemaphoreHandle, osWaitForever) == osOK)
+			else if (HCSR04.Triggered)
 			{
-				if (osMutexWait(DistMutexHandle, osWaitForever) == osOK)
+				//Log("SD-DSW-S");
+				if (osSemaphoreWait(DistSemaphoreHandle, osWaitForever) == osOK)
 				{
-					Distance = HCSR04_Read(&HCSR04);
+					//Log("SD-DSW-E");
+					//Log("SD-DMW-S");
+					if (osMutexWait(DistMutexHandle, osWaitForever) == osOK)
+					{
+						//Log("SD-DMW-E");
+
+						Distance = HCSR04_Read(&HCSR04);
+
+						//Log("SD-DMR-S");
+					}
+					osMutexRelease(DistMutexHandle);
+					//Log("SD-DMR-E");
+
+					HCSR04.Triggered = false;
 				}
-				osMutexRelease(DistMutexHandle);
-				HCSR04.Triggered = false;
 			}
 		}
 
 		// GPS Data
 		if (IsGpsAvailable)
 		{
+			//Log("SD-GA");
 			if (osSemaphoreWait(GpsBufferSemaphoreHandle, osWaitForever) == osOK)
 			{
 				if (ProcessGPSPackageBuffer)

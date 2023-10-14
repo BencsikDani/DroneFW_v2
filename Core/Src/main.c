@@ -26,7 +26,7 @@
 #include "stdio.h"
 #include "string.h"
 #include "stdbool.h"
-#include "core_cm4.h"
+//#include "core_cm4.h"
 #include "Globals.h"
 
 #include "TaskSensorData.h"
@@ -68,6 +68,7 @@ TIM_HandleTypeDef htim3;
 UART_HandleTypeDef huart4;
 UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
+DMA_HandleTypeDef hdma_usart2_rx;
 
 osThreadId TaskSensorDataHandle;
 osThreadId TaskControllerHandle;
@@ -80,9 +81,10 @@ osMutexId RemoteDataMutexHandle;
 osMutexId ImuMutexHandle;
 osMutexId GpsDataMutexHandle;
 osMutexId DistMutexHandle;
-osSemaphoreId RemoteBufferSemaphoreHandle;
 osSemaphoreId DistSemaphoreHandle;
 osSemaphoreId GpsBufferSemaphoreHandle;
+osSemaphoreId RemoteBufferEmptySemaphoreHandle;
+osSemaphoreId RemoteBufferFullSemaphoreHandle;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -90,13 +92,14 @@ osSemaphoreId GpsBufferSemaphoreHandle;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_I2C1_Init(void);
+static void MX_DMA_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_SPI2_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_UART4_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_I2C1_Init(void);
 static void MX_USART3_UART_Init(void);
 void RunTaskSensorData(void const * argument);
 void RunTaskController(void const * argument);
@@ -115,34 +118,41 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if (huart == &huart2)
 	{
-		Uart2CallbackCounter++;
-
-		// If we are just getting the header bytes or the actual data
-		if ((IbusPackageIndex == 0 && Uart2Buffer == 0x20)
-				|| (IbusPackageIndex == 1 && Uart2Buffer == 0x40)
-				|| (1 < IbusPackageIndex && IbusPackageIndex < IBUS_BUFFSIZE))
+		Log("U2CB-RBES-WS");
+		if (osSemaphoreWait(RemoteBufferEmptySemaphoreHandle, 0) == osOK)
 		{
-			IbusPackageBuffer[IbusPackageIndex] = Uart2Buffer;
+			Log("U2CB-RBES-WE");
+			Uart2CallbackCounter++;
 
-			if (IbusPackageIndex < IBUS_BUFFSIZE-1)
-				IbusPackageIndex++;
+			// If we are just getting the header bytes or the actual data
+			if ((IbusPackageIndex == 0 && Uart2Buffer == 0x20)
+					|| (IbusPackageIndex == 1 && Uart2Buffer == 0x40)
+					|| (1 < IbusPackageIndex && IbusPackageIndex < IBUS_BUFFSIZE))
+			{
+				Log("U2CB-F");
+				IbusPackageBuffer[IbusPackageIndex] = Uart2Buffer;
+
+				if (IbusPackageIndex < IBUS_BUFFSIZE-1)
+					IbusPackageIndex++;
+				else
+				{
+					IbusPackageIndex = 0;
+
+					Log("U2CB-RBFS-RS");
+					// Signal to TaskRemote with the binary semaphore
+					osSemaphoreRelease(RemoteBufferFullSemaphoreHandle);
+					Log("U2CB-RBFS-RE");
+				}
+			}
 			else
 			{
 				IbusPackageIndex = 0;
-				ProcessIbusPackageBuffer = true;
 
-				osSemaphoreRelease(RemoteBufferSemaphoreHandle);
+				char str[32];
+				sprintf(str, "UART Receive Error: [%d]\r\n", Uart2CallbackCounter);
+				HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
 			}
 		}
-		else
-		{
-			IbusPackageIndex = 0;
-
-			char str[32];
-			sprintf(str, "UART Receive Error: [%d]\r\n", Uart2CallbackCounter);
-			HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
-		}
-
 
 		HAL_UART_Receive_IT(&huart2, &Uart2Buffer, 1);
 	}
@@ -176,7 +186,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
 		HAL_UART_Receive_DMA(&huart4, &Uart4Buffer, 1);
 	}
-
 }
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
@@ -185,7 +194,7 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 	{
 		if (huart->ErrorCode != 0)
 		{
-			Diag = false;
+			//Diag = false;
 
 			char str[32];
 			sprintf(str, "UART2 Error Callback: %d\r\n", huart->ErrorCode);
@@ -193,16 +202,16 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 		}
 	}
 	else if (huart == &huart4)
+	{
+		if (huart->ErrorCode != 0)
 		{
-			if (huart->ErrorCode != 0)
-			{
-				Diag = false;
+			Diag = false;
 
-				char str[32];
-				sprintf(str, "UART4 Error Callback: %d\r\n", huart->ErrorCode);
-				HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
-			}
+			char str[32];
+			sprintf(str, "UART4 Error Callback: %lu\r\n", huart->ErrorCode);
+			HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
 		}
+	}
 }
 
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
@@ -242,13 +251,14 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_I2C1_Init();
+  MX_DMA_Init();
   MX_SPI1_Init();
   MX_SPI2_Init();
   MX_TIM1_Init();
   MX_TIM3_Init();
   MX_UART4_Init();
   MX_USART2_UART_Init();
+  MX_I2C1_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
 
@@ -265,8 +275,8 @@ int main(void)
   		IsMagnAvailable = false;
 
   	// Init Distance sensor
-  	if (HCSR04_Init(&HCSR04, &htim1) == 0)
-  		IsDistAvailable = true;
+  	if (HCSR04_Init(&HCSR04, &htim3) == 0)
+  		IsDistAvailable = false;
   	else
   		IsDistAvailable = false;
 
@@ -300,14 +310,15 @@ int main(void)
   DistMutexHandle = osMutexCreate(osMutex(DistMutex));
 
   /* USER CODE BEGIN RTOS_MUTEX */
-  /* add mutexes, ... */
+
+	osMutexRelease(MagnMutexHandle);
+	osMutexRelease(RemoteDataMutexHandle);
+	osMutexRelease(ImuMutexHandle);
+	osMutexRelease(GpsDataMutexHandle);
+
   /* USER CODE END RTOS_MUTEX */
 
   /* Create the semaphores(s) */
-  /* definition and creation of RemoteBufferSemaphore */
-  osSemaphoreDef(RemoteBufferSemaphore);
-  RemoteBufferSemaphoreHandle = osSemaphoreCreate(osSemaphore(RemoteBufferSemaphore), 1);
-
   /* definition and creation of DistSemaphore */
   osSemaphoreDef(DistSemaphore);
   DistSemaphoreHandle = osSemaphoreCreate(osSemaphore(DistSemaphore), 1);
@@ -316,8 +327,26 @@ int main(void)
   osSemaphoreDef(GpsBufferSemaphore);
   GpsBufferSemaphoreHandle = osSemaphoreCreate(osSemaphore(GpsBufferSemaphore), 1);
 
+  /* definition and creation of RemoteBufferEmptySemaphore */
+  osSemaphoreDef(RemoteBufferEmptySemaphore);
+  RemoteBufferEmptySemaphoreHandle = osSemaphoreCreate(osSemaphore(RemoteBufferEmptySemaphore), 1);
+
+  /* definition and creation of RemoteBufferFullSemaphore */
+  osSemaphoreDef(RemoteBufferFullSemaphore);
+  RemoteBufferFullSemaphoreHandle = osSemaphoreCreate(osSemaphore(RemoteBufferFullSemaphore), 1);
+
   /* USER CODE BEGIN RTOS_SEMAPHORES */
-  /* add semaphores, ... */
+
+  if (osSemaphoreGetCount(DistSemaphoreHandle) == 1)
+  	  osSemaphoreWait(DistSemaphoreHandle, osWaitForever);
+  if (osSemaphoreGetCount(GpsBufferSemaphoreHandle) == 1)
+  	  osSemaphoreWait(GpsBufferSemaphoreHandle, osWaitForever);
+
+  if (osSemaphoreGetCount(RemoteBufferEmptySemaphoreHandle) == 0)
+  	  osSemaphoreRelease(RemoteBufferEmptySemaphoreHandle);
+  if (osSemaphoreGetCount(RemoteBufferFullSemaphoreHandle) == 1)
+  	  osSemaphoreWait(RemoteBufferFullSemaphoreHandle, osWaitForever);
+
   /* USER CODE END RTOS_SEMAPHORES */
 
   /* USER CODE BEGIN RTOS_TIMERS */
@@ -359,14 +388,10 @@ int main(void)
 
   /* Start scheduler */
   osKernelStart();
+
   /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-
-  osMutexRelease(MagnMutexHandle);
-  osMutexRelease(RemoteDataMutexHandle);
-  osMutexRelease(ImuMutexHandle);
-  osMutexRelease(GpsDataMutexHandle);
 
   while (1)
   {
@@ -397,8 +422,20 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+  RCC_OscInitStruct.PLL.PLLM = 16;
+  RCC_OscInitStruct.PLL.PLLN = 216;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+  RCC_OscInitStruct.PLL.PLLQ = 2;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Activate the Over-Drive mode
+  */
+  if (HAL_PWREx_EnableOverDrive() != HAL_OK)
   {
     Error_Handler();
   }
@@ -407,12 +444,12 @@ void SystemClock_Config(void)
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
   {
     Error_Handler();
   }
@@ -434,7 +471,7 @@ static void MX_I2C1_Init(void)
 
   /* USER CODE END I2C1_Init 1 */
   hi2c1.Instance = I2C1;
-  hi2c1.Init.Timing = 0x00303D5B;
+  hi2c1.Init.Timing = 0x20808DD4;
   hi2c1.Init.OwnAddress1 = 0;
   hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -485,11 +522,11 @@ static void MX_SPI1_Init(void)
   hspi1.Instance = SPI1;
   hspi1.Init.Mode = SPI_MODE_MASTER;
   hspi1.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi1.Init.DataSize = SPI_DATASIZE_4BIT;
+  hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_HARD_OUTPUT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -525,17 +562,17 @@ static void MX_SPI2_Init(void)
   hspi2.Instance = SPI2;
   hspi2.Init.Mode = SPI_MODE_MASTER;
   hspi2.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi2.Init.DataSize = SPI_DATASIZE_4BIT;
-  hspi2.Init.CLKPolarity = SPI_POLARITY_LOW;
-  hspi2.Init.CLKPhase = SPI_PHASE_1EDGE;
+  hspi2.Init.DataSize = SPI_DATASIZE_8BIT;
+  hspi2.Init.CLKPolarity = SPI_POLARITY_HIGH;
+  hspi2.Init.CLKPhase = SPI_PHASE_2EDGE;
   hspi2.Init.NSS = SPI_NSS_SOFT;
-  hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+  hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;
   hspi2.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi2.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi2.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
   hspi2.Init.CRCPolynomial = 7;
   hspi2.Init.CRCLength = SPI_CRC_LENGTH_DATASIZE;
-  hspi2.Init.NSSPMode = SPI_NSS_PULSE_ENABLE;
+  hspi2.Init.NSSPMode = SPI_NSS_PULSE_DISABLE;
   if (HAL_SPI_Init(&hspi2) != HAL_OK)
   {
     Error_Handler();
@@ -558,6 +595,7 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 0 */
 
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
   TIM_MasterConfigTypeDef sMasterConfig = {0};
   TIM_OC_InitTypeDef sConfigOC = {0};
   TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig = {0};
@@ -566,13 +604,22 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 0;
+  htim1.Init.Prescaler = 2160-1;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 65535;
+  htim1.Init.Period = 1000-1;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
-  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  if (HAL_TIM_OC_Init(&htim1) != HAL_OK)
+  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_PWM_Init(&htim1) != HAL_OK)
   {
     Error_Handler();
   }
@@ -583,26 +630,26 @@ static void MX_TIM1_Init(void)
   {
     Error_Handler();
   }
-  sConfigOC.OCMode = TIM_OCMODE_TIMING;
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
   sConfigOC.Pulse = 0;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
   sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
   sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-  if (HAL_TIM_OC_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
   {
     Error_Handler();
   }
-  if (HAL_TIM_OC_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
+  if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
   {
     Error_Handler();
   }
-  if (HAL_TIM_OC_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
+  if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
   {
     Error_Handler();
   }
-  if (HAL_TIM_OC_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
+  if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
   {
     Error_Handler();
   }
@@ -640,6 +687,7 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 0 */
 
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
   TIM_MasterConfigTypeDef sMasterConfig = {0};
   TIM_IC_InitTypeDef sConfigIC = {0};
 
@@ -647,11 +695,20 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 1 */
   htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 0;
+  htim3.Init.Prescaler = 108;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 65535;
+  htim3.Init.Period = 65535-1;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
   if (HAL_TIM_IC_Init(&htim3) != HAL_OK)
   {
     Error_Handler();
@@ -692,7 +749,7 @@ static void MX_UART4_Init(void)
 
   /* USER CODE END UART4_Init 1 */
   huart4.Instance = UART4;
-  huart4.Init.BaudRate = 115200;
+  huart4.Init.BaudRate = 9600;
   huart4.Init.WordLength = UART_WORDLENGTH_8B;
   huart4.Init.StopBits = UART_STOPBITS_1;
   huart4.Init.Parity = UART_PARITY_NONE;
@@ -731,11 +788,12 @@ static void MX_USART2_UART_Init(void)
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;
-  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.Mode = UART_MODE_RX;
   huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
   huart2.Init.OverSampling = UART_OVERSAMPLING_16;
   huart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-  huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_RXOVERRUNDISABLE_INIT;
+  huart2.AdvancedInit.OverrunDisable = UART_ADVFEATURE_OVERRUN_DISABLE;
   if (HAL_UART_Init(&huart2) != HAL_OK)
   {
     Error_Handler();
@@ -778,6 +836,22 @@ static void MX_USART3_UART_Init(void)
   /* USER CODE BEGIN USART3_Init 2 */
 
   /* USER CODE END USART3_Init 2 */
+
+}
+
+/**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Stream5_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
 
 }
 

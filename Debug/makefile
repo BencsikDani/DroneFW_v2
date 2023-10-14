@@ -70,7 +70,7 @@ main-build: DroneFW_v2.elf secondary-outputs
 
 # Tool invocations
 DroneFW_v2.elf DroneFW_v2.map: $(OBJS) $(USER_OBJS) C:\Users\Dani\STM32CubeIDE\workspace_1.12.1\DroneFW_v2\STM32F722VETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "DroneFW_v2.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m7 -T"C:\Users\Dani\STM32CubeIDE\workspace_1.12.1\DroneFW_v2\STM32F722VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="DroneFW_v2.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv5-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+	arm-none-eabi-gcc -o "DroneFW_v2.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m7 -T"C:\Users\Dani\STM32CubeIDE\workspace_1.12.1\DroneFW_v2\STM32F722VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="DroneFW_v2.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv5-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
