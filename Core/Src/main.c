@@ -119,42 +119,55 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	if (huart == &huart2)
 	{
 		//Log("U2CB");
-		if (RemoteBufferInProgress)
+		Uart2CallbackCounter++;
+
+		if (osMutexWait(RemoteBufferMutexHandle, 0) == osOK)
 		{
-			Uart2CallbackCounter++;
+			//Log("U2CB-RBM-WE");
+			for (int i = 0; i < REM_BUF_SIZE; i++)
+				RemoteBuffer[i] = Uart2Buffer[i];
 
-			// If we are just getting the header bytes or the actual data
-			if ((RemoteBufferIndex == 0 && Uart2Buffer == 0x20)
-					|| (RemoteBufferIndex == 1 && Uart2Buffer == 0x40)
-					|| (1 < RemoteBufferIndex && RemoteBufferIndex < IBUS_BUFFSIZE))
-			{
-				//Log("U2CB-F");
-				RemoteBuffer[RemoteBufferIndex] = Uart2Buffer;
+			osMutexRelease(RemoteBufferMutexHandle);
 
-				if (RemoteBufferIndex < IBUS_BUFFSIZE-1)
-					RemoteBufferIndex++;
-				else
-				{
-					RemoteBufferIndex = 0;
-					RemoteBufferInProgress = false;
-
-					//Log("U2CB-RBFS-RS");
-					// Signal to TaskRemote with the binary semaphore
-					osSemaphoreRelease(RemoteBufferFullSemaphoreHandle);
-					//Log("U2CB-RBFS-RE");
-				}
-			}
-			else
-			{
-				RemoteBufferIndex = 0;
-
-				char str[32];
-				sprintf(str, "UART Receive Error: [%d]\r\n", Uart2CallbackCounter);
-				HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
-			}
+			// Signal to TaskTemote
+			osSemaphoreRelease(RemoteBufferFullSemaphoreHandle);
 		}
 
-		HAL_UART_Receive_IT(&huart2, &Uart2Buffer, 1);
+
+//		if (RemoteBufferInProgress)
+//		{
+//			// If we are just getting the header bytes or the actual data
+//			if ((RemoteBufferIndex == 0 && Uart2Buffer == 0x20)
+//					|| (RemoteBufferIndex == 1 && Uart2Buffer == 0x40)
+//					|| (1 < RemoteBufferIndex && RemoteBufferIndex < REM_BUF_SIZE))
+//			{
+//				//Log("U2CB-F");
+//				RemoteBuffer[RemoteBufferIndex] = Uart2Buffer;
+//
+//				if (RemoteBufferIndex < REM_BUF_SIZE-1)
+//					RemoteBufferIndex++;
+//				else
+//				{
+//					RemoteBufferIndex = 0;
+//					RemoteBufferInProgress = false;
+//
+//					//Log("U2CB-RBFS-RS");
+//					// Signal to TaskRemote with the binary semaphore
+//					osSemaphoreRelease(RemoteBufferFullSemaphoreHandle);
+//					//Log("U2CB-RBFS-RE");
+//				}
+//			}
+//			else
+//			{
+//				RemoteBufferIndex = 0;
+//
+//				char str[32];
+//				sprintf(str, "UART Receive Error: [%d]\r\n", Uart2CallbackCounter);
+//				HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
+//			}
+//		}
+
+		HAL_UART_Receive_IT(&huart2, &Uart2Buffer, 64);
 	}
 	else if (huart == &huart4)
 	{

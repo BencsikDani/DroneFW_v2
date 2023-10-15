@@ -8,8 +8,8 @@
 
 #include "stdbool.h"
 
-bool Diag = false;
-bool DebugIsOn = true;
+bool Diag = true;
+bool DebugIsOn = false;
 
 int Uart2CallbackCounter = 0;
 
@@ -63,9 +63,10 @@ float MAG_dir = 0;
 HCSR04_t HCSR04 = {0};
 float Distance = 0.0;
 
-volatile uint8_t Uart2Buffer = 0;
+volatile uint8_t Uart2Buffer[64] = { 0 };
 volatile uint8_t RemoteBufferIndex = 0;	// Current position in the ibus packet
-volatile uint8_t RemoteBuffer[IBUS_BUFFSIZE] = { 0 };	// Ibus packet buffer
+volatile uint8_t RemoteBuffer[REM_BUF_SIZE] = { 0 };	// Circular buffer which is constantly written by UART2 Callback
+volatile uint8_t LastIbusPacket[IBUS_PACKET_SIZE] = { 0 };
 volatile bool RemoteBufferInProgress = true;
 
 

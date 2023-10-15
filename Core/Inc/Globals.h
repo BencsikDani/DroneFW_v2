@@ -12,7 +12,8 @@
 
 
 // Transmitter channel details
-#define IBUS_BUFFSIZE 32    // Max iBus packet size (2 byte header, 14 channels x 2 bytes, 2 byte checksum)
+#define IBUS_PACKET_SIZE 32	// iBus packet size (2 byte header, 14 channels x 2 bytes, 2 byte checksum)
+#define REM_BUF_SIZE 64    // 2 times the iBus packet size
 #define IBUS_MAXCHANNELS 10 // My TX only has 10 channels, no point in polling the rest
 
 #define GPS_BUFFSIZE  255       // GPS buffer size
@@ -87,9 +88,10 @@ extern float MAG_dir;
 extern HCSR04_t HCSR04;
 extern float Distance;
 
-extern volatile uint8_t Uart2Buffer;
+extern volatile uint8_t Uart2Buffer[64];
 extern volatile uint8_t RemoteBufferIndex;	// Current position in the ibus packet
-extern volatile uint8_t RemoteBuffer[IBUS_BUFFSIZE];	// Ibus packet buffer
+extern volatile uint8_t RemoteBuffer[REM_BUF_SIZE];	// Ibus packet buffer
+extern volatile uint8_t LastIbusPacket[IBUS_PACKET_SIZE];
 extern volatile bool RemoteBufferInProgress;
 
 extern GPS_t GPS;
