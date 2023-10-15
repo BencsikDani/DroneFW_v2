@@ -7,9 +7,9 @@ void TaskController(void const *argument)
 {
 	// Inner loop controllers
 	PIDController PID_Thrust;
-	PID_Thrust.Kd = 1;
-	PID_Thrust.Ki = 1;
-	PID_Thrust.Kd = 1;
+	PID_Thrust.Kd = 10;
+	PID_Thrust.Ki = 10;
+	PID_Thrust.Kd = 10;
 	PID_Thrust.T = 0.01f;
 	PID_Thrust.limMin = 0;
 	PID_Thrust.limMax = 30;
@@ -48,8 +48,7 @@ void TaskController(void const *argument)
 
 		if (osMutexWait(DistMutexHandle, osWaitForever) == osOK)
 		{
-			PIDController_Update(&PID_Thrust, 0.2f, Distance/1000.0f);
-			Throttle_controlled = PID_Thrust.out;
+			Throttle_controlled = PIDController_Update(&PID_Thrust, 0.2f, Distance/1000.0f);
 		}
 		osMutexRelease(DistMutexHandle);
 

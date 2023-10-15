@@ -9,6 +9,7 @@ typedef struct {
 	float Kp, Ki, Kd;
 
 	// Sample time (in seconds)
+	// Should be less then (T_system / 10)
 	float T;
 
 	// Derivative low-pass filter
