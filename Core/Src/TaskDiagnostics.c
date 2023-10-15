@@ -35,7 +35,7 @@ void TaskDiagnostics(void const *argument)
 	{
 		if(osMutexWait(RemoteDataMutexHandle, osWaitForever) == osOK)
 		{
-			sprintf(UARTstr, "Throttle: (%d) %d %d %d %d\r\n", Throttle_in, TIM1->CCR1-50, TIM1->CCR2-50, TIM1->CCR3-50, TIM1->CCR4-50);
+			sprintf(UARTstr, "Throttle: (%d) %d %d %d %d\r\n", Throttle_controlled, TIM1->CCR1-50, TIM1->CCR2-50, TIM1->CCR3-50, TIM1->CCR4-50);
 			SpiIntData[1] = (int8_t)Throttle_in;
 			SpiIntData[2] = (int8_t)TIM1->CCR1-50;
 			SpiIntData[3] = (int8_t)TIM1->CCR2-50;
