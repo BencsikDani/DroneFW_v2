@@ -4,25 +4,25 @@
 
 #include "Debug.h"
 
-extern TIM_HandleTypeDef htim3;
+extern TIM_HandleTypeDef htim1;
 extern osMutexId RemoteDataMutexHandle;
 
 void TaskMotor(void const *argument)
 {
-	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
-	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
-	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
-	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
+	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
+	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
 
 	uint8_t ESC1_start_signal;
 	uint8_t ESC2_start_signal;
 	uint8_t ESC3_start_signal;
 	uint8_t ESC4_start_signal;
 
-	TIM3->CCR3 = (uint32_t) (50);
-	TIM3->CCR4 = (uint32_t) (50);
-	TIM3->CCR1 = (uint32_t) (50);
-	TIM3->CCR2 = (uint32_t) (50);
+	TIM1->CCR1 = (uint32_t) (50);
+	TIM1->CCR2 = (uint32_t) (50);
+	TIM1->CCR3 = (uint32_t) (50);
+	TIM1->CCR4 = (uint32_t) (50);
 
 	/* Infinite loop */
 	while (1)
@@ -53,7 +53,7 @@ void TaskMotor(void const *argument)
 			{
 				ESC1_start_signal = 1;
 				ESC2_start_signal = 1;
-				ESC3_start_signal = 2;
+				ESC3_start_signal = 1;
 				ESC4_start_signal = 3;
 			}
 
@@ -61,17 +61,17 @@ void TaskMotor(void const *argument)
 			// Setting PWM speed
 			if (Rotors)
 			{
-				TIM3->CCR3 = (uint32_t) ((Throttle_controlled * (50-(ESC1_start_signal-1)) / 50) + (50+ESC1_start_signal-1));
-				TIM3->CCR4 = (uint32_t) ((Throttle_controlled * (50-(ESC2_start_signal-1)) / 50) + (50+ESC2_start_signal-1));
-				TIM3->CCR1 = (uint32_t) ((Throttle_controlled * (50-(ESC3_start_signal-1)) / 50) + (50+ESC3_start_signal-1));
-				TIM3->CCR2 = (uint32_t) ((Throttle_controlled * (50-(ESC4_start_signal-1)) / 50) + (50+ESC4_start_signal-1));
+				TIM1->CCR1 = (uint32_t) ((Throttle_in * (50-(ESC1_start_signal-1)) / 50) + (50+ESC1_start_signal-1));
+				TIM1->CCR2 = (uint32_t) ((Throttle_in * (50-(ESC2_start_signal-1)) / 50) + (50+ESC2_start_signal-1));
+				TIM1->CCR3 = (uint32_t) ((Throttle_in * (50-(ESC3_start_signal-1)) / 50) + (50+ESC3_start_signal-1));
+				TIM1->CCR4 = (uint32_t) ((Throttle_in * (50-(ESC4_start_signal-1)) / 50) + (50+ESC4_start_signal-1));
 			}
 			else
 			{
-				TIM3->CCR3 = (uint32_t) (50);
-				TIM3->CCR4 = (uint32_t) (50);
-				TIM3->CCR1 = (uint32_t) (50);
-				TIM3->CCR2 = (uint32_t) (50);
+				TIM1->CCR1 = (uint32_t) (50);
+				TIM1->CCR2 = (uint32_t) (50);
+				TIM1->CCR3 = (uint32_t) (50);
+				TIM1->CCR4 = (uint32_t) (50);
 			}
 		}
 		osMutexRelease(RemoteDataMutexHandle);
