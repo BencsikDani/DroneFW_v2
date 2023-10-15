@@ -81,9 +81,9 @@ osMutexId RemoteDataMutexHandle;
 osMutexId ImuMutexHandle;
 osMutexId GpsDataMutexHandle;
 osMutexId DistMutexHandle;
+osMutexId RemoteBufferMutexHandle;
 osSemaphoreId DistSemaphoreHandle;
 osSemaphoreId GpsBufferSemaphoreHandle;
-osSemaphoreId RemoteBufferEmptySemaphoreHandle;
 osSemaphoreId RemoteBufferFullSemaphoreHandle;
 /* USER CODE BEGIN PV */
 
@@ -118,35 +118,35 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if (huart == &huart2)
 	{
-		Log("U2CB-RBES-WS");
-		if (osSemaphoreWait(RemoteBufferEmptySemaphoreHandle, 0) == osOK)
+		//Log("U2CB");
+		if (RemoteBufferInProgress)
 		{
-			Log("U2CB-RBES-WE");
 			Uart2CallbackCounter++;
 
 			// If we are just getting the header bytes or the actual data
-			if ((IbusPackageIndex == 0 && Uart2Buffer == 0x20)
-					|| (IbusPackageIndex == 1 && Uart2Buffer == 0x40)
-					|| (1 < IbusPackageIndex && IbusPackageIndex < IBUS_BUFFSIZE))
+			if ((RemoteBufferIndex == 0 && Uart2Buffer == 0x20)
+					|| (RemoteBufferIndex == 1 && Uart2Buffer == 0x40)
+					|| (1 < RemoteBufferIndex && RemoteBufferIndex < IBUS_BUFFSIZE))
 			{
-				Log("U2CB-F");
-				IbusPackageBuffer[IbusPackageIndex] = Uart2Buffer;
+				//Log("U2CB-F");
+				RemoteBuffer[RemoteBufferIndex] = Uart2Buffer;
 
-				if (IbusPackageIndex < IBUS_BUFFSIZE-1)
-					IbusPackageIndex++;
+				if (RemoteBufferIndex < IBUS_BUFFSIZE-1)
+					RemoteBufferIndex++;
 				else
 				{
-					IbusPackageIndex = 0;
+					RemoteBufferIndex = 0;
+					RemoteBufferInProgress = false;
 
-					Log("U2CB-RBFS-RS");
+					//Log("U2CB-RBFS-RS");
 					// Signal to TaskRemote with the binary semaphore
 					osSemaphoreRelease(RemoteBufferFullSemaphoreHandle);
-					Log("U2CB-RBFS-RE");
+					//Log("U2CB-RBFS-RE");
 				}
 			}
 			else
 			{
-				IbusPackageIndex = 0;
+				RemoteBufferIndex = 0;
 
 				char str[32];
 				sprintf(str, "UART Receive Error: [%d]\r\n", Uart2CallbackCounter);
@@ -309,12 +309,17 @@ int main(void)
   osMutexDef(DistMutex);
   DistMutexHandle = osMutexCreate(osMutex(DistMutex));
 
+  /* definition and creation of RemoteBufferMutex */
+  osMutexDef(RemoteBufferMutex);
+  RemoteBufferMutexHandle = osMutexCreate(osMutex(RemoteBufferMutex));
+
   /* USER CODE BEGIN RTOS_MUTEX */
 
 	osMutexRelease(MagnMutexHandle);
 	osMutexRelease(RemoteDataMutexHandle);
 	osMutexRelease(ImuMutexHandle);
 	osMutexRelease(GpsDataMutexHandle);
+	osMutexRelease(RemoteBufferMutexHandle);
 
   /* USER CODE END RTOS_MUTEX */
 
@@ -327,10 +332,6 @@ int main(void)
   osSemaphoreDef(GpsBufferSemaphore);
   GpsBufferSemaphoreHandle = osSemaphoreCreate(osSemaphore(GpsBufferSemaphore), 1);
 
-  /* definition and creation of RemoteBufferEmptySemaphore */
-  osSemaphoreDef(RemoteBufferEmptySemaphore);
-  RemoteBufferEmptySemaphoreHandle = osSemaphoreCreate(osSemaphore(RemoteBufferEmptySemaphore), 1);
-
   /* definition and creation of RemoteBufferFullSemaphore */
   osSemaphoreDef(RemoteBufferFullSemaphore);
   RemoteBufferFullSemaphoreHandle = osSemaphoreCreate(osSemaphore(RemoteBufferFullSemaphore), 1);
@@ -342,8 +343,6 @@ int main(void)
   if (osSemaphoreGetCount(GpsBufferSemaphoreHandle) == 1)
   	  osSemaphoreWait(GpsBufferSemaphoreHandle, osWaitForever);
 
-  if (osSemaphoreGetCount(RemoteBufferEmptySemaphoreHandle) == 0)
-  	  osSemaphoreRelease(RemoteBufferEmptySemaphoreHandle);
   if (osSemaphoreGetCount(RemoteBufferFullSemaphoreHandle) == 1)
   	  osSemaphoreWait(RemoteBufferFullSemaphoreHandle, osWaitForever);
 
@@ -999,7 +998,7 @@ void RunTaskDiagnostics(void const * argument)
 
 /**
   * @brief  Period elapsed callback in non blocking mode
-  * @note   This function is called  when TIM6 interrupt took place, inside
+  * @note   This function is called  when TIM2 interrupt took place, inside
   * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
   * a global variable "uwTick" used as application time base.
   * @param  htim : TIM handle
@@ -1010,7 +1009,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   /* USER CODE BEGIN Callback 0 */
 
   /* USER CODE END Callback 0 */
-  if (htim->Instance == TIM6) {
+  if (htim->Instance == TIM2) {
     HAL_IncTick();
   }
   /* USER CODE BEGIN Callback 1 */

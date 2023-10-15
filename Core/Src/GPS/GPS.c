@@ -1,6 +1,7 @@
 #include "stdio.h"
 #include "Globals.h"
 #include "GPS/GPS.h"
+#include "string.h"
 
 extern UART_HandleTypeDef huart4;
 
