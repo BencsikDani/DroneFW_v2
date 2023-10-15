@@ -88,8 +88,9 @@ extern HCSR04_t HCSR04;
 extern float Distance;
 
 extern volatile uint8_t Uart2Buffer;
-extern volatile uint8_t IbusPackageIndex;	// Current position in the ibus packet
-extern volatile uint8_t IbusPackageBuffer[IBUS_BUFFSIZE];	// Ibus packet buffer
+extern volatile uint8_t RemoteBufferIndex;	// Current position in the ibus packet
+extern volatile uint8_t RemoteBuffer[IBUS_BUFFSIZE];	// Ibus packet buffer
+extern volatile bool RemoteBufferInProgress;
 
 extern GPS_t GPS;
 extern volatile uint8_t Uart4Buffer;

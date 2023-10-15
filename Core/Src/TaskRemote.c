@@ -37,7 +37,7 @@ void TaskRemote(void const *argument)
 			//   20 40    DB 5  DC 5  54 5  DC 5  E8 3  D0 7  D2 5  E8 3  DC 5  DC 5   DC 5   DC 5   DC 5   DC 5   DA F3
 			// | Header | CH1 | CH2 | CH3 | CH4 | CH5 | CH6 | CH7 | CH8 | CH9 | CH10 | CH11 | CH12 | CH13 | CH14 | Checksum |
 			for (int i = 0; i < IBUS_MAXCHANNELS; i++)
-				channelValues[i] = (IbusPackageBuffer[3 + 2 * i] << 8) + IbusPackageBuffer[2 + 2 * i];
+				channelValues[i] = (RemoteBuffer[3 + 2 * i] << 8) + RemoteBuffer[2 + 2 * i];
 
 			// Setting the speed
 			Log("R-RDM-WS");
@@ -78,10 +78,9 @@ void TaskRemote(void const *argument)
 			//sprintf(str2, "Out: %d\r\n\r\n", channelValues[2]);
 			//HAL_UART_Transmit(&huart3, str2, 13, HAL_MAX_DELAY);
 
-			Log("R-RBES-WS");
+
 			// Signal to the UART2 Callback
-			osSemaphoreRelease(RemoteBufferEmptySemaphoreHandle);
-			Log("R-RBES-WE");
+			RemoteBufferInProgress = true;
 		}
 
 		osDelay(100);

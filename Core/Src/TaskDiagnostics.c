@@ -160,6 +160,6 @@ void TaskDiagnostics(void const *argument)
 			HAL_SPI_Transmit(&hspi1, SpiFloatData2, 64, HAL_MAX_DELAY);
 		}
 
-		osDelay(500);
+		osDelay(250);
 	}
 }

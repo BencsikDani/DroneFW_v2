@@ -64,8 +64,10 @@ HCSR04_t HCSR04 = {0};
 float Distance = 0.0;
 
 volatile uint8_t Uart2Buffer = 0;
-volatile uint8_t IbusPackageIndex = 0;	// Current position in the ibus packet
-volatile uint8_t IbusPackageBuffer[IBUS_BUFFSIZE] = { 0 };	// Ibus packet buffer
+volatile uint8_t RemoteBufferIndex = 0;	// Current position in the ibus packet
+volatile uint8_t RemoteBuffer[IBUS_BUFFSIZE] = { 0 };	// Ibus packet buffer
+volatile bool RemoteBufferInProgress = true;
+
 
 GPS_t GPS;
 volatile uint8_t Uart4Buffer = 0;

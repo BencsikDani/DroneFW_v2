@@ -7,6 +7,7 @@
 #include "math.h"
 #include "Globals.h"
 #include "Debug.h"
+#include "string.h"
 
 extern SPI_HandleTypeDef hspi2;
 
