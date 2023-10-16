@@ -40,6 +40,9 @@ MPU9250_t MPU9250;
 float AccData[3] = { 0 };
 float TempData = 0;
 float GyroData[3] = { 0 };
+float Roll_measured = 0;
+float Pitch_measured = 0;
+float Yaw_measured = 0;
 int16_t MagData[3] = { 0 };
 
 BMP280_t BMP280;

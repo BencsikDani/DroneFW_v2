@@ -9,8 +9,42 @@
 #include "main.h"
 #include "stdbool.h"
 #include "string.h"
+#include "math.h"
 
 extern UART_HandleTypeDef huart3;
+
+
+/// @brief Do the whole initialization of the IMU
+/// @param SPIx Pointer to SPI structure config
+/// @param pMPU9250 Pointer to master MPU9250 struct
+uint8_t MPU_Init(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250)
+{
+	// Disable BMP280
+	HAL_GPIO_WritePin(SPI2_IMU_CSBM_GPIO_Port, SPI2_IMU_CSBM_Pin, GPIO_PIN_SET);
+
+	// Set the config parameters
+	pMPU9250->settings.gFullScaleRange = GFSR_250DPS;
+	pMPU9250->settings.aFullScaleRange = AFSR_2G;
+	pMPU9250->settings.CS_PIN = SPI2_IMU_CSIMU_Pin;
+	pMPU9250->settings.CS_PORT = SPI2_IMU_CSIMU_GPIO_Port;
+	pMPU9250->attitude.tau = 0.98;
+	pMPU9250->attitude.lastTick = 0;
+	pMPU9250->attitude.dt = 0;
+
+	// Check if IMU configured properly and block if it didn't
+	if (MPU_begin(SPIx, pMPU9250) != true)
+	{
+		char str[100] = "ERROR: MPU9250 ID is wrong.";
+		HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
+		return 1;
+	}
+
+	// Calibrate the IMU
+	HAL_UART_Transmit(&huart3, "CALIBRATING...\r\n", strlen("CALIBRATING...\r\n"), HAL_MAX_DELAY);
+	MPU_calibrateGyro(SPIx, pMPU9250, 10);
+
+	return 0;
+}
 
 /// @brief Check for connection, reset IMU, and set full range scale
 /// @param SPIx Pointer to SPI structure config
@@ -45,35 +79,37 @@ uint8_t MPU_begin(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250)
     }
 }
 
-/// @brief Do the whole initialization of the IMU
+/// @brief Find offsets for each axis of gyroscope
 /// @param SPIx Pointer to SPI structure config
 /// @param pMPU9250 Pointer to master MPU9250 struct
-uint8_t MPU_Init(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250)
+/// @param numCalPoints Number of data points to average
+void MPU_calibrateGyro(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250, uint16_t numCalPoints)
 {
-	// Disable BMP280
-	HAL_GPIO_WritePin(SPI2_IMU_CSBM_GPIO_Port, SPI2_IMU_CSBM_Pin, GPIO_PIN_SET);
+    // Init
+    int32_t x = 0;
+    int32_t y = 0;
+    int32_t z = 0;
 
-	// Set the config parameters
-	pMPU9250->settings.gFullScaleRange = GFSR_250DPS;
-	pMPU9250->settings.aFullScaleRange = AFSR_2G;
-	pMPU9250->settings.CS_PIN = SPI2_IMU_CSIMU_Pin;
-	pMPU9250->settings.CS_PORT = SPI2_IMU_CSIMU_GPIO_Port;
-	pMPU9250->attitude.tau = 0.98;
-	pMPU9250->attitude.dt = 0.004;
+    // Zero guard
+    if (numCalPoints == 0)
+    {
+        numCalPoints = 1;
+    }
 
-	// Check if IMU configured properly and block if it didn't
-	if (MPU_begin(SPIx, pMPU9250) != true)
-	{
-		char str[100] = "ERROR: MPU9250 ID is wrong.";
-		HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
-		return 1;
-	}
+    // Save specified number of points
+    for (uint16_t ii = 0; ii < numCalPoints; ii++)
+    {
+        MPU_readRawData(SPIx, pMPU9250);
+        x += pMPU9250->rawData.gx;
+        y += pMPU9250->rawData.gy;
+        z += pMPU9250->rawData.gz;
+        HAL_Delay(3);
+    }
 
-	// Calibrate the IMU
-	HAL_UART_Transmit(&huart3, "CALIBRATING...\r\n", strlen("CALIBRATING...\r\n"), HAL_MAX_DELAY);
-	MPU_calibrateGyro(SPIx, pMPU9250, 10);
-
-	return 0;
+    // Average the saved data points to find the gyroscope offset
+    pMPU9250->gyroBias.x = (float)x / (float)numCalPoints;
+    pMPU9250->gyroBias.y = (float)y / (float)numCalPoints;
+    pMPU9250->gyroBias.z = (float)z / (float)numCalPoints;
 }
 
 /// @brief Read a specific registry address
@@ -205,53 +241,29 @@ void MPU_readRawData(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250)
     // Subroutine for reading the raw data
     MPU_REG_READ(SPIx, pMPU9250, ACCEL_XOUT_H, buf, 6+2+6+24);
 
-    // Bit shift the data
-    pMPU9250->rawData.ax = buf[0] << 8 | buf[1];
-    pMPU9250->rawData.ay = buf[2] << 8 | buf[3];
-    pMPU9250->rawData.az = buf[4] << 8 | buf[5];
+    // Bit shift and store the data
+
+    // IMPORTANT Coordinate system conversion!
+    // buf[0-1] -> IC X axis -> Y Drone axis
+    // buf[2-3] -> IC Y axis -> X Drone axis
+    // buf[4-5] -> IC Z axis -> Z Drone axis
+    pMPU9250->rawData.ay = (buf[0] << 8 | buf[1]);
+    pMPU9250->rawData.ax = (buf[2] << 8 | buf[3]);
+    pMPU9250->rawData.az = (buf[4] << 8 | buf[5]);
 
     pMPU9250->rawData.temp = buf[6] << 8 | buf[7];
 
-    pMPU9250->rawData.gx = buf[8] << 8 | buf[9];
-    pMPU9250->rawData.gy = buf[10] << 8 | buf[11];
-    pMPU9250->rawData.gz = buf[12] << 8 | buf[13];
+    // IMPORTANT Coordinate system conversion!
+    // buf[ 8- 9] -> IC X axis -> -Y Drone axis
+	// buf[10-11] -> IC Y axis -> -X Drone axis
+	// buf[12-13] -> IC Z axis -> -Z Drone axis
+    pMPU9250->rawData.gy = -(buf[8] << 8 | buf[9]);
+    pMPU9250->rawData.gx = -(buf[10] << 8 | buf[11]);
+    pMPU9250->rawData.gz = -(buf[12] << 8 | buf[13]);
 
     //pMPU9250->rawData.mx = buf[14+MAGN_X_OFFS_H] << 8 | buf[14+MAGN_X_OFFS_L];
 	//pMPU9250->rawData.my = buf[14+MAGN_Y_OFFS_H] << 8 | buf[14+MAGN_Y_OFFS_L];
 	//pMPU9250->rawData.mz = buf[14+MAGN_Z_OFFS_H] << 8 | buf[14+MAGN_Z_OFFS_L];
-}
-
-/// @brief Find offsets for each axis of gyroscope
-/// @param SPIx Pointer to SPI structure config
-/// @param pMPU9250 Pointer to master MPU9250 struct
-/// @param numCalPoints Number of data points to average
-void MPU_calibrateGyro(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250, uint16_t numCalPoints)
-{
-    // Init
-    int32_t x = 0;
-    int32_t y = 0;
-    int32_t z = 0;
-
-    // Zero guard
-    if (numCalPoints == 0)
-    {
-        numCalPoints = 1;
-    }
-
-    // Save specified number of points
-    for (uint16_t ii = 0; ii < numCalPoints; ii++)
-    {
-        MPU_readRawData(SPIx, pMPU9250);
-        x += pMPU9250->rawData.gx;
-        y += pMPU9250->rawData.gy;
-        z += pMPU9250->rawData.gz;
-        HAL_Delay(3);
-    }
-
-    // Average the saved data points to find the gyroscope offset
-    pMPU9250->gyroCal.x = (float)x / (float)numCalPoints;
-    pMPU9250->gyroCal.y = (float)y / (float)numCalPoints;
-    pMPU9250->gyroCal.z = (float)z / (float)numCalPoints;
 }
 
 /// @brief Calculate the real world sensor values
@@ -268,12 +280,12 @@ void MPU_readProcessedData(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250)
     pMPU9250->sensorData.az = pMPU9250->rawData.az / pMPU9250->sensorData.aScaleFactor;
 
     // Convert raw temperature data to Celsius
-    pMPU9250->sensorData.temp = pMPU9250->rawData.temp / TEMP_SENS + 21;
+    pMPU9250->sensorData.temp = (pMPU9250->rawData.temp - 0) / TEMP_SENS + 21;
 
-    // Compensate for gyro offset
-    pMPU9250->sensorData.gx = pMPU9250->rawData.gx - pMPU9250->gyroCal.x;
-    pMPU9250->sensorData.gy = pMPU9250->rawData.gy - pMPU9250->gyroCal.y;
-    pMPU9250->sensorData.gz = pMPU9250->rawData.gz - pMPU9250->gyroCal.z;
+    // Compensate for gyro bias
+    pMPU9250->sensorData.gx = pMPU9250->rawData.gx - pMPU9250->gyroBias.x;
+    pMPU9250->sensorData.gy = pMPU9250->rawData.gy - pMPU9250->gyroBias.y;
+    pMPU9250->sensorData.gz = pMPU9250->rawData.gz - pMPU9250->gyroBias.z;
 
     // Convert gyro values to deg/s
     pMPU9250->sensorData.gx /= pMPU9250->sensorData.gScaleFactor;
@@ -290,10 +302,20 @@ void MPU_calcAttitude(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250)
     MPU_readProcessedData(SPIx, pMPU9250);
 
     // Complementary filter
-    float accelPitch = atan2(pMPU9250->sensorData.ay, pMPU9250->sensorData.az) * RAD2DEG;
-    float accelRoll = atan2(pMPU9250->sensorData.ax, pMPU9250->sensorData.az) * RAD2DEG;
+    float accelRoll = atan2f(pMPU9250->sensorData.ay, sqrt(pow(pMPU9250->sensorData.ax,2) + pow(pMPU9250->sensorData.az,2))) * RAD2DEG;
+    float accelPitch = atan2f(-(pMPU9250->sensorData.ax), sqrt(pow(pMPU9250->sensorData.ay,2) + pow(pMPU9250->sensorData.az,2))) * RAD2DEG;
 
-    pMPU9250->attitude.roll = pMPU9250->attitude.tau * (pMPU9250->attitude.roll - pMPU9250->sensorData.gy * pMPU9250->attitude.dt) + (1 - pMPU9250->attitude.tau) * accelRoll;
-    pMPU9250->attitude.pitch = pMPU9250->attitude.tau * (pMPU9250->attitude.pitch - pMPU9250->sensorData.gx * pMPU9250->attitude.dt) + (1 - pMPU9250->attitude.tau) * accelPitch;
+    // Calculating dt
+    uint32_t currentTick = xTaskGetTickCount();
+    if (pMPU9250->attitude.lastTick == 0 && pMPU9250->attitude.dt == 0)
+    	{}
+    else
+    	pMPU9250->attitude.dt = (currentTick - pMPU9250->attitude.lastTick) / 1000.0f;
+    pMPU9250->attitude.lastTick = currentTick;
+
+    //pMPU9250->attitude.roll += (pMPU9250->sensorData.gx * pMPU9250->attitude.dt);
+n    pMPU9250->attitude.roll = pMPU9250->attitude.tau * (pMPU9250->attitude.roll + pMPU9250->sensorData.gx * pMPU9250->attitude.dt) + (1.0f - pMPU9250->attitude.tau) * accelRoll;
+    //pMPU9250->attitude.pitch += (pMPU9250->sensorData.gy * pMPU9250->attitude.dt);
+    pMPU9250->attitude.pitch = pMPU9250->attitude.tau * (pMPU9250->attitude.pitch + pMPU9250->sensorData.gy * pMPU9250->attitude.dt) + (1.0f - pMPU9250->attitude.tau) * accelPitch;
     pMPU9250->attitude.yaw += (pMPU9250->sensorData.gz * pMPU9250->attitude.dt);
 }

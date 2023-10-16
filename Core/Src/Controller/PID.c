@@ -27,7 +27,8 @@ float PIDController_Update(PIDController *pid, float reference, float measuremen
     float proportional = pid->Kp * error;
 
 	// Integral with Anti-windup
-    pid->integrator = pid->integrator + (pid->antiWindup ? 0 : ( pid->Ki * (pid->T / 2) * (error + pid->prevError) ));
+    if (!pid->antiWindup)
+    	pid->integrator = pid->integrator + ( pid->Ki * (pid->T / 2) * (error + pid->prevError) );
 
 	// Derivative with low-pass filter
     pid->differentiator = (1 - pid->alpha) * pid->differentiator

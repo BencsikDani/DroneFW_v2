@@ -50,25 +50,36 @@ enum accelerometerFullScaleRange
 // Master structure
 typedef struct MPU9250
 {
+	// Raw values in binary
     struct RawData
     {
         int16_t ax, ay, az, temp, gx, gy, gz, mx, my, mz;
     } rawData;
 
+    // Converted values in...
     struct SensorData
     {
-        float aScaleFactor, gScaleFactor;
-        float ax, ay, az, temp, gx, gy, gz, mx, my, mz;
+        float aScaleFactor; // LSB/g
+        float ax, ay, az; // g
+
+        float temp; //
+
+        float gScaleFactor; // LSB/(deg/s)
+        float gx, gy, gz; //  deg/s
+
+		float mx, my, mz;
     } sensorData;
 
-    struct GyroCal
+    struct GyroBias
     {
         float x, y, z;
-    } gyroCal;
+    } gyroBias;
 
     struct Attitude
     {
-        float tau, dt;
+        float tau; // Complementary filter ratio
+		uint32_t lastTick; // Last tick value for calculating the time elapsed between sensor readings
+		float dt; // Time elapsed between sensor readings
         float roll, pitch, yaw;
     } attitude;
 

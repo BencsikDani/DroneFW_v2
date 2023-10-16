@@ -65,6 +65,9 @@ extern MPU9250_t MPU9250;
 extern float AccData[3];
 extern float TempData;
 extern float GyroData[3];
+extern float Roll_measured;
+extern float Pitch_measured;
+extern float Yaw_measured;
 extern int16_t MagData[3];
 
 extern BMP280_t BMP280;
