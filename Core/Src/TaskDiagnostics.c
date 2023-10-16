@@ -76,11 +76,12 @@ void TaskDiagnostics(void const *argument)
 			if (osMutexWait(ImuMutexHandle, osWaitForever) == osOK)
 			{
 				sprintf(UARTstr,
-						"%sTemp: %.4f\r\nAcc:  %1.4f ; %1.4f ; %1.4f\r\nGyro: %1.4f ; %1.4f ; %1.4f\r\n",
+						"%sTemp: %.4f\r\nAcc:  %1.4f ; %1.4f ; %1.4f\r\nGyro: %1.4f ; %1.4f ; %1.4f\r\nRoll: %1.2f ° ; Pitch: %1.2f ° ; Yaw: %1.2f °\r\n",
 						UARTstr,
 						TempData,
 						AccData[0], AccData[1], AccData[2],
-						GyroData[0], GyroData[1], GyroData[2]);
+						GyroData[0], GyroData[1], GyroData[2],
+						Roll_measured, Pitch_measured, Yaw_measured);
 				DisassembleFloatIntoUint8s(&TempData, SpiFloatData1, 1);
 				DisassembleFloatIntoUint8s(AccData, SpiFloatData1, 5);
 				DisassembleFloatIntoUint8s(AccData+1, SpiFloatData1, 9);
@@ -100,7 +101,7 @@ void TaskDiagnostics(void const *argument)
 			osMutexRelease(ImuMutexHandle);
 		}
 
-		if (IsMagnAvailable)
+		if (/*IsMagnAvailable*/ 0)
 		{
 			if (osMutexWait(MagnMutexHandle, osWaitForever) == osOK)
 			{

@@ -31,14 +31,17 @@ void TaskSensorData(void const *argument)
 		if (IsImuAvailable)
 		{
 			//Log("SD-IA");
+
+			//MPU9250_GetData(AccData, &TempData, GyroData, MagData, false);
+			//MPU_readRawData(&hspi2, &MPU9250);
+			MPU_calcAttitude(&hspi2, &MPU9250);
+
+			BMP280_measure(&BMP280);
+
 			//Log("SD-IMW-S");
 			if (osMutexWait(ImuMutexHandle, osWaitForever) == osOK)
 			{
 				//Log("SD-IMW-E");
-
-				//MPU9250_GetData(AccData, &TempData, GyroData, MagData, false);
-				//MPU_readRawData(&hspi2, &MPU9250);
-				MPU_readProcessedData(&hspi2, &MPU9250);
 
 				AccData[0] = MPU9250.sensorData.ax;
 				AccData[1] = MPU9250.sensorData.ay;
@@ -47,8 +50,9 @@ void TaskSensorData(void const *argument)
 				GyroData[0] = MPU9250.sensorData.gx;
 				GyroData[1] = MPU9250.sensorData.gy;
 				GyroData[2] = MPU9250.sensorData.gz;
-
-				BMP280_measure(&BMP280);
+				Roll_measured = MPU9250.attitude.roll;
+				Pitch_measured = MPU9250.attitude.pitch;
+				Yaw_measured = MPU9250.attitude.yaw;
 
 				BMP_Temp = BMP280.measurement.temperature;
 				BMP_Pres = BMP280.measurement.pressure;
@@ -169,6 +173,6 @@ void TaskSensorData(void const *argument)
 			}
 		}
 
-		osDelay(100);
+		osDelay(5);
 	}
 }
