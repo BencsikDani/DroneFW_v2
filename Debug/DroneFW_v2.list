@@ -29,23 +29,23 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY
  12 .comment      00000043  00000000  00000000  00030220  2**0
                   CONTENTS, READONLY
- 13 .debug_info   00027c10  00000000  00000000  00030263  2**0
+ 13 .debug_info   00027c04  00000000  00000000  00030263  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 14 .debug_abbrev 0000562b  00000000  00000000  00057e73  2**0
+ 14 .debug_abbrev 0000562b  00000000  00000000  00057e67  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_aranges 00001c98  00000000  00000000  0005d4a0  2**3
+ 15 .debug_aranges 00001c98  00000000  00000000  0005d498  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_rnglists 00001605  00000000  00000000  0005f138  2**0
+ 16 .debug_rnglists 00001605  00000000  00000000  0005f130  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_macro  00029d99  00000000  00000000  0006073d  2**0
+ 17 .debug_macro  00029d99  00000000  00000000  00060735  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_line   00028896  00000000  00000000  0008a4d6  2**0
+ 18 .debug_line   00028895  00000000  00000000  0008a4ce  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .debug_str    000ed3e2  00000000  00000000  000b2d6c  2**0
+ 19 .debug_str    000ed3e2  00000000  00000000  000b2d63  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 20 .debug_frame  0000900c  00000000  00000000  001a0150  2**2
+ 20 .debug_frame  0000900c  00000000  00000000  001a0148  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .debug_line_str 00000065  00000000  00000000  001a915c  2**0
+ 21 .debug_line_str 00000065  00000000  00000000  001a9154  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -1906,7 +1906,7 @@ void TaskDiagnostics(void const *argument)
  80014f8:	2b00      	cmp	r3, #0
  80014fa:	f040 80ed 	bne.w	80016d8 <TaskDiagnostics+0x228>
 		{
-			sprintf(UARTstr, "Throttle: (%d) %d %d %d %d\r\n", Throttle_controlled, TIM1->CCR1-50, TIM1->CCR2-50, TIM1->CCR3-50, TIM1->CCR4-50);
+			sprintf(UARTstr, "Throttle: (%d) %d %d %d %d\r\n", Throttle_in, TIM1->CCR1-50, TIM1->CCR2-50, TIM1->CCR3-50, TIM1->CCR4-50);
  80014fe:	4bb0      	ldr	r3, [pc, #704]	; (80017c0 <TaskDiagnostics+0x310>)
  8001500:	881b      	ldrh	r3, [r3, #0]
  8001502:	461d      	mov	r5, r3
@@ -1931,7 +1931,7 @@ void TaskDiagnostics(void const *argument)
  800152c:	49a6      	ldr	r1, [pc, #664]	; (80017c8 <TaskDiagnostics+0x318>)
  800152e:	f00e fdd5 	bl	80100dc <siprintf>
 			SpiIntData[1] = (int8_t)Throttle_in;
- 8001532:	4ba6      	ldr	r3, [pc, #664]	; (80017cc <TaskDiagnostics+0x31c>)
+ 8001532:	4ba3      	ldr	r3, [pc, #652]	; (80017c0 <TaskDiagnostics+0x310>)
  8001534:	881b      	ldrh	r3, [r3, #0]
  8001536:	b25a      	sxtb	r2, r3
  8001538:	f507 733e 	add.w	r3, r7, #760	; 0x2f8
@@ -1979,14 +1979,14 @@ void TaskDiagnostics(void const *argument)
  8001598:	715a      	strb	r2, [r3, #5]
 
 			sprintf(UARTstr, "%sYaw: %d\r\n", UARTstr, Yaw_in);
- 800159a:	4b8d      	ldr	r3, [pc, #564]	; (80017d0 <TaskDiagnostics+0x320>)
+ 800159a:	4b8c      	ldr	r3, [pc, #560]	; (80017cc <TaskDiagnostics+0x31c>)
  800159c:	f9b3 3000 	ldrsh.w	r3, [r3]
  80015a0:	f107 02f8 	add.w	r2, r7, #248	; 0xf8
  80015a4:	f107 00f8 	add.w	r0, r7, #248	; 0xf8
- 80015a8:	498a      	ldr	r1, [pc, #552]	; (80017d4 <TaskDiagnostics+0x324>)
+ 80015a8:	4989      	ldr	r1, [pc, #548]	; (80017d0 <TaskDiagnostics+0x320>)
  80015aa:	f00e fd97 	bl	80100dc <siprintf>
 			SpiIntData[6] = (int8_t)Yaw_in;
- 80015ae:	4b88      	ldr	r3, [pc, #544]	; (80017d0 <TaskDiagnostics+0x320>)
+ 80015ae:	4b87      	ldr	r3, [pc, #540]	; (80017cc <TaskDiagnostics+0x31c>)
  80015b0:	f9b3 3000 	ldrsh.w	r3, [r3]
  80015b4:	b25a      	sxtb	r2, r3
  80015b6:	f507 733e 	add.w	r3, r7, #760	; 0x2f8
@@ -1994,14 +1994,14 @@ void TaskDiagnostics(void const *argument)
  80015be:	719a      	strb	r2, [r3, #6]
 
 			sprintf(UARTstr, "%sPitch: %d\r\n", UARTstr, Pitch_in);
- 80015c0:	4b85      	ldr	r3, [pc, #532]	; (80017d8 <TaskDiagnostics+0x328>)
+ 80015c0:	4b84      	ldr	r3, [pc, #528]	; (80017d4 <TaskDiagnostics+0x324>)
  80015c2:	f9b3 3000 	ldrsh.w	r3, [r3]
  80015c6:	f107 02f8 	add.w	r2, r7, #248	; 0xf8
  80015ca:	f107 00f8 	add.w	r0, r7, #248	; 0xf8
- 80015ce:	4983      	ldr	r1, [pc, #524]	; (80017dc <TaskDiagnostics+0x32c>)
+ 80015ce:	4982      	ldr	r1, [pc, #520]	; (80017d8 <TaskDiagnostics+0x328>)
  80015d0:	f00e fd84 	bl	80100dc <siprintf>
 			SpiIntData[7] = (int8_t)Pitch_in;
- 80015d4:	4b80      	ldr	r3, [pc, #512]	; (80017d8 <TaskDiagnostics+0x328>)
+ 80015d4:	4b7f      	ldr	r3, [pc, #508]	; (80017d4 <TaskDiagnostics+0x324>)
  80015d6:	f9b3 3000 	ldrsh.w	r3, [r3]
  80015da:	b25a      	sxtb	r2, r3
  80015dc:	f507 733e 	add.w	r3, r7, #760	; 0x2f8
@@ -2009,14 +2009,14 @@ void TaskDiagnostics(void const *argument)
  80015e4:	71da      	strb	r2, [r3, #7]
 
 			sprintf(UARTstr, "%sRoll: %d\r\n", UARTstr, Roll_in);
- 80015e6:	4b7e      	ldr	r3, [pc, #504]	; (80017e0 <TaskDiagnostics+0x330>)
+ 80015e6:	4b7d      	ldr	r3, [pc, #500]	; (80017dc <TaskDiagnostics+0x32c>)
  80015e8:	f9b3 3000 	ldrsh.w	r3, [r3]
  80015ec:	f107 02f8 	add.w	r2, r7, #248	; 0xf8
  80015f0:	f107 00f8 	add.w	r0, r7, #248	; 0xf8
- 80015f4:	497b      	ldr	r1, [pc, #492]	; (80017e4 <TaskDiagnostics+0x334>)
+ 80015f4:	497a      	ldr	r1, [pc, #488]	; (80017e0 <TaskDiagnostics+0x330>)
  80015f6:	f00e fd71 	bl	80100dc <siprintf>
 			SpiIntData[8] = (int8_t)Roll_in;
- 80015fa:	4b79      	ldr	r3, [pc, #484]	; (80017e0 <TaskDiagnostics+0x330>)
+ 80015fa:	4b78      	ldr	r3, [pc, #480]	; (80017dc <TaskDiagnostics+0x32c>)
  80015fc:	f9b3 3000 	ldrsh.w	r3, [r3]
  8001600:	b25a      	sxtb	r2, r3
  8001602:	f507 733e 	add.w	r3, r7, #760	; 0x2f8
@@ -2024,14 +2024,14 @@ void TaskDiagnostics(void const *argument)
  800160a:	721a      	strb	r2, [r3, #8]
 
 			sprintf(UARTstr, "%sSWA: %d\r\n", UARTstr, SWA);
- 800160c:	4b76      	ldr	r3, [pc, #472]	; (80017e8 <TaskDiagnostics+0x338>)
+ 800160c:	4b75      	ldr	r3, [pc, #468]	; (80017e4 <TaskDiagnostics+0x334>)
  800160e:	881b      	ldrh	r3, [r3, #0]
  8001610:	f107 02f8 	add.w	r2, r7, #248	; 0xf8
  8001614:	f107 00f8 	add.w	r0, r7, #248	; 0xf8
- 8001618:	4974      	ldr	r1, [pc, #464]	; (80017ec <TaskDiagnostics+0x33c>)
+ 8001618:	4973      	ldr	r1, [pc, #460]	; (80017e8 <TaskDiagnostics+0x338>)
  800161a:	f00e fd5f 	bl	80100dc <siprintf>
 			SpiIntData[9] = (int8_t)SWA;
- 800161e:	4b72      	ldr	r3, [pc, #456]	; (80017e8 <TaskDiagnostics+0x338>)
+ 800161e:	4b71      	ldr	r3, [pc, #452]	; (80017e4 <TaskDiagnostics+0x334>)
  8001620:	881b      	ldrh	r3, [r3, #0]
  8001622:	b25a      	sxtb	r2, r3
  8001624:	f507 733e 	add.w	r3, r7, #760	; 0x2f8
@@ -2039,14 +2039,14 @@ void TaskDiagnostics(void const *argument)
  800162c:	725a      	strb	r2, [r3, #9]
 
 			sprintf(UARTstr, "%sSWB: %d\r\n", UARTstr, SWB);
- 800162e:	4b70      	ldr	r3, [pc, #448]	; (80017f0 <TaskDiagnostics+0x340>)
+ 800162e:	4b6f      	ldr	r3, [pc, #444]	; (80017ec <TaskDiagnostics+0x33c>)
  8001630:	881b      	ldrh	r3, [r3, #0]
  8001632:	f107 02f8 	add.w	r2, r7, #248	; 0xf8
  8001636:	f107 00f8 	add.w	r0, r7, #248	; 0xf8
- 800163a:	496e      	ldr	r1, [pc, #440]	; (80017f4 <TaskDiagnostics+0x344>)
+ 800163a:	496d      	ldr	r1, [pc, #436]	; (80017f0 <TaskDiagnostics+0x340>)
  800163c:	f00e fd4e 	bl	80100dc <siprintf>
 			SpiIntData[10] = (int8_t)SWB;
- 8001640:	4b6b      	ldr	r3, [pc, #428]	; (80017f0 <TaskDiagnostics+0x340>)
+ 8001640:	4b6a      	ldr	r3, [pc, #424]	; (80017ec <TaskDiagnostics+0x33c>)
  8001642:	881b      	ldrh	r3, [r3, #0]
  8001644:	b25a      	sxtb	r2, r3
  8001646:	f507 733e 	add.w	r3, r7, #760	; 0x2f8
@@ -2054,14 +2054,14 @@ void TaskDiagnostics(void const *argument)
  800164e:	729a      	strb	r2, [r3, #10]
 
 			sprintf(UARTstr, "%sSWC: %d\r\n", UARTstr, SWC);
- 8001650:	4b69      	ldr	r3, [pc, #420]	; (80017f8 <TaskDiagnostics+0x348>)
+ 8001650:	4b68      	ldr	r3, [pc, #416]	; (80017f4 <TaskDiagnostics+0x344>)
  8001652:	881b      	ldrh	r3, [r3, #0]
  8001654:	f107 02f8 	add.w	r2, r7, #248	; 0xf8
  8001658:	f107 00f8 	add.w	r0, r7, #248	; 0xf8
- 800165c:	4967      	ldr	r1, [pc, #412]	; (80017fc <TaskDiagnostics+0x34c>)
+ 800165c:	4966      	ldr	r1, [pc, #408]	; (80017f8 <TaskDiagnostics+0x348>)
  800165e:	f00e fd3d 	bl	80100dc <siprintf>
 			SpiIntData[11] = (int8_t)SWC;
- 8001662:	4b65      	ldr	r3, [pc, #404]	; (80017f8 <TaskDiagnostics+0x348>)
+ 8001662:	4b64      	ldr	r3, [pc, #400]	; (80017f4 <TaskDiagnostics+0x344>)
  8001664:	881b      	ldrh	r3, [r3, #0]
  8001666:	b25a      	sxtb	r2, r3
  8001668:	f507 733e 	add.w	r3, r7, #760	; 0x2f8
@@ -2069,14 +2069,14 @@ void TaskDiagnostics(void const *argument)
  8001670:	72da      	strb	r2, [r3, #11]
 
 			sprintf(UARTstr, "%sSWD: %d\r\n", UARTstr, SWD);
- 8001672:	4b63      	ldr	r3, [pc, #396]	; (8001800 <TaskDiagnostics+0x350>)
+ 8001672:	4b62      	ldr	r3, [pc, #392]	; (80017fc <TaskDiagnostics+0x34c>)
  8001674:	881b      	ldrh	r3, [r3, #0]
  8001676:	f107 02f8 	add.w	r2, r7, #248	; 0xf8
  800167a:	f107 00f8 	add.w	r0, r7, #248	; 0xf8
- 800167e:	4961      	ldr	r1, [pc, #388]	; (8001804 <TaskDiagnostics+0x354>)
+ 800167e:	4960      	ldr	r1, [pc, #384]	; (8001800 <TaskDiagnostics+0x350>)
  8001680:	f00e fd2c 	bl	80100dc <siprintf>
 			SpiIntData[12] = (int8_t)SWD;
- 8001684:	4b5e      	ldr	r3, [pc, #376]	; (8001800 <TaskDiagnostics+0x350>)
+ 8001684:	4b5d      	ldr	r3, [pc, #372]	; (80017fc <TaskDiagnostics+0x34c>)
  8001686:	881b      	ldrh	r3, [r3, #0]
  8001688:	b25a      	sxtb	r2, r3
  800168a:	f507 733e 	add.w	r3, r7, #760	; 0x2f8
@@ -2084,14 +2084,14 @@ void TaskDiagnostics(void const *argument)
  8001692:	731a      	strb	r2, [r3, #12]
 
 			sprintf(UARTstr, "%sVRA: %d\r\n", UARTstr, VRA);
- 8001694:	4b5c      	ldr	r3, [pc, #368]	; (8001808 <TaskDiagnostics+0x358>)
+ 8001694:	4b5b      	ldr	r3, [pc, #364]	; (8001804 <TaskDiagnostics+0x354>)
  8001696:	881b      	ldrh	r3, [r3, #0]
  8001698:	f107 02f8 	add.w	r2, r7, #248	; 0xf8
  800169c:	f107 00f8 	add.w	r0, r7, #248	; 0xf8
- 80016a0:	495a      	ldr	r1, [pc, #360]	; (800180c <TaskDiagnostics+0x35c>)
+ 80016a0:	4959      	ldr	r1, [pc, #356]	; (8001808 <TaskDiagnostics+0x358>)
  80016a2:	f00e fd1b 	bl	80100dc <siprintf>
 			SpiIntData[13] = (int8_t)VRA;
- 80016a6:	4b58      	ldr	r3, [pc, #352]	; (8001808 <TaskDiagnostics+0x358>)
+ 80016a6:	4b57      	ldr	r3, [pc, #348]	; (8001804 <TaskDiagnostics+0x354>)
  80016a8:	881b      	ldrh	r3, [r3, #0]
  80016aa:	b25a      	sxtb	r2, r3
  80016ac:	f507 733e 	add.w	r3, r7, #760	; 0x2f8
@@ -2099,14 +2099,14 @@ void TaskDiagnostics(void const *argument)
  80016b4:	735a      	strb	r2, [r3, #13]
 
 			sprintf(UARTstr, "%sVRB: %d\r\n", UARTstr, VRB);
- 80016b6:	4b56      	ldr	r3, [pc, #344]	; (8001810 <TaskDiagnostics+0x360>)
+ 80016b6:	4b55      	ldr	r3, [pc, #340]	; (800180c <TaskDiagnostics+0x35c>)
  80016b8:	881b      	ldrh	r3, [r3, #0]
  80016ba:	f107 02f8 	add.w	r2, r7, #248	; 0xf8
  80016be:	f107 00f8 	add.w	r0, r7, #248	; 0xf8
- 80016c2:	4954      	ldr	r1, [pc, #336]	; (8001814 <TaskDiagnostics+0x364>)
+ 80016c2:	4953      	ldr	r1, [pc, #332]	; (8001810 <TaskDiagnostics+0x360>)
  80016c4:	f00e fd0a 	bl	80100dc <siprintf>
 			SpiIntData[14] = (int8_t)VRB;
- 80016c8:	4b51      	ldr	r3, [pc, #324]	; (8001810 <TaskDiagnostics+0x360>)
+ 80016c8:	4b50      	ldr	r3, [pc, #320]	; (800180c <TaskDiagnostics+0x35c>)
  80016ca:	881b      	ldrh	r3, [r3, #0]
  80016cc:	b25a      	sxtb	r2, r3
  80016ce:	f507 733e 	add.w	r3, r7, #760	; 0x2f8
@@ -2120,23 +2120,23 @@ void TaskDiagnostics(void const *argument)
  80016de:	f00b f9fb 	bl	800cad8 <osMutexRelease>
 
 		if (IsImuAvailable)
- 80016e2:	4b4d      	ldr	r3, [pc, #308]	; (8001818 <TaskDiagnostics+0x368>)
+ 80016e2:	4b4c      	ldr	r3, [pc, #304]	; (8001814 <TaskDiagnostics+0x364>)
  80016e4:	781b      	ldrb	r3, [r3, #0]
  80016e6:	2b00      	cmp	r3, #0
- 80016e8:	f000 8126 	beq.w	8001938 <TaskDiagnostics+0x488>
+ 80016e8:	f000 8124 	beq.w	8001934 <TaskDiagnostics+0x484>
 		{
 			if (osMutexWait(ImuMutexHandle, osWaitForever) == osOK)
- 80016ec:	4b4b      	ldr	r3, [pc, #300]	; (800181c <TaskDiagnostics+0x36c>)
+ 80016ec:	4b4a      	ldr	r3, [pc, #296]	; (8001818 <TaskDiagnostics+0x368>)
  80016ee:	681b      	ldr	r3, [r3, #0]
  80016f0:	f04f 31ff 	mov.w	r1, #4294967295
  80016f4:	4618      	mov	r0, r3
  80016f6:	f00b f9a1 	bl	800ca3c <osMutexWait>
  80016fa:	4603      	mov	r3, r0
  80016fc:	2b00      	cmp	r3, #0
- 80016fe:	f040 8116 	bne.w	800192e <TaskDiagnostics+0x47e>
+ 80016fe:	f040 8114 	bne.w	800192a <TaskDiagnostics+0x47a>
 			{
 				sprintf(UARTstr,
- 8001702:	4b47      	ldr	r3, [pc, #284]	; (8001820 <TaskDiagnostics+0x370>)
+ 8001702:	4b46      	ldr	r3, [pc, #280]	; (800181c <TaskDiagnostics+0x36c>)
  8001704:	681b      	ldr	r3, [r3, #0]
  8001706:	4618      	mov	r0, r3
  8001708:	f7fe ff46 	bl	8000598 <__aeabi_f2d>
@@ -2145,61 +2145,61 @@ void TaskDiagnostics(void const *argument)
 						UARTstr,
 						TempData,
 						AccData[0], AccData[1], AccData[2],
- 8001710:	4b44      	ldr	r3, [pc, #272]	; (8001824 <TaskDiagnostics+0x374>)
+ 8001710:	4b43      	ldr	r3, [pc, #268]	; (8001820 <TaskDiagnostics+0x370>)
  8001712:	681b      	ldr	r3, [r3, #0]
 				sprintf(UARTstr,
  8001714:	4618      	mov	r0, r3
  8001716:	f7fe ff3f 	bl	8000598 <__aeabi_f2d>
  800171a:	e9c7 0108 	strd	r0, r1, [r7, #32]
 						AccData[0], AccData[1], AccData[2],
- 800171e:	4b41      	ldr	r3, [pc, #260]	; (8001824 <TaskDiagnostics+0x374>)
+ 800171e:	4b40      	ldr	r3, [pc, #256]	; (8001820 <TaskDiagnostics+0x370>)
  8001720:	685b      	ldr	r3, [r3, #4]
 				sprintf(UARTstr,
  8001722:	4618      	mov	r0, r3
  8001724:	f7fe ff38 	bl	8000598 <__aeabi_f2d>
  8001728:	e9c7 0106 	strd	r0, r1, [r7, #24]
 						AccData[0], AccData[1], AccData[2],
- 800172c:	4b3d      	ldr	r3, [pc, #244]	; (8001824 <TaskDiagnostics+0x374>)
+ 800172c:	4b3c      	ldr	r3, [pc, #240]	; (8001820 <TaskDiagnostics+0x370>)
  800172e:	689b      	ldr	r3, [r3, #8]
 				sprintf(UARTstr,
  8001730:	4618      	mov	r0, r3
  8001732:	f7fe ff31 	bl	8000598 <__aeabi_f2d>
  8001736:	e9c7 0104 	strd	r0, r1, [r7, #16]
 						GyroData[0], GyroData[1], GyroData[2],
- 800173a:	4b3b      	ldr	r3, [pc, #236]	; (8001828 <TaskDiagnostics+0x378>)
+ 800173a:	4b3a      	ldr	r3, [pc, #232]	; (8001824 <TaskDiagnostics+0x374>)
  800173c:	681b      	ldr	r3, [r3, #0]
 				sprintf(UARTstr,
  800173e:	4618      	mov	r0, r3
  8001740:	f7fe ff2a 	bl	8000598 <__aeabi_f2d>
  8001744:	e9c7 0102 	strd	r0, r1, [r7, #8]
 						GyroData[0], GyroData[1], GyroData[2],
- 8001748:	4b37      	ldr	r3, [pc, #220]	; (8001828 <TaskDiagnostics+0x378>)
+ 8001748:	4b36      	ldr	r3, [pc, #216]	; (8001824 <TaskDiagnostics+0x374>)
  800174a:	685b      	ldr	r3, [r3, #4]
 				sprintf(UARTstr,
  800174c:	4618      	mov	r0, r3
  800174e:	f7fe ff23 	bl	8000598 <__aeabi_f2d>
  8001752:	e9c7 0100 	strd	r0, r1, [r7]
 						GyroData[0], GyroData[1], GyroData[2],
- 8001756:	4b34      	ldr	r3, [pc, #208]	; (8001828 <TaskDiagnostics+0x378>)
+ 8001756:	4b33      	ldr	r3, [pc, #204]	; (8001824 <TaskDiagnostics+0x374>)
  8001758:	689b      	ldr	r3, [r3, #8]
 				sprintf(UARTstr,
  800175a:	4618      	mov	r0, r3
  800175c:	f7fe ff1c 	bl	8000598 <__aeabi_f2d>
  8001760:	4682      	mov	sl, r0
  8001762:	468b      	mov	fp, r1
- 8001764:	4b31      	ldr	r3, [pc, #196]	; (800182c <TaskDiagnostics+0x37c>)
+ 8001764:	4b30      	ldr	r3, [pc, #192]	; (8001828 <TaskDiagnostics+0x378>)
  8001766:	681b      	ldr	r3, [r3, #0]
  8001768:	4618      	mov	r0, r3
  800176a:	f7fe ff15 	bl	8000598 <__aeabi_f2d>
  800176e:	4680      	mov	r8, r0
  8001770:	4689      	mov	r9, r1
- 8001772:	4b2f      	ldr	r3, [pc, #188]	; (8001830 <TaskDiagnostics+0x380>)
+ 8001772:	4b2e      	ldr	r3, [pc, #184]	; (800182c <TaskDiagnostics+0x37c>)
  8001774:	681b      	ldr	r3, [r3, #0]
  8001776:	4618      	mov	r0, r3
  8001778:	f7fe ff0e 	bl	8000598 <__aeabi_f2d>
  800177c:	4604      	mov	r4, r0
  800177e:	460d      	mov	r5, r1
- 8001780:	4b2c      	ldr	r3, [pc, #176]	; (8001834 <TaskDiagnostics+0x384>)
+ 8001780:	4b2b      	ldr	r3, [pc, #172]	; (8001830 <TaskDiagnostics+0x380>)
  8001782:	681b      	ldr	r3, [r3, #0]
  8001784:	4618      	mov	r0, r3
  8001786:	f7fe ff07 	bl	8000598 <__aeabi_f2d>
@@ -2216,1038 +2216,1038 @@ void TaskDiagnostics(void const *argument)
  80017ae:	ed97 7b02 	vldr	d7, [r7, #8]
  80017b2:	ed8d 7b08 	vstr	d7, [sp, #32]
  80017b6:	ed97 7b04 	vldr	d7, [r7, #16]
- 80017ba:	e03d      	b.n	8001838 <TaskDiagnostics+0x388>
+ 80017ba:	e03b      	b.n	8001834 <TaskDiagnostics+0x384>
  80017bc:	20000be8 	.word	0x20000be8
- 80017c0:	2000021a 	.word	0x2000021a
+ 80017c0:	20000218 	.word	0x20000218
  80017c4:	40010000 	.word	0x40010000
  80017c8:	08015518 	.word	0x08015518
- 80017cc:	20000218 	.word	0x20000218
- 80017d0:	2000021c 	.word	0x2000021c
- 80017d4:	08015538 	.word	0x08015538
- 80017d8:	2000021e 	.word	0x2000021e
- 80017dc:	08015544 	.word	0x08015544
- 80017e0:	20000220 	.word	0x20000220
- 80017e4:	08015554 	.word	0x08015554
- 80017e8:	20000222 	.word	0x20000222
- 80017ec:	08015564 	.word	0x08015564
- 80017f0:	20000224 	.word	0x20000224
- 80017f4:	08015570 	.word	0x08015570
- 80017f8:	20000226 	.word	0x20000226
- 80017fc:	0801557c 	.word	0x0801557c
- 8001800:	20000228 	.word	0x20000228
- 8001804:	08015588 	.word	0x08015588
- 8001808:	2000022a 	.word	0x2000022a
- 800180c:	08015594 	.word	0x08015594
- 8001810:	2000022c 	.word	0x2000022c
- 8001814:	080155a0 	.word	0x080155a0
- 8001818:	20000214 	.word	0x20000214
- 800181c:	20000bec 	.word	0x20000bec
- 8001820:	200002b0 	.word	0x200002b0
- 8001824:	200002a4 	.word	0x200002a4
- 8001828:	200002b4 	.word	0x200002b4
- 800182c:	200002c0 	.word	0x200002c0
- 8001830:	200002c4 	.word	0x200002c4
- 8001834:	200002c8 	.word	0x200002c8
- 8001838:	ed8d 7b06 	vstr	d7, [sp, #24]
- 800183c:	ed97 7b06 	vldr	d7, [r7, #24]
- 8001840:	ed8d 7b04 	vstr	d7, [sp, #16]
- 8001844:	ed97 7b08 	vldr	d7, [r7, #32]
- 8001848:	ed8d 7b02 	vstr	d7, [sp, #8]
- 800184c:	ed97 7b0a 	vldr	d7, [r7, #40]	; 0x28
- 8001850:	ed8d 7b00 	vstr	d7, [sp]
- 8001854:	460a      	mov	r2, r1
- 8001856:	49ba      	ldr	r1, [pc, #744]	; (8001b40 <TaskDiagnostics+0x690>)
- 8001858:	f00e fc40 	bl	80100dc <siprintf>
+ 80017cc:	2000021c 	.word	0x2000021c
+ 80017d0:	08015538 	.word	0x08015538
+ 80017d4:	2000021e 	.word	0x2000021e
+ 80017d8:	08015544 	.word	0x08015544
+ 80017dc:	20000220 	.word	0x20000220
+ 80017e0:	08015554 	.word	0x08015554
+ 80017e4:	20000222 	.word	0x20000222
+ 80017e8:	08015564 	.word	0x08015564
+ 80017ec:	20000224 	.word	0x20000224
+ 80017f0:	08015570 	.word	0x08015570
+ 80017f4:	20000226 	.word	0x20000226
+ 80017f8:	0801557c 	.word	0x0801557c
+ 80017fc:	20000228 	.word	0x20000228
+ 8001800:	08015588 	.word	0x08015588
+ 8001804:	2000022a 	.word	0x2000022a
+ 8001808:	08015594 	.word	0x08015594
+ 800180c:	2000022c 	.word	0x2000022c
+ 8001810:	080155a0 	.word	0x080155a0
+ 8001814:	20000214 	.word	0x20000214
+ 8001818:	20000bec 	.word	0x20000bec
+ 800181c:	200002b0 	.word	0x200002b0
+ 8001820:	200002a4 	.word	0x200002a4
+ 8001824:	200002b4 	.word	0x200002b4
+ 8001828:	200002c0 	.word	0x200002c0
+ 800182c:	200002c4 	.word	0x200002c4
+ 8001830:	200002c8 	.word	0x200002c8
+ 8001834:	ed8d 7b06 	vstr	d7, [sp, #24]
+ 8001838:	ed97 7b06 	vldr	d7, [r7, #24]
+ 800183c:	ed8d 7b04 	vstr	d7, [sp, #16]
+ 8001840:	ed97 7b08 	vldr	d7, [r7, #32]
+ 8001844:	ed8d 7b02 	vstr	d7, [sp, #8]
+ 8001848:	ed97 7b0a 	vldr	d7, [r7, #40]	; 0x28
+ 800184c:	ed8d 7b00 	vstr	d7, [sp]
+ 8001850:	460a      	mov	r2, r1
+ 8001852:	49ba      	ldr	r1, [pc, #744]	; (8001b3c <TaskDiagnostics+0x68c>)
+ 8001854:	f00e fc42 	bl	80100dc <siprintf>
 						Roll_measured, Pitch_measured, Yaw_measured);
 				DisassembleFloatIntoUint8s(&TempData, SpiFloatData1, 1);
- 800185c:	f107 0378 	add.w	r3, r7, #120	; 0x78
- 8001860:	2201      	movs	r2, #1
- 8001862:	4619      	mov	r1, r3
- 8001864:	48b7      	ldr	r0, [pc, #732]	; (8001b44 <TaskDiagnostics+0x694>)
- 8001866:	f7ff fe11 	bl	800148c <DisassembleFloatIntoUint8s>
+ 8001858:	f107 0378 	add.w	r3, r7, #120	; 0x78
+ 800185c:	2201      	movs	r2, #1
+ 800185e:	4619      	mov	r1, r3
+ 8001860:	48b7      	ldr	r0, [pc, #732]	; (8001b40 <TaskDiagnostics+0x690>)
+ 8001862:	f7ff fe13 	bl	800148c <DisassembleFloatIntoUint8s>
 				DisassembleFloatIntoUint8s(AccData, SpiFloatData1, 5);
- 800186a:	f107 0378 	add.w	r3, r7, #120	; 0x78
- 800186e:	2205      	movs	r2, #5
- 8001870:	4619      	mov	r1, r3
- 8001872:	48b5      	ldr	r0, [pc, #724]	; (8001b48 <TaskDiagnostics+0x698>)
- 8001874:	f7ff fe0a 	bl	800148c <DisassembleFloatIntoUint8s>
+ 8001866:	f107 0378 	add.w	r3, r7, #120	; 0x78
+ 800186a:	2205      	movs	r2, #5
+ 800186c:	4619      	mov	r1, r3
+ 800186e:	48b5      	ldr	r0, [pc, #724]	; (8001b44 <TaskDiagnostics+0x694>)
+ 8001870:	f7ff fe0c 	bl	800148c <DisassembleFloatIntoUint8s>
 				DisassembleFloatIntoUint8s(AccData+1, SpiFloatData1, 9);
- 8001878:	48b4      	ldr	r0, [pc, #720]	; (8001b4c <TaskDiagnostics+0x69c>)
- 800187a:	f107 0378 	add.w	r3, r7, #120	; 0x78
- 800187e:	2209      	movs	r2, #9
- 8001880:	4619      	mov	r1, r3
- 8001882:	f7ff fe03 	bl	800148c <DisassembleFloatIntoUint8s>
+ 8001874:	48b4      	ldr	r0, [pc, #720]	; (8001b48 <TaskDiagnostics+0x698>)
+ 8001876:	f107 0378 	add.w	r3, r7, #120	; 0x78
+ 800187a:	2209      	movs	r2, #9
+ 800187c:	4619      	mov	r1, r3
+ 800187e:	f7ff fe05 	bl	800148c <DisassembleFloatIntoUint8s>
 				DisassembleFloatIntoUint8s(AccData+2, SpiFloatData1, 13);
- 8001886:	48b2      	ldr	r0, [pc, #712]	; (8001b50 <TaskDiagnostics+0x6a0>)
- 8001888:	f107 0378 	add.w	r3, r7, #120	; 0x78
- 800188c:	220d      	movs	r2, #13
- 800188e:	4619      	mov	r1, r3
- 8001890:	f7ff fdfc 	bl	800148c <DisassembleFloatIntoUint8s>
+ 8001882:	48b2      	ldr	r0, [pc, #712]	; (8001b4c <TaskDiagnostics+0x69c>)
+ 8001884:	f107 0378 	add.w	r3, r7, #120	; 0x78
+ 8001888:	220d      	movs	r2, #13
+ 800188a:	4619      	mov	r1, r3
+ 800188c:	f7ff fdfe 	bl	800148c <DisassembleFloatIntoUint8s>
 				DisassembleFloatIntoUint8s(GyroData, SpiFloatData1, 17);
- 8001894:	f107 0378 	add.w	r3, r7, #120	; 0x78
- 8001898:	2211      	movs	r2, #17
- 800189a:	4619      	mov	r1, r3
- 800189c:	48ad      	ldr	r0, [pc, #692]	; (8001b54 <TaskDiagnostics+0x6a4>)
- 800189e:	f7ff fdf5 	bl	800148c <DisassembleFloatIntoUint8s>
+ 8001890:	f107 0378 	add.w	r3, r7, #120	; 0x78
+ 8001894:	2211      	movs	r2, #17
+ 8001896:	4619      	mov	r1, r3
+ 8001898:	48ad      	ldr	r0, [pc, #692]	; (8001b50 <TaskDiagnostics+0x6a0>)
+ 800189a:	f7ff fdf7 	bl	800148c <DisassembleFloatIntoUint8s>
 				DisassembleFloatIntoUint8s(GyroData+1, SpiFloatData1, 21);
- 80018a2:	48ad      	ldr	r0, [pc, #692]	; (8001b58 <TaskDiagnostics+0x6a8>)
- 80018a4:	f107 0378 	add.w	r3, r7, #120	; 0x78
- 80018a8:	2215      	movs	r2, #21
- 80018aa:	4619      	mov	r1, r3
- 80018ac:	f7ff fdee 	bl	800148c <DisassembleFloatIntoUint8s>
+ 800189e:	48ad      	ldr	r0, [pc, #692]	; (8001b54 <TaskDiagnostics+0x6a4>)
+ 80018a0:	f107 0378 	add.w	r3, r7, #120	; 0x78
+ 80018a4:	2215      	movs	r2, #21
+ 80018a6:	4619      	mov	r1, r3
+ 80018a8:	f7ff fdf0 	bl	800148c <DisassembleFloatIntoUint8s>
 				DisassembleFloatIntoUint8s(GyroData+2, SpiFloatData1, 25);
- 80018b0:	48aa      	ldr	r0, [pc, #680]	; (8001b5c <TaskDiagnostics+0x6ac>)
- 80018b2:	f107 0378 	add.w	r3, r7, #120	; 0x78
- 80018b6:	2219      	movs	r2, #25
- 80018b8:	4619      	mov	r1, r3
- 80018ba:	f7ff fde7 	bl	800148c <DisassembleFloatIntoUint8s>
+ 80018ac:	48aa      	ldr	r0, [pc, #680]	; (8001b58 <TaskDiagnostics+0x6a8>)
+ 80018ae:	f107 0378 	add.w	r3, r7, #120	; 0x78
+ 80018b2:	2219      	movs	r2, #25
+ 80018b4:	4619      	mov	r1, r3
+ 80018b6:	f7ff fde9 	bl	800148c <DisassembleFloatIntoUint8s>
 
 				sprintf(UARTstr,
- 80018be:	4ba8      	ldr	r3, [pc, #672]	; (8001b60 <TaskDiagnostics+0x6b0>)
- 80018c0:	681b      	ldr	r3, [r3, #0]
- 80018c2:	4618      	mov	r0, r3
- 80018c4:	f7fe fe68 	bl	8000598 <__aeabi_f2d>
- 80018c8:	4604      	mov	r4, r0
- 80018ca:	460d      	mov	r5, r1
- 80018cc:	4ba5      	ldr	r3, [pc, #660]	; (8001b64 <TaskDiagnostics+0x6b4>)
- 80018ce:	681b      	ldr	r3, [r3, #0]
- 80018d0:	4618      	mov	r0, r3
- 80018d2:	f7fe fe61 	bl	8000598 <__aeabi_f2d>
- 80018d6:	4680      	mov	r8, r0
- 80018d8:	4689      	mov	r9, r1
- 80018da:	4ba3      	ldr	r3, [pc, #652]	; (8001b68 <TaskDiagnostics+0x6b8>)
- 80018dc:	681b      	ldr	r3, [r3, #0]
- 80018de:	4618      	mov	r0, r3
- 80018e0:	f7fe fe5a 	bl	8000598 <__aeabi_f2d>
- 80018e4:	4602      	mov	r2, r0
- 80018e6:	460b      	mov	r3, r1
- 80018e8:	f107 01f8 	add.w	r1, r7, #248	; 0xf8
- 80018ec:	f107 00f8 	add.w	r0, r7, #248	; 0xf8
- 80018f0:	e9cd 2304 	strd	r2, r3, [sp, #16]
- 80018f4:	e9cd 8902 	strd	r8, r9, [sp, #8]
- 80018f8:	e9cd 4500 	strd	r4, r5, [sp]
- 80018fc:	460a      	mov	r2, r1
- 80018fe:	499b      	ldr	r1, [pc, #620]	; (8001b6c <TaskDiagnostics+0x6bc>)
- 8001900:	f00e fbec 	bl	80100dc <siprintf>
+ 80018ba:	4ba8      	ldr	r3, [pc, #672]	; (8001b5c <TaskDiagnostics+0x6ac>)
+ 80018bc:	681b      	ldr	r3, [r3, #0]
+ 80018be:	4618      	mov	r0, r3
+ 80018c0:	f7fe fe6a 	bl	8000598 <__aeabi_f2d>
+ 80018c4:	4604      	mov	r4, r0
+ 80018c6:	460d      	mov	r5, r1
+ 80018c8:	4ba5      	ldr	r3, [pc, #660]	; (8001b60 <TaskDiagnostics+0x6b0>)
+ 80018ca:	681b      	ldr	r3, [r3, #0]
+ 80018cc:	4618      	mov	r0, r3
+ 80018ce:	f7fe fe63 	bl	8000598 <__aeabi_f2d>
+ 80018d2:	4680      	mov	r8, r0
+ 80018d4:	4689      	mov	r9, r1
+ 80018d6:	4ba3      	ldr	r3, [pc, #652]	; (8001b64 <TaskDiagnostics+0x6b4>)
+ 80018d8:	681b      	ldr	r3, [r3, #0]
+ 80018da:	4618      	mov	r0, r3
+ 80018dc:	f7fe fe5c 	bl	8000598 <__aeabi_f2d>
+ 80018e0:	4602      	mov	r2, r0
+ 80018e2:	460b      	mov	r3, r1
+ 80018e4:	f107 01f8 	add.w	r1, r7, #248	; 0xf8
+ 80018e8:	f107 00f8 	add.w	r0, r7, #248	; 0xf8
+ 80018ec:	e9cd 2304 	strd	r2, r3, [sp, #16]
+ 80018f0:	e9cd 8902 	strd	r8, r9, [sp, #8]
+ 80018f4:	e9cd 4500 	strd	r4, r5, [sp]
+ 80018f8:	460a      	mov	r2, r1
+ 80018fa:	499b      	ldr	r1, [pc, #620]	; (8001b68 <TaskDiagnostics+0x6b8>)
+ 80018fc:	f00e fbee 	bl	80100dc <siprintf>
 						"%sBMP_Temp: %.4f\r\nBMP_Pres: %.4f\r\nBMP_Alt: %.4f\r\n",
 						UARTstr,
 						BMP_Temp, BMP_Pres, BMP_Alt);
 				DisassembleFloatIntoUint8s(&BMP_Temp, SpiFloatData1, 29);
- 8001904:	f107 0378 	add.w	r3, r7, #120	; 0x78
- 8001908:	221d      	movs	r2, #29
- 800190a:	4619      	mov	r1, r3
- 800190c:	4894      	ldr	r0, [pc, #592]	; (8001b60 <TaskDiagnostics+0x6b0>)
- 800190e:	f7ff fdbd 	bl	800148c <DisassembleFloatIntoUint8s>
+ 8001900:	f107 0378 	add.w	r3, r7, #120	; 0x78
+ 8001904:	221d      	movs	r2, #29
+ 8001906:	4619      	mov	r1, r3
+ 8001908:	4894      	ldr	r0, [pc, #592]	; (8001b5c <TaskDiagnostics+0x6ac>)
+ 800190a:	f7ff fdbf 	bl	800148c <DisassembleFloatIntoUint8s>
 				DisassembleFloatIntoUint8s(&BMP_Pres, SpiFloatData1, 33);
- 8001912:	f107 0378 	add.w	r3, r7, #120	; 0x78
- 8001916:	2221      	movs	r2, #33	; 0x21
- 8001918:	4619      	mov	r1, r3
- 800191a:	4892      	ldr	r0, [pc, #584]	; (8001b64 <TaskDiagnostics+0x6b4>)
- 800191c:	f7ff fdb6 	bl	800148c <DisassembleFloatIntoUint8s>
+ 800190e:	f107 0378 	add.w	r3, r7, #120	; 0x78
+ 8001912:	2221      	movs	r2, #33	; 0x21
+ 8001914:	4619      	mov	r1, r3
+ 8001916:	4892      	ldr	r0, [pc, #584]	; (8001b60 <TaskDiagnostics+0x6b0>)
+ 8001918:	f7ff fdb8 	bl	800148c <DisassembleFloatIntoUint8s>
 				DisassembleFloatIntoUint8s(&BMP_Alt, SpiFloatData1, 37);
- 8001920:	f107 0378 	add.w	r3, r7, #120	; 0x78
- 8001924:	2225      	movs	r2, #37	; 0x25
- 8001926:	4619      	mov	r1, r3
- 8001928:	488f      	ldr	r0, [pc, #572]	; (8001b68 <TaskDiagnostics+0x6b8>)
- 800192a:	f7ff fdaf 	bl	800148c <DisassembleFloatIntoUint8s>
+ 800191c:	f107 0378 	add.w	r3, r7, #120	; 0x78
+ 8001920:	2225      	movs	r2, #37	; 0x25
+ 8001922:	4619      	mov	r1, r3
+ 8001924:	488f      	ldr	r0, [pc, #572]	; (8001b64 <TaskDiagnostics+0x6b4>)
+ 8001926:	f7ff fdb1 	bl	800148c <DisassembleFloatIntoUint8s>
 			}
 			osMutexRelease(ImuMutexHandle);
- 800192e:	4b90      	ldr	r3, [pc, #576]	; (8001b70 <TaskDiagnostics+0x6c0>)
- 8001930:	681b      	ldr	r3, [r3, #0]
- 8001932:	4618      	mov	r0, r3
- 8001934:	f00b f8d0 	bl	800cad8 <osMutexRelease>
+ 800192a:	4b90      	ldr	r3, [pc, #576]	; (8001b6c <TaskDiagnostics+0x6bc>)
+ 800192c:	681b      	ldr	r3, [r3, #0]
+ 800192e:	4618      	mov	r0, r3
+ 8001930:	f00b f8d2 	bl	800cad8 <osMutexRelease>
 				DisassembleFloatIntoUint8s(&MAG_dir, SpiFloatData1, 53);
 			}
 			osMutexRelease(MagnMutexHandle);
 		}
 
 		if (IsDistAvailable)
- 8001938:	4b8e      	ldr	r3, [pc, #568]	; (8001b74 <TaskDiagnostics+0x6c4>)
- 800193a:	781b      	ldrb	r3, [r3, #0]
- 800193c:	2b00      	cmp	r3, #0
- 800193e:	d026      	beq.n	800198e <TaskDiagnostics+0x4de>
+ 8001934:	4b8e      	ldr	r3, [pc, #568]	; (8001b70 <TaskDiagnostics+0x6c0>)
+ 8001936:	781b      	ldrb	r3, [r3, #0]
+ 8001938:	2b00      	cmp	r3, #0
+ 800193a:	d026      	beq.n	800198a <TaskDiagnostics+0x4da>
 		{
 			if (osMutexWait(DistMutexHandle, osWaitForever) == osOK)
- 8001940:	4b8d      	ldr	r3, [pc, #564]	; (8001b78 <TaskDiagnostics+0x6c8>)
- 8001942:	681b      	ldr	r3, [r3, #0]
- 8001944:	f04f 31ff 	mov.w	r1, #4294967295
- 8001948:	4618      	mov	r0, r3
- 800194a:	f00b f877 	bl	800ca3c <osMutexWait>
- 800194e:	4603      	mov	r3, r0
- 8001950:	2b00      	cmp	r3, #0
- 8001952:	d117      	bne.n	8001984 <TaskDiagnostics+0x4d4>
+ 800193c:	4b8d      	ldr	r3, [pc, #564]	; (8001b74 <TaskDiagnostics+0x6c4>)
+ 800193e:	681b      	ldr	r3, [r3, #0]
+ 8001940:	f04f 31ff 	mov.w	r1, #4294967295
+ 8001944:	4618      	mov	r0, r3
+ 8001946:	f00b f879 	bl	800ca3c <osMutexWait>
+ 800194a:	4603      	mov	r3, r0
+ 800194c:	2b00      	cmp	r3, #0
+ 800194e:	d117      	bne.n	8001980 <TaskDiagnostics+0x4d0>
 			{
 				sprintf(UARTstr, "%sDistance: %.0f mm\r\n", UARTstr, Distance);
- 8001954:	4b89      	ldr	r3, [pc, #548]	; (8001b7c <TaskDiagnostics+0x6cc>)
- 8001956:	681b      	ldr	r3, [r3, #0]
- 8001958:	4618      	mov	r0, r3
- 800195a:	f7fe fe1d 	bl	8000598 <__aeabi_f2d>
- 800195e:	4602      	mov	r2, r0
- 8001960:	460b      	mov	r3, r1
- 8001962:	f107 01f8 	add.w	r1, r7, #248	; 0xf8
- 8001966:	f107 00f8 	add.w	r0, r7, #248	; 0xf8
- 800196a:	e9cd 2300 	strd	r2, r3, [sp]
- 800196e:	460a      	mov	r2, r1
- 8001970:	4983      	ldr	r1, [pc, #524]	; (8001b80 <TaskDiagnostics+0x6d0>)
- 8001972:	f00e fbb3 	bl	80100dc <siprintf>
+ 8001950:	4b89      	ldr	r3, [pc, #548]	; (8001b78 <TaskDiagnostics+0x6c8>)
+ 8001952:	681b      	ldr	r3, [r3, #0]
+ 8001954:	4618      	mov	r0, r3
+ 8001956:	f7fe fe1f 	bl	8000598 <__aeabi_f2d>
+ 800195a:	4602      	mov	r2, r0
+ 800195c:	460b      	mov	r3, r1
+ 800195e:	f107 01f8 	add.w	r1, r7, #248	; 0xf8
+ 8001962:	f107 00f8 	add.w	r0, r7, #248	; 0xf8
+ 8001966:	e9cd 2300 	strd	r2, r3, [sp]
+ 800196a:	460a      	mov	r2, r1
+ 800196c:	4983      	ldr	r1, [pc, #524]	; (8001b7c <TaskDiagnostics+0x6cc>)
+ 800196e:	f00e fbb5 	bl	80100dc <siprintf>
 				DisassembleFloatIntoUint8s(&Distance, SpiFloatData1, 57);
- 8001976:	f107 0378 	add.w	r3, r7, #120	; 0x78
- 800197a:	2239      	movs	r2, #57	; 0x39
- 800197c:	4619      	mov	r1, r3
- 800197e:	487f      	ldr	r0, [pc, #508]	; (8001b7c <TaskDiagnostics+0x6cc>)
- 8001980:	f7ff fd84 	bl	800148c <DisassembleFloatIntoUint8s>
+ 8001972:	f107 0378 	add.w	r3, r7, #120	; 0x78
+ 8001976:	2239      	movs	r2, #57	; 0x39
+ 8001978:	4619      	mov	r1, r3
+ 800197a:	487f      	ldr	r0, [pc, #508]	; (8001b78 <TaskDiagnostics+0x6c8>)
+ 800197c:	f7ff fd86 	bl	800148c <DisassembleFloatIntoUint8s>
 			}
 			osMutexRelease(DistMutexHandle);
- 8001984:	4b7c      	ldr	r3, [pc, #496]	; (8001b78 <TaskDiagnostics+0x6c8>)
- 8001986:	681b      	ldr	r3, [r3, #0]
- 8001988:	4618      	mov	r0, r3
- 800198a:	f00b f8a5 	bl	800cad8 <osMutexRelease>
+ 8001980:	4b7c      	ldr	r3, [pc, #496]	; (8001b74 <TaskDiagnostics+0x6c4>)
+ 8001982:	681b      	ldr	r3, [r3, #0]
+ 8001984:	4618      	mov	r0, r3
+ 8001986:	f00b f8a7 	bl	800cad8 <osMutexRelease>
 		}
 
 		if (IsGpsAvailable)
- 800198e:	4b7d      	ldr	r3, [pc, #500]	; (8001b84 <TaskDiagnostics+0x6d4>)
- 8001990:	781b      	ldrb	r3, [r3, #0]
- 8001992:	2b00      	cmp	r3, #0
- 8001994:	f000 8097 	beq.w	8001ac6 <TaskDiagnostics+0x616>
+ 800198a:	4b7d      	ldr	r3, [pc, #500]	; (8001b80 <TaskDiagnostics+0x6d0>)
+ 800198c:	781b      	ldrb	r3, [r3, #0]
+ 800198e:	2b00      	cmp	r3, #0
+ 8001990:	f000 8097 	beq.w	8001ac2 <TaskDiagnostics+0x612>
 		{
 			if (osMutexWait(GpsDataMutexHandle, osWaitForever) == osOK)
- 8001998:	4b7b      	ldr	r3, [pc, #492]	; (8001b88 <TaskDiagnostics+0x6d8>)
- 800199a:	681b      	ldr	r3, [r3, #0]
- 800199c:	f04f 31ff 	mov.w	r1, #4294967295
- 80019a0:	4618      	mov	r0, r3
- 80019a2:	f00b f84b 	bl	800ca3c <osMutexWait>
- 80019a6:	4603      	mov	r3, r0
- 80019a8:	2b00      	cmp	r3, #0
- 80019aa:	f040 8087 	bne.w	8001abc <TaskDiagnostics+0x60c>
+ 8001994:	4b7b      	ldr	r3, [pc, #492]	; (8001b84 <TaskDiagnostics+0x6d4>)
+ 8001996:	681b      	ldr	r3, [r3, #0]
+ 8001998:	f04f 31ff 	mov.w	r1, #4294967295
+ 800199c:	4618      	mov	r0, r3
+ 800199e:	f00b f84d 	bl	800ca3c <osMutexWait>
+ 80019a2:	4603      	mov	r3, r0
+ 80019a4:	2b00      	cmp	r3, #0
+ 80019a6:	f040 8087 	bne.w	8001ab8 <TaskDiagnostics+0x608>
 			{
 				sprintf(UARTstr, "%sGPS:\tLat -> %.4f %c\r\n\tLong -> %.4f %c\r\n\tFix -> %d\r\n\tNOS -> %d\r\n\tHDOP -> %.4f\r\n\tAlt -> %.4f %c\r\n",
 						UARTstr,
 						GPS.dec_latitude, GPS.ns, GPS.dec_longitude, GPS.ew, GPS.fix, GPS.num_of_satelites, GPS.horizontal_dilution_of_precision, GPS.mean_sea_level_altitude, GPS.altitude_unit);
- 80019ae:	4b77      	ldr	r3, [pc, #476]	; (8001b8c <TaskDiagnostics+0x6dc>)
- 80019b0:	685b      	ldr	r3, [r3, #4]
+ 80019aa:	4b77      	ldr	r3, [pc, #476]	; (8001b88 <TaskDiagnostics+0x6d8>)
+ 80019ac:	685b      	ldr	r3, [r3, #4]
 				sprintf(UARTstr, "%sGPS:\tLat -> %.4f %c\r\n\tLong -> %.4f %c\r\n\tFix -> %d\r\n\tNOS -> %d\r\n\tHDOP -> %.4f\r\n\tAlt -> %.4f %c\r\n",
- 80019b2:	4618      	mov	r0, r3
- 80019b4:	f7fe fdf0 	bl	8000598 <__aeabi_f2d>
- 80019b8:	e9c7 010a 	strd	r0, r1, [r7, #40]	; 0x28
+ 80019ae:	4618      	mov	r0, r3
+ 80019b0:	f7fe fdf2 	bl	8000598 <__aeabi_f2d>
+ 80019b4:	e9c7 010a 	strd	r0, r1, [r7, #40]	; 0x28
 						GPS.dec_latitude, GPS.ns, GPS.dec_longitude, GPS.ew, GPS.fix, GPS.num_of_satelites, GPS.horizontal_dilution_of_precision, GPS.mean_sea_level_altitude, GPS.altitude_unit);
- 80019bc:	4b73      	ldr	r3, [pc, #460]	; (8001b8c <TaskDiagnostics+0x6dc>)
- 80019be:	7d1b      	ldrb	r3, [r3, #20]
+ 80019b8:	4b73      	ldr	r3, [pc, #460]	; (8001b88 <TaskDiagnostics+0x6d8>)
+ 80019ba:	7d1b      	ldrb	r3, [r3, #20]
 				sprintf(UARTstr, "%sGPS:\tLat -> %.4f %c\r\n\tLong -> %.4f %c\r\n\tFix -> %d\r\n\tNOS -> %d\r\n\tHDOP -> %.4f\r\n\tAlt -> %.4f %c\r\n",
- 80019c0:	623b      	str	r3, [r7, #32]
+ 80019bc:	623b      	str	r3, [r7, #32]
 						GPS.dec_latitude, GPS.ns, GPS.dec_longitude, GPS.ew, GPS.fix, GPS.num_of_satelites, GPS.horizontal_dilution_of_precision, GPS.mean_sea_level_altitude, GPS.altitude_unit);
- 80019c2:	4b72      	ldr	r3, [pc, #456]	; (8001b8c <TaskDiagnostics+0x6dc>)
- 80019c4:	681b      	ldr	r3, [r3, #0]
+ 80019be:	4b72      	ldr	r3, [pc, #456]	; (8001b88 <TaskDiagnostics+0x6d8>)
+ 80019c0:	681b      	ldr	r3, [r3, #0]
 				sprintf(UARTstr, "%sGPS:\tLat -> %.4f %c\r\n\tLong -> %.4f %c\r\n\tFix -> %d\r\n\tNOS -> %d\r\n\tHDOP -> %.4f\r\n\tAlt -> %.4f %c\r\n",
- 80019c6:	4618      	mov	r0, r3
- 80019c8:	f7fe fde6 	bl	8000598 <__aeabi_f2d>
- 80019cc:	4680      	mov	r8, r0
- 80019ce:	4689      	mov	r9, r1
+ 80019c2:	4618      	mov	r0, r3
+ 80019c4:	f7fe fde8 	bl	8000598 <__aeabi_f2d>
+ 80019c8:	4680      	mov	r8, r0
+ 80019ca:	4689      	mov	r9, r1
 						GPS.dec_latitude, GPS.ns, GPS.dec_longitude, GPS.ew, GPS.fix, GPS.num_of_satelites, GPS.horizontal_dilution_of_precision, GPS.mean_sea_level_altitude, GPS.altitude_unit);
- 80019d0:	4b6e      	ldr	r3, [pc, #440]	; (8001b8c <TaskDiagnostics+0x6dc>)
- 80019d2:	7f1b      	ldrb	r3, [r3, #28]
+ 80019cc:	4b6e      	ldr	r3, [pc, #440]	; (8001b88 <TaskDiagnostics+0x6d8>)
+ 80019ce:	7f1b      	ldrb	r3, [r3, #28]
 				sprintf(UARTstr, "%sGPS:\tLat -> %.4f %c\r\n\tLong -> %.4f %c\r\n\tFix -> %d\r\n\tNOS -> %d\r\n\tHDOP -> %.4f\r\n\tAlt -> %.4f %c\r\n",
- 80019d4:	461d      	mov	r5, r3
- 80019d6:	4b6d      	ldr	r3, [pc, #436]	; (8001b8c <TaskDiagnostics+0x6dc>)
- 80019d8:	6a1e      	ldr	r6, [r3, #32]
- 80019da:	4b6c      	ldr	r3, [pc, #432]	; (8001b8c <TaskDiagnostics+0x6dc>)
- 80019dc:	6a5a      	ldr	r2, [r3, #36]	; 0x24
- 80019de:	61ba      	str	r2, [r7, #24]
+ 80019d0:	461d      	mov	r5, r3
+ 80019d2:	4b6d      	ldr	r3, [pc, #436]	; (8001b88 <TaskDiagnostics+0x6d8>)
+ 80019d4:	6a1e      	ldr	r6, [r3, #32]
+ 80019d6:	4b6c      	ldr	r3, [pc, #432]	; (8001b88 <TaskDiagnostics+0x6d8>)
+ 80019d8:	6a5a      	ldr	r2, [r3, #36]	; 0x24
+ 80019da:	61ba      	str	r2, [r7, #24]
 						GPS.dec_latitude, GPS.ns, GPS.dec_longitude, GPS.ew, GPS.fix, GPS.num_of_satelites, GPS.horizontal_dilution_of_precision, GPS.mean_sea_level_altitude, GPS.altitude_unit);
- 80019e0:	4b6a      	ldr	r3, [pc, #424]	; (8001b8c <TaskDiagnostics+0x6dc>)
- 80019e2:	6a9b      	ldr	r3, [r3, #40]	; 0x28
+ 80019dc:	4b6a      	ldr	r3, [pc, #424]	; (8001b88 <TaskDiagnostics+0x6d8>)
+ 80019de:	6a9b      	ldr	r3, [r3, #40]	; 0x28
 				sprintf(UARTstr, "%sGPS:\tLat -> %.4f %c\r\n\tLong -> %.4f %c\r\n\tFix -> %d\r\n\tNOS -> %d\r\n\tHDOP -> %.4f\r\n\tAlt -> %.4f %c\r\n",
- 80019e4:	4618      	mov	r0, r3
- 80019e6:	f7fe fdd7 	bl	8000598 <__aeabi_f2d>
- 80019ea:	4682      	mov	sl, r0
- 80019ec:	468b      	mov	fp, r1
+ 80019e0:	4618      	mov	r0, r3
+ 80019e2:	f7fe fdd9 	bl	8000598 <__aeabi_f2d>
+ 80019e6:	4682      	mov	sl, r0
+ 80019e8:	468b      	mov	fp, r1
 						GPS.dec_latitude, GPS.ns, GPS.dec_longitude, GPS.ew, GPS.fix, GPS.num_of_satelites, GPS.horizontal_dilution_of_precision, GPS.mean_sea_level_altitude, GPS.altitude_unit);
- 80019ee:	4b67      	ldr	r3, [pc, #412]	; (8001b8c <TaskDiagnostics+0x6dc>)
- 80019f0:	6adb      	ldr	r3, [r3, #44]	; 0x2c
+ 80019ea:	4b67      	ldr	r3, [pc, #412]	; (8001b88 <TaskDiagnostics+0x6d8>)
+ 80019ec:	6adb      	ldr	r3, [r3, #44]	; 0x2c
 				sprintf(UARTstr, "%sGPS:\tLat -> %.4f %c\r\n\tLong -> %.4f %c\r\n\tFix -> %d\r\n\tNOS -> %d\r\n\tHDOP -> %.4f\r\n\tAlt -> %.4f %c\r\n",
- 80019f2:	4618      	mov	r0, r3
- 80019f4:	f7fe fdd0 	bl	8000598 <__aeabi_f2d>
+ 80019ee:	4618      	mov	r0, r3
+ 80019f0:	f7fe fdd2 	bl	8000598 <__aeabi_f2d>
 						GPS.dec_latitude, GPS.ns, GPS.dec_longitude, GPS.ew, GPS.fix, GPS.num_of_satelites, GPS.horizontal_dilution_of_precision, GPS.mean_sea_level_altitude, GPS.altitude_unit);
- 80019f8:	4b64      	ldr	r3, [pc, #400]	; (8001b8c <TaskDiagnostics+0x6dc>)
- 80019fa:	f893 3030 	ldrb.w	r3, [r3, #48]	; 0x30
+ 80019f4:	4b64      	ldr	r3, [pc, #400]	; (8001b88 <TaskDiagnostics+0x6d8>)
+ 80019f6:	f893 3030 	ldrb.w	r3, [r3, #48]	; 0x30
 				sprintf(UARTstr, "%sGPS:\tLat -> %.4f %c\r\n\tLong -> %.4f %c\r\n\tFix -> %d\r\n\tNOS -> %d\r\n\tHDOP -> %.4f\r\n\tAlt -> %.4f %c\r\n",
- 80019fe:	461c      	mov	r4, r3
- 8001a00:	f107 02f8 	add.w	r2, r7, #248	; 0xf8
- 8001a04:	f107 03f8 	add.w	r3, r7, #248	; 0xf8
- 8001a08:	940e      	str	r4, [sp, #56]	; 0x38
- 8001a0a:	e9cd 010c 	strd	r0, r1, [sp, #48]	; 0x30
- 8001a0e:	e9cd ab0a 	strd	sl, fp, [sp, #40]	; 0x28
- 8001a12:	69b9      	ldr	r1, [r7, #24]
- 8001a14:	9108      	str	r1, [sp, #32]
- 8001a16:	9607      	str	r6, [sp, #28]
- 8001a18:	9506      	str	r5, [sp, #24]
- 8001a1a:	e9cd 8904 	strd	r8, r9, [sp, #16]
- 8001a1e:	6a39      	ldr	r1, [r7, #32]
- 8001a20:	9102      	str	r1, [sp, #8]
- 8001a22:	ed97 7b0a 	vldr	d7, [r7, #40]	; 0x28
- 8001a26:	ed8d 7b00 	vstr	d7, [sp]
- 8001a2a:	4959      	ldr	r1, [pc, #356]	; (8001b90 <TaskDiagnostics+0x6e0>)
- 8001a2c:	4618      	mov	r0, r3
- 8001a2e:	f00e fb55 	bl	80100dc <siprintf>
+ 80019fa:	461c      	mov	r4, r3
+ 80019fc:	f107 02f8 	add.w	r2, r7, #248	; 0xf8
+ 8001a00:	f107 03f8 	add.w	r3, r7, #248	; 0xf8
+ 8001a04:	940e      	str	r4, [sp, #56]	; 0x38
+ 8001a06:	e9cd 010c 	strd	r0, r1, [sp, #48]	; 0x30
+ 8001a0a:	e9cd ab0a 	strd	sl, fp, [sp, #40]	; 0x28
+ 8001a0e:	69b9      	ldr	r1, [r7, #24]
+ 8001a10:	9108      	str	r1, [sp, #32]
+ 8001a12:	9607      	str	r6, [sp, #28]
+ 8001a14:	9506      	str	r5, [sp, #24]
+ 8001a16:	e9cd 8904 	strd	r8, r9, [sp, #16]
+ 8001a1a:	6a39      	ldr	r1, [r7, #32]
+ 8001a1c:	9102      	str	r1, [sp, #8]
+ 8001a1e:	ed97 7b0a 	vldr	d7, [r7, #40]	; 0x28
+ 8001a22:	ed8d 7b00 	vstr	d7, [sp]
+ 8001a26:	4959      	ldr	r1, [pc, #356]	; (8001b8c <TaskDiagnostics+0x6dc>)
+ 8001a28:	4618      	mov	r0, r3
+ 8001a2a:	f00e fb57 	bl	80100dc <siprintf>
 				DisassembleFloatIntoUint8s(&GPS.dec_latitude, SpiFloatData2, 1);
- 8001a32:	f107 0338 	add.w	r3, r7, #56	; 0x38
- 8001a36:	2201      	movs	r2, #1
- 8001a38:	4619      	mov	r1, r3
- 8001a3a:	4856      	ldr	r0, [pc, #344]	; (8001b94 <TaskDiagnostics+0x6e4>)
- 8001a3c:	f7ff fd26 	bl	800148c <DisassembleFloatIntoUint8s>
+ 8001a2e:	f107 0338 	add.w	r3, r7, #56	; 0x38
+ 8001a32:	2201      	movs	r2, #1
+ 8001a34:	4619      	mov	r1, r3
+ 8001a36:	4856      	ldr	r0, [pc, #344]	; (8001b90 <TaskDiagnostics+0x6e0>)
+ 8001a38:	f7ff fd28 	bl	800148c <DisassembleFloatIntoUint8s>
 				SpiIntData[15] = (int8_t)GPS.ns;
- 8001a40:	4b52      	ldr	r3, [pc, #328]	; (8001b8c <TaskDiagnostics+0x6dc>)
- 8001a42:	7d1b      	ldrb	r3, [r3, #20]
- 8001a44:	b25a      	sxtb	r2, r3
- 8001a46:	f507 733e 	add.w	r3, r7, #760	; 0x2f8
- 8001a4a:	f5a3 7310 	sub.w	r3, r3, #576	; 0x240
- 8001a4e:	73da      	strb	r2, [r3, #15]
+ 8001a3c:	4b52      	ldr	r3, [pc, #328]	; (8001b88 <TaskDiagnostics+0x6d8>)
+ 8001a3e:	7d1b      	ldrb	r3, [r3, #20]
+ 8001a40:	b25a      	sxtb	r2, r3
+ 8001a42:	f507 733e 	add.w	r3, r7, #760	; 0x2f8
+ 8001a46:	f5a3 7310 	sub.w	r3, r3, #576	; 0x240
+ 8001a4a:	73da      	strb	r2, [r3, #15]
 				DisassembleFloatIntoUint8s(&GPS.dec_longitude, SpiFloatData2, 5);
- 8001a50:	f107 0338 	add.w	r3, r7, #56	; 0x38
- 8001a54:	2205      	movs	r2, #5
- 8001a56:	4619      	mov	r1, r3
- 8001a58:	484c      	ldr	r0, [pc, #304]	; (8001b8c <TaskDiagnostics+0x6dc>)
- 8001a5a:	f7ff fd17 	bl	800148c <DisassembleFloatIntoUint8s>
+ 8001a4c:	f107 0338 	add.w	r3, r7, #56	; 0x38
+ 8001a50:	2205      	movs	r2, #5
+ 8001a52:	4619      	mov	r1, r3
+ 8001a54:	484c      	ldr	r0, [pc, #304]	; (8001b88 <TaskDiagnostics+0x6d8>)
+ 8001a56:	f7ff fd19 	bl	800148c <DisassembleFloatIntoUint8s>
 				SpiIntData[16] = (int8_t)GPS.ew;
- 8001a5e:	4b4b      	ldr	r3, [pc, #300]	; (8001b8c <TaskDiagnostics+0x6dc>)
- 8001a60:	7f1b      	ldrb	r3, [r3, #28]
- 8001a62:	b25a      	sxtb	r2, r3
- 8001a64:	f507 733e 	add.w	r3, r7, #760	; 0x2f8
- 8001a68:	f5a3 7310 	sub.w	r3, r3, #576	; 0x240
- 8001a6c:	741a      	strb	r2, [r3, #16]
+ 8001a5a:	4b4b      	ldr	r3, [pc, #300]	; (8001b88 <TaskDiagnostics+0x6d8>)
+ 8001a5c:	7f1b      	ldrb	r3, [r3, #28]
+ 8001a5e:	b25a      	sxtb	r2, r3
+ 8001a60:	f507 733e 	add.w	r3, r7, #760	; 0x2f8
+ 8001a64:	f5a3 7310 	sub.w	r3, r3, #576	; 0x240
+ 8001a68:	741a      	strb	r2, [r3, #16]
 				SpiIntData[17] = (int8_t)(GPS.fix & 0x000000ff);
- 8001a6e:	4b47      	ldr	r3, [pc, #284]	; (8001b8c <TaskDiagnostics+0x6dc>)
- 8001a70:	6a1b      	ldr	r3, [r3, #32]
- 8001a72:	b25a      	sxtb	r2, r3
- 8001a74:	f507 733e 	add.w	r3, r7, #760	; 0x2f8
- 8001a78:	f5a3 7310 	sub.w	r3, r3, #576	; 0x240
- 8001a7c:	745a      	strb	r2, [r3, #17]
+ 8001a6a:	4b47      	ldr	r3, [pc, #284]	; (8001b88 <TaskDiagnostics+0x6d8>)
+ 8001a6c:	6a1b      	ldr	r3, [r3, #32]
+ 8001a6e:	b25a      	sxtb	r2, r3
+ 8001a70:	f507 733e 	add.w	r3, r7, #760	; 0x2f8
+ 8001a74:	f5a3 7310 	sub.w	r3, r3, #576	; 0x240
+ 8001a78:	745a      	strb	r2, [r3, #17]
 				SpiIntData[18] = (int8_t)(GPS.num_of_satelites & 0x000000ff);
- 8001a7e:	4b43      	ldr	r3, [pc, #268]	; (8001b8c <TaskDiagnostics+0x6dc>)
- 8001a80:	6a5b      	ldr	r3, [r3, #36]	; 0x24
- 8001a82:	b25a      	sxtb	r2, r3
- 8001a84:	f507 733e 	add.w	r3, r7, #760	; 0x2f8
- 8001a88:	f5a3 7310 	sub.w	r3, r3, #576	; 0x240
- 8001a8c:	749a      	strb	r2, [r3, #18]
+ 8001a7a:	4b43      	ldr	r3, [pc, #268]	; (8001b88 <TaskDiagnostics+0x6d8>)
+ 8001a7c:	6a5b      	ldr	r3, [r3, #36]	; 0x24
+ 8001a7e:	b25a      	sxtb	r2, r3
+ 8001a80:	f507 733e 	add.w	r3, r7, #760	; 0x2f8
+ 8001a84:	f5a3 7310 	sub.w	r3, r3, #576	; 0x240
+ 8001a88:	749a      	strb	r2, [r3, #18]
 				DisassembleFloatIntoUint8s(&GPS.horizontal_dilution_of_precision, SpiFloatData2, 9);
- 8001a8e:	f107 0338 	add.w	r3, r7, #56	; 0x38
- 8001a92:	2209      	movs	r2, #9
- 8001a94:	4619      	mov	r1, r3
- 8001a96:	4840      	ldr	r0, [pc, #256]	; (8001b98 <TaskDiagnostics+0x6e8>)
- 8001a98:	f7ff fcf8 	bl	800148c <DisassembleFloatIntoUint8s>
+ 8001a8a:	f107 0338 	add.w	r3, r7, #56	; 0x38
+ 8001a8e:	2209      	movs	r2, #9
+ 8001a90:	4619      	mov	r1, r3
+ 8001a92:	4840      	ldr	r0, [pc, #256]	; (8001b94 <TaskDiagnostics+0x6e4>)
+ 8001a94:	f7ff fcfa 	bl	800148c <DisassembleFloatIntoUint8s>
 				DisassembleFloatIntoUint8s(&GPS.mean_sea_level_altitude, SpiFloatData2, 13);
- 8001a9c:	f107 0338 	add.w	r3, r7, #56	; 0x38
- 8001aa0:	220d      	movs	r2, #13
- 8001aa2:	4619      	mov	r1, r3
- 8001aa4:	483d      	ldr	r0, [pc, #244]	; (8001b9c <TaskDiagnostics+0x6ec>)
- 8001aa6:	f7ff fcf1 	bl	800148c <DisassembleFloatIntoUint8s>
+ 8001a98:	f107 0338 	add.w	r3, r7, #56	; 0x38
+ 8001a9c:	220d      	movs	r2, #13
+ 8001a9e:	4619      	mov	r1, r3
+ 8001aa0:	483d      	ldr	r0, [pc, #244]	; (8001b98 <TaskDiagnostics+0x6e8>)
+ 8001aa2:	f7ff fcf3 	bl	800148c <DisassembleFloatIntoUint8s>
 				SpiIntData[19] = (int8_t)GPS.altitude_unit;
- 8001aaa:	4b38      	ldr	r3, [pc, #224]	; (8001b8c <TaskDiagnostics+0x6dc>)
- 8001aac:	f893 3030 	ldrb.w	r3, [r3, #48]	; 0x30
- 8001ab0:	b25a      	sxtb	r2, r3
- 8001ab2:	f507 733e 	add.w	r3, r7, #760	; 0x2f8
- 8001ab6:	f5a3 7310 	sub.w	r3, r3, #576	; 0x240
- 8001aba:	74da      	strb	r2, [r3, #19]
+ 8001aa6:	4b38      	ldr	r3, [pc, #224]	; (8001b88 <TaskDiagnostics+0x6d8>)
+ 8001aa8:	f893 3030 	ldrb.w	r3, [r3, #48]	; 0x30
+ 8001aac:	b25a      	sxtb	r2, r3
+ 8001aae:	f507 733e 	add.w	r3, r7, #760	; 0x2f8
+ 8001ab2:	f5a3 7310 	sub.w	r3, r3, #576	; 0x240
+ 8001ab6:	74da      	strb	r2, [r3, #19]
 			}
 			osMutexRelease(GpsDataMutexHandle);
- 8001abc:	4b32      	ldr	r3, [pc, #200]	; (8001b88 <TaskDiagnostics+0x6d8>)
- 8001abe:	681b      	ldr	r3, [r3, #0]
- 8001ac0:	4618      	mov	r0, r3
- 8001ac2:	f00b f809 	bl	800cad8 <osMutexRelease>
+ 8001ab8:	4b32      	ldr	r3, [pc, #200]	; (8001b84 <TaskDiagnostics+0x6d4>)
+ 8001aba:	681b      	ldr	r3, [r3, #0]
+ 8001abc:	4618      	mov	r0, r3
+ 8001abe:	f00b f80b 	bl	800cad8 <osMutexRelease>
 		}
 
 
 		sprintf(UARTstr, "%s\r\n\r\n", UARTstr);
- 8001ac6:	f107 02f8 	add.w	r2, r7, #248	; 0xf8
- 8001aca:	f107 03f8 	add.w	r3, r7, #248	; 0xf8
- 8001ace:	4934      	ldr	r1, [pc, #208]	; (8001ba0 <TaskDiagnostics+0x6f0>)
- 8001ad0:	4618      	mov	r0, r3
- 8001ad2:	f00e fb03 	bl	80100dc <siprintf>
+ 8001ac2:	f107 02f8 	add.w	r2, r7, #248	; 0xf8
+ 8001ac6:	f107 03f8 	add.w	r3, r7, #248	; 0xf8
+ 8001aca:	4934      	ldr	r1, [pc, #208]	; (8001b9c <TaskDiagnostics+0x6ec>)
+ 8001acc:	4618      	mov	r0, r3
+ 8001ace:	f00e fb05 	bl	80100dc <siprintf>
 
 		// Sending log info
 		if (Diag)
- 8001ad6:	4b33      	ldr	r3, [pc, #204]	; (8001ba4 <TaskDiagnostics+0x6f4>)
- 8001ad8:	781b      	ldrb	r3, [r3, #0]
- 8001ada:	2b00      	cmp	r3, #0
- 8001adc:	d02b      	beq.n	8001b36 <TaskDiagnostics+0x686>
+ 8001ad2:	4b33      	ldr	r3, [pc, #204]	; (8001ba0 <TaskDiagnostics+0x6f0>)
+ 8001ad4:	781b      	ldrb	r3, [r3, #0]
+ 8001ad6:	2b00      	cmp	r3, #0
+ 8001ad8:	d02b      	beq.n	8001b32 <TaskDiagnostics+0x682>
 		{
 			HAL_UART_Transmit(&huart3, UARTstr, strlen(UARTstr), HAL_MAX_DELAY);
- 8001ade:	f107 03f8 	add.w	r3, r7, #248	; 0xf8
- 8001ae2:	4618      	mov	r0, r3
- 8001ae4:	f7fe fbec 	bl	80002c0 <strlen>
- 8001ae8:	4603      	mov	r3, r0
- 8001aea:	b29a      	uxth	r2, r3
- 8001aec:	f107 01f8 	add.w	r1, r7, #248	; 0xf8
- 8001af0:	f04f 33ff 	mov.w	r3, #4294967295
- 8001af4:	482c      	ldr	r0, [pc, #176]	; (8001ba8 <TaskDiagnostics+0x6f8>)
- 8001af6:	f009 fa6d 	bl	800afd4 <HAL_UART_Transmit>
+ 8001ada:	f107 03f8 	add.w	r3, r7, #248	; 0xf8
+ 8001ade:	4618      	mov	r0, r3
+ 8001ae0:	f7fe fbee 	bl	80002c0 <strlen>
+ 8001ae4:	4603      	mov	r3, r0
+ 8001ae6:	b29a      	uxth	r2, r3
+ 8001ae8:	f107 01f8 	add.w	r1, r7, #248	; 0xf8
+ 8001aec:	f04f 33ff 	mov.w	r3, #4294967295
+ 8001af0:	482c      	ldr	r0, [pc, #176]	; (8001ba4 <TaskDiagnostics+0x6f4>)
+ 8001af2:	f009 fa6f 	bl	800afd4 <HAL_UART_Transmit>
 			HAL_SPI_Transmit(&hspi1, SpiIntData, 64, HAL_MAX_DELAY);
- 8001afa:	f107 01b8 	add.w	r1, r7, #184	; 0xb8
- 8001afe:	f04f 33ff 	mov.w	r3, #4294967295
- 8001b02:	2240      	movs	r2, #64	; 0x40
- 8001b04:	4829      	ldr	r0, [pc, #164]	; (8001bac <TaskDiagnostics+0x6fc>)
- 8001b06:	f006 fd80 	bl	800860a <HAL_SPI_Transmit>
+ 8001af6:	f107 01b8 	add.w	r1, r7, #184	; 0xb8
+ 8001afa:	f04f 33ff 	mov.w	r3, #4294967295
+ 8001afe:	2240      	movs	r2, #64	; 0x40
+ 8001b00:	4829      	ldr	r0, [pc, #164]	; (8001ba8 <TaskDiagnostics+0x6f8>)
+ 8001b02:	f006 fd82 	bl	800860a <HAL_SPI_Transmit>
 			osDelay(10);
- 8001b0a:	200a      	movs	r0, #10
- 8001b0c:	f00a ff69 	bl	800c9e2 <osDelay>
+ 8001b06:	200a      	movs	r0, #10
+ 8001b08:	f00a ff6b 	bl	800c9e2 <osDelay>
 			HAL_SPI_Transmit(&hspi1, SpiFloatData1, 64, HAL_MAX_DELAY);
- 8001b10:	f107 0178 	add.w	r1, r7, #120	; 0x78
- 8001b14:	f04f 33ff 	mov.w	r3, #4294967295
- 8001b18:	2240      	movs	r2, #64	; 0x40
- 8001b1a:	4824      	ldr	r0, [pc, #144]	; (8001bac <TaskDiagnostics+0x6fc>)
- 8001b1c:	f006 fd75 	bl	800860a <HAL_SPI_Transmit>
+ 8001b0c:	f107 0178 	add.w	r1, r7, #120	; 0x78
+ 8001b10:	f04f 33ff 	mov.w	r3, #4294967295
+ 8001b14:	2240      	movs	r2, #64	; 0x40
+ 8001b16:	4824      	ldr	r0, [pc, #144]	; (8001ba8 <TaskDiagnostics+0x6f8>)
+ 8001b18:	f006 fd77 	bl	800860a <HAL_SPI_Transmit>
 			osDelay(10);
- 8001b20:	200a      	movs	r0, #10
- 8001b22:	f00a ff5e 	bl	800c9e2 <osDelay>
+ 8001b1c:	200a      	movs	r0, #10
+ 8001b1e:	f00a ff60 	bl	800c9e2 <osDelay>
 			HAL_SPI_Transmit(&hspi1, SpiFloatData2, 64, HAL_MAX_DELAY);
- 8001b26:	f107 0138 	add.w	r1, r7, #56	; 0x38
- 8001b2a:	f04f 33ff 	mov.w	r3, #4294967295
- 8001b2e:	2240      	movs	r2, #64	; 0x40
- 8001b30:	481e      	ldr	r0, [pc, #120]	; (8001bac <TaskDiagnostics+0x6fc>)
- 8001b32:	f006 fd6a 	bl	800860a <HAL_SPI_Transmit>
+ 8001b22:	f107 0138 	add.w	r1, r7, #56	; 0x38
+ 8001b26:	f04f 33ff 	mov.w	r3, #4294967295
+ 8001b2a:	2240      	movs	r2, #64	; 0x40
+ 8001b2c:	481e      	ldr	r0, [pc, #120]	; (8001ba8 <TaskDiagnostics+0x6f8>)
+ 8001b2e:	f006 fd6c 	bl	800860a <HAL_SPI_Transmit>
 		}
 
 		osDelay(250);
- 8001b36:	20fa      	movs	r0, #250	; 0xfa
- 8001b38:	f00a ff53 	bl	800c9e2 <osDelay>
+ 8001b32:	20fa      	movs	r0, #250	; 0xfa
+ 8001b34:	f00a ff55 	bl	800c9e2 <osDelay>
 		if(osMutexWait(RemoteDataMutexHandle, osWaitForever) == osOK)
- 8001b3c:	e4d4      	b.n	80014e8 <TaskDiagnostics+0x38>
- 8001b3e:	bf00      	nop
- 8001b40:	080155ac 	.word	0x080155ac
- 8001b44:	200002b0 	.word	0x200002b0
- 8001b48:	200002a4 	.word	0x200002a4
- 8001b4c:	200002a8 	.word	0x200002a8
- 8001b50:	200002ac 	.word	0x200002ac
- 8001b54:	200002b4 	.word	0x200002b4
- 8001b58:	200002b8 	.word	0x200002b8
- 8001b5c:	200002bc 	.word	0x200002bc
- 8001b60:	200002fc 	.word	0x200002fc
- 8001b64:	20000300 	.word	0x20000300
- 8001b68:	20000304 	.word	0x20000304
- 8001b6c:	08015628 	.word	0x08015628
- 8001b70:	20000bec 	.word	0x20000bec
- 8001b74:	20000216 	.word	0x20000216
- 8001b78:	20000bf4 	.word	0x20000bf4
- 8001b7c:	20000368 	.word	0x20000368
- 8001b80:	0801565c 	.word	0x0801565c
- 8001b84:	20000217 	.word	0x20000217
- 8001b88:	20000bf0 	.word	0x20000bf0
- 8001b8c:	2000040c 	.word	0x2000040c
- 8001b90:	08015674 	.word	0x08015674
- 8001b94:	20000410 	.word	0x20000410
- 8001b98:	20000434 	.word	0x20000434
- 8001b9c:	20000438 	.word	0x20000438
- 8001ba0:	080156d8 	.word	0x080156d8
- 8001ba4:	20000000 	.word	0x20000000
- 8001ba8:	20000ae4 	.word	0x20000ae4
- 8001bac:	20000874 	.word	0x20000874
+ 8001b38:	e4d6      	b.n	80014e8 <TaskDiagnostics+0x38>
+ 8001b3a:	bf00      	nop
+ 8001b3c:	080155ac 	.word	0x080155ac
+ 8001b40:	200002b0 	.word	0x200002b0
+ 8001b44:	200002a4 	.word	0x200002a4
+ 8001b48:	200002a8 	.word	0x200002a8
+ 8001b4c:	200002ac 	.word	0x200002ac
+ 8001b50:	200002b4 	.word	0x200002b4
+ 8001b54:	200002b8 	.word	0x200002b8
+ 8001b58:	200002bc 	.word	0x200002bc
+ 8001b5c:	200002fc 	.word	0x200002fc
+ 8001b60:	20000300 	.word	0x20000300
+ 8001b64:	20000304 	.word	0x20000304
+ 8001b68:	08015628 	.word	0x08015628
+ 8001b6c:	20000bec 	.word	0x20000bec
+ 8001b70:	20000216 	.word	0x20000216
+ 8001b74:	20000bf4 	.word	0x20000bf4
+ 8001b78:	20000368 	.word	0x20000368
+ 8001b7c:	0801565c 	.word	0x0801565c
+ 8001b80:	20000217 	.word	0x20000217
+ 8001b84:	20000bf0 	.word	0x20000bf0
+ 8001b88:	2000040c 	.word	0x2000040c
+ 8001b8c:	08015674 	.word	0x08015674
+ 8001b90:	20000410 	.word	0x20000410
+ 8001b94:	20000434 	.word	0x20000434
+ 8001b98:	20000438 	.word	0x20000438
+ 8001b9c:	080156d8 	.word	0x080156d8
+ 8001ba0:	20000000 	.word	0x20000000
+ 8001ba4:	20000ae4 	.word	0x20000ae4
+ 8001ba8:	20000874 	.word	0x20000874
 
-08001bb0 <TaskMotor>:
+08001bac <TaskMotor>:
 
 extern TIM_HandleTypeDef htim1;
 extern osMutexId RemoteDataMutexHandle;
 
 void TaskMotor(void const *argument)
 {
- 8001bb0:	b580      	push	{r7, lr}
- 8001bb2:	b084      	sub	sp, #16
- 8001bb4:	af00      	add	r7, sp, #0
- 8001bb6:	6078      	str	r0, [r7, #4]
+ 8001bac:	b580      	push	{r7, lr}
+ 8001bae:	b084      	sub	sp, #16
+ 8001bb0:	af00      	add	r7, sp, #0
+ 8001bb2:	6078      	str	r0, [r7, #4]
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
- 8001bb8:	2100      	movs	r1, #0
- 8001bba:	485e      	ldr	r0, [pc, #376]	; (8001d34 <TaskMotor+0x184>)
- 8001bbc:	f007 fd0c 	bl	80095d8 <HAL_TIM_PWM_Start>
+ 8001bb4:	2100      	movs	r1, #0
+ 8001bb6:	485e      	ldr	r0, [pc, #376]	; (8001d30 <TaskMotor+0x184>)
+ 8001bb8:	f007 fd0e 	bl	80095d8 <HAL_TIM_PWM_Start>
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
- 8001bc0:	2104      	movs	r1, #4
- 8001bc2:	485c      	ldr	r0, [pc, #368]	; (8001d34 <TaskMotor+0x184>)
- 8001bc4:	f007 fd08 	bl	80095d8 <HAL_TIM_PWM_Start>
+ 8001bbc:	2104      	movs	r1, #4
+ 8001bbe:	485c      	ldr	r0, [pc, #368]	; (8001d30 <TaskMotor+0x184>)
+ 8001bc0:	f007 fd0a 	bl	80095d8 <HAL_TIM_PWM_Start>
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
- 8001bc8:	2108      	movs	r1, #8
- 8001bca:	485a      	ldr	r0, [pc, #360]	; (8001d34 <TaskMotor+0x184>)
- 8001bcc:	f007 fd04 	bl	80095d8 <HAL_TIM_PWM_Start>
+ 8001bc4:	2108      	movs	r1, #8
+ 8001bc6:	485a      	ldr	r0, [pc, #360]	; (8001d30 <TaskMotor+0x184>)
+ 8001bc8:	f007 fd06 	bl	80095d8 <HAL_TIM_PWM_Start>
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
- 8001bd0:	210c      	movs	r1, #12
- 8001bd2:	4858      	ldr	r0, [pc, #352]	; (8001d34 <TaskMotor+0x184>)
- 8001bd4:	f007 fd00 	bl	80095d8 <HAL_TIM_PWM_Start>
+ 8001bcc:	210c      	movs	r1, #12
+ 8001bce:	4858      	ldr	r0, [pc, #352]	; (8001d30 <TaskMotor+0x184>)
+ 8001bd0:	f007 fd02 	bl	80095d8 <HAL_TIM_PWM_Start>
 	uint8_t ESC1_start_signal;
 	uint8_t ESC2_start_signal;
 	uint8_t ESC3_start_signal;
 	uint8_t ESC4_start_signal;
 
 	TIM1->CCR1 = (uint32_t) (50);
- 8001bd8:	4b57      	ldr	r3, [pc, #348]	; (8001d38 <TaskMotor+0x188>)
- 8001bda:	2232      	movs	r2, #50	; 0x32
- 8001bdc:	635a      	str	r2, [r3, #52]	; 0x34
+ 8001bd4:	4b57      	ldr	r3, [pc, #348]	; (8001d34 <TaskMotor+0x188>)
+ 8001bd6:	2232      	movs	r2, #50	; 0x32
+ 8001bd8:	635a      	str	r2, [r3, #52]	; 0x34
 	TIM1->CCR2 = (uint32_t) (50);
- 8001bde:	4b56      	ldr	r3, [pc, #344]	; (8001d38 <TaskMotor+0x188>)
- 8001be0:	2232      	movs	r2, #50	; 0x32
- 8001be2:	639a      	str	r2, [r3, #56]	; 0x38
+ 8001bda:	4b56      	ldr	r3, [pc, #344]	; (8001d34 <TaskMotor+0x188>)
+ 8001bdc:	2232      	movs	r2, #50	; 0x32
+ 8001bde:	639a      	str	r2, [r3, #56]	; 0x38
 	TIM1->CCR3 = (uint32_t) (50);
- 8001be4:	4b54      	ldr	r3, [pc, #336]	; (8001d38 <TaskMotor+0x188>)
- 8001be6:	2232      	movs	r2, #50	; 0x32
- 8001be8:	63da      	str	r2, [r3, #60]	; 0x3c
+ 8001be0:	4b54      	ldr	r3, [pc, #336]	; (8001d34 <TaskMotor+0x188>)
+ 8001be2:	2232      	movs	r2, #50	; 0x32
+ 8001be4:	63da      	str	r2, [r3, #60]	; 0x3c
 	TIM1->CCR4 = (uint32_t) (50);
- 8001bea:	4b53      	ldr	r3, [pc, #332]	; (8001d38 <TaskMotor+0x188>)
- 8001bec:	2232      	movs	r2, #50	; 0x32
- 8001bee:	641a      	str	r2, [r3, #64]	; 0x40
+ 8001be6:	4b53      	ldr	r3, [pc, #332]	; (8001d34 <TaskMotor+0x188>)
+ 8001be8:	2232      	movs	r2, #50	; 0x32
+ 8001bea:	641a      	str	r2, [r3, #64]	; 0x40
 
 	/* Infinite loop */
 	while (1)
 	{
 		//Log("Mot - RDMutEnter");
 		if (osMutexWait(RemoteDataMutexHandle, osWaitForever) == osOK)
- 8001bf0:	4b52      	ldr	r3, [pc, #328]	; (8001d3c <TaskMotor+0x18c>)
- 8001bf2:	681b      	ldr	r3, [r3, #0]
- 8001bf4:	f04f 31ff 	mov.w	r1, #4294967295
- 8001bf8:	4618      	mov	r0, r3
- 8001bfa:	f00a ff1f 	bl	800ca3c <osMutexWait>
- 8001bfe:	4603      	mov	r3, r0
- 8001c00:	2b00      	cmp	r3, #0
- 8001c02:	f040 808e 	bne.w	8001d22 <TaskMotor+0x172>
+ 8001bec:	4b52      	ldr	r3, [pc, #328]	; (8001d38 <TaskMotor+0x18c>)
+ 8001bee:	681b      	ldr	r3, [r3, #0]
+ 8001bf0:	f04f 31ff 	mov.w	r1, #4294967295
+ 8001bf4:	4618      	mov	r0, r3
+ 8001bf6:	f00a ff21 	bl	800ca3c <osMutexWait>
+ 8001bfa:	4603      	mov	r3, r0
+ 8001bfc:	2b00      	cmp	r3, #0
+ 8001bfe:	f040 808e 	bne.w	8001d1e <TaskMotor+0x172>
 		{
 			if (SWA < 10)
- 8001c06:	4b4e      	ldr	r3, [pc, #312]	; (8001d40 <TaskMotor+0x190>)
- 8001c08:	881b      	ldrh	r3, [r3, #0]
- 8001c0a:	2b09      	cmp	r3, #9
- 8001c0c:	d806      	bhi.n	8001c1c <TaskMotor+0x6c>
+ 8001c02:	4b4e      	ldr	r3, [pc, #312]	; (8001d3c <TaskMotor+0x190>)
+ 8001c04:	881b      	ldrh	r3, [r3, #0]
+ 8001c06:	2b09      	cmp	r3, #9
+ 8001c08:	d806      	bhi.n	8001c18 <TaskMotor+0x6c>
 				HAL_GPIO_WritePin(ESC_DOWN_OUT_GPIO_Port, ESC_DOWN_OUT_Pin, GPIO_PIN_SET);
- 8001c0e:	2201      	movs	r2, #1
- 8001c10:	f44f 4100 	mov.w	r1, #32768	; 0x8000
- 8001c14:	484b      	ldr	r0, [pc, #300]	; (8001d44 <TaskMotor+0x194>)
- 8001c16:	f004 fded 	bl	80067f4 <HAL_GPIO_WritePin>
- 8001c1a:	e005      	b.n	8001c28 <TaskMotor+0x78>
+ 8001c0a:	2201      	movs	r2, #1
+ 8001c0c:	f44f 4100 	mov.w	r1, #32768	; 0x8000
+ 8001c10:	484b      	ldr	r0, [pc, #300]	; (8001d40 <TaskMotor+0x194>)
+ 8001c12:	f004 fdef 	bl	80067f4 <HAL_GPIO_WritePin>
+ 8001c16:	e005      	b.n	8001c24 <TaskMotor+0x78>
 
 			else
 				HAL_GPIO_WritePin(ESC_DOWN_OUT_GPIO_Port, ESC_DOWN_OUT_Pin, GPIO_PIN_RESET);
- 8001c1c:	2200      	movs	r2, #0
- 8001c1e:	f44f 4100 	mov.w	r1, #32768	; 0x8000
- 8001c22:	4848      	ldr	r0, [pc, #288]	; (8001d44 <TaskMotor+0x194>)
- 8001c24:	f004 fde6 	bl	80067f4 <HAL_GPIO_WritePin>
+ 8001c18:	2200      	movs	r2, #0
+ 8001c1a:	f44f 4100 	mov.w	r1, #32768	; 0x8000
+ 8001c1e:	4848      	ldr	r0, [pc, #288]	; (8001d40 <TaskMotor+0x194>)
+ 8001c20:	f004 fde8 	bl	80067f4 <HAL_GPIO_WritePin>
 
 			if (SWB < 10)
- 8001c28:	4b47      	ldr	r3, [pc, #284]	; (8001d48 <TaskMotor+0x198>)
- 8001c2a:	881b      	ldrh	r3, [r3, #0]
- 8001c2c:	2b09      	cmp	r3, #9
- 8001c2e:	d803      	bhi.n	8001c38 <TaskMotor+0x88>
+ 8001c24:	4b47      	ldr	r3, [pc, #284]	; (8001d44 <TaskMotor+0x198>)
+ 8001c26:	881b      	ldrh	r3, [r3, #0]
+ 8001c28:	2b09      	cmp	r3, #9
+ 8001c2a:	d803      	bhi.n	8001c34 <TaskMotor+0x88>
 				Rotors = false;
- 8001c30:	4b46      	ldr	r3, [pc, #280]	; (8001d4c <TaskMotor+0x19c>)
- 8001c32:	2200      	movs	r2, #0
- 8001c34:	701a      	strb	r2, [r3, #0]
- 8001c36:	e002      	b.n	8001c3e <TaskMotor+0x8e>
+ 8001c2c:	4b46      	ldr	r3, [pc, #280]	; (8001d48 <TaskMotor+0x19c>)
+ 8001c2e:	2200      	movs	r2, #0
+ 8001c30:	701a      	strb	r2, [r3, #0]
+ 8001c32:	e002      	b.n	8001c3a <TaskMotor+0x8e>
 			else
 				Rotors = true;
- 8001c38:	4b44      	ldr	r3, [pc, #272]	; (8001d4c <TaskMotor+0x19c>)
- 8001c3a:	2201      	movs	r2, #1
- 8001c3c:	701a      	strb	r2, [r3, #0]
+ 8001c34:	4b44      	ldr	r3, [pc, #272]	; (8001d48 <TaskMotor+0x19c>)
+ 8001c36:	2201      	movs	r2, #1
+ 8001c38:	701a      	strb	r2, [r3, #0]
 
 
 			if (SWD < 10)
- 8001c3e:	4b44      	ldr	r3, [pc, #272]	; (8001d50 <TaskMotor+0x1a0>)
- 8001c40:	881b      	ldrh	r3, [r3, #0]
- 8001c42:	2b09      	cmp	r3, #9
- 8001c44:	d808      	bhi.n	8001c58 <TaskMotor+0xa8>
+ 8001c3a:	4b44      	ldr	r3, [pc, #272]	; (8001d4c <TaskMotor+0x1a0>)
+ 8001c3c:	881b      	ldrh	r3, [r3, #0]
+ 8001c3e:	2b09      	cmp	r3, #9
+ 8001c40:	d808      	bhi.n	8001c54 <TaskMotor+0xa8>
 			{
 				ESC1_start_signal = 1;
- 8001c46:	2301      	movs	r3, #1
- 8001c48:	73fb      	strb	r3, [r7, #15]
+ 8001c42:	2301      	movs	r3, #1
+ 8001c44:	73fb      	strb	r3, [r7, #15]
 				ESC2_start_signal = 1;
- 8001c4a:	2301      	movs	r3, #1
- 8001c4c:	73bb      	strb	r3, [r7, #14]
+ 8001c46:	2301      	movs	r3, #1
+ 8001c48:	73bb      	strb	r3, [r7, #14]
 				ESC3_start_signal = 1;
- 8001c4e:	2301      	movs	r3, #1
- 8001c50:	737b      	strb	r3, [r7, #13]
+ 8001c4a:	2301      	movs	r3, #1
+ 8001c4c:	737b      	strb	r3, [r7, #13]
 				ESC4_start_signal = 1;
- 8001c52:	2301      	movs	r3, #1
- 8001c54:	733b      	strb	r3, [r7, #12]
- 8001c56:	e007      	b.n	8001c68 <TaskMotor+0xb8>
+ 8001c4e:	2301      	movs	r3, #1
+ 8001c50:	733b      	strb	r3, [r7, #12]
+ 8001c52:	e007      	b.n	8001c64 <TaskMotor+0xb8>
 			}
 			else
 			{
 				ESC1_start_signal = 1;
- 8001c58:	2301      	movs	r3, #1
- 8001c5a:	73fb      	strb	r3, [r7, #15]
+ 8001c54:	2301      	movs	r3, #1
+ 8001c56:	73fb      	strb	r3, [r7, #15]
 				ESC2_start_signal = 1;
- 8001c5c:	2301      	movs	r3, #1
- 8001c5e:	73bb      	strb	r3, [r7, #14]
+ 8001c58:	2301      	movs	r3, #1
+ 8001c5a:	73bb      	strb	r3, [r7, #14]
 				ESC3_start_signal = 1;
- 8001c60:	2301      	movs	r3, #1
- 8001c62:	737b      	strb	r3, [r7, #13]
+ 8001c5c:	2301      	movs	r3, #1
+ 8001c5e:	737b      	strb	r3, [r7, #13]
 				ESC4_start_signal = 3;
- 8001c64:	2303      	movs	r3, #3
- 8001c66:	733b      	strb	r3, [r7, #12]
+ 8001c60:	2303      	movs	r3, #3
+ 8001c62:	733b      	strb	r3, [r7, #12]
 			}
 
 
 			// Setting PWM speed
 			if (Rotors)
- 8001c68:	4b38      	ldr	r3, [pc, #224]	; (8001d4c <TaskMotor+0x19c>)
- 8001c6a:	781b      	ldrb	r3, [r3, #0]
- 8001c6c:	2b00      	cmp	r3, #0
- 8001c6e:	d04c      	beq.n	8001d0a <TaskMotor+0x15a>
+ 8001c64:	4b38      	ldr	r3, [pc, #224]	; (8001d48 <TaskMotor+0x19c>)
+ 8001c66:	781b      	ldrb	r3, [r3, #0]
+ 8001c68:	2b00      	cmp	r3, #0
+ 8001c6a:	d04c      	beq.n	8001d06 <TaskMotor+0x15a>
 			{
 				TIM1->CCR1 = (uint32_t) ((Throttle_in * (50-(ESC1_start_signal-1)) / 50) + (50+ESC1_start_signal-1));
- 8001c70:	4b38      	ldr	r3, [pc, #224]	; (8001d54 <TaskMotor+0x1a4>)
- 8001c72:	881b      	ldrh	r3, [r3, #0]
- 8001c74:	461a      	mov	r2, r3
- 8001c76:	7bfb      	ldrb	r3, [r7, #15]
- 8001c78:	f1c3 0333 	rsb	r3, r3, #51	; 0x33
- 8001c7c:	fb02 f303 	mul.w	r3, r2, r3
- 8001c80:	4a35      	ldr	r2, [pc, #212]	; (8001d58 <TaskMotor+0x1a8>)
- 8001c82:	fb82 1203 	smull	r1, r2, r2, r3
- 8001c86:	1112      	asrs	r2, r2, #4
- 8001c88:	17db      	asrs	r3, r3, #31
- 8001c8a:	1ad2      	subs	r2, r2, r3
- 8001c8c:	7bfb      	ldrb	r3, [r7, #15]
- 8001c8e:	3331      	adds	r3, #49	; 0x31
- 8001c90:	441a      	add	r2, r3
- 8001c92:	4b29      	ldr	r3, [pc, #164]	; (8001d38 <TaskMotor+0x188>)
- 8001c94:	635a      	str	r2, [r3, #52]	; 0x34
+ 8001c6c:	4b38      	ldr	r3, [pc, #224]	; (8001d50 <TaskMotor+0x1a4>)
+ 8001c6e:	881b      	ldrh	r3, [r3, #0]
+ 8001c70:	461a      	mov	r2, r3
+ 8001c72:	7bfb      	ldrb	r3, [r7, #15]
+ 8001c74:	f1c3 0333 	rsb	r3, r3, #51	; 0x33
+ 8001c78:	fb02 f303 	mul.w	r3, r2, r3
+ 8001c7c:	4a35      	ldr	r2, [pc, #212]	; (8001d54 <TaskMotor+0x1a8>)
+ 8001c7e:	fb82 1203 	smull	r1, r2, r2, r3
+ 8001c82:	1112      	asrs	r2, r2, #4
+ 8001c84:	17db      	asrs	r3, r3, #31
+ 8001c86:	1ad2      	subs	r2, r2, r3
+ 8001c88:	7bfb      	ldrb	r3, [r7, #15]
+ 8001c8a:	3331      	adds	r3, #49	; 0x31
+ 8001c8c:	441a      	add	r2, r3
+ 8001c8e:	4b29      	ldr	r3, [pc, #164]	; (8001d34 <TaskMotor+0x188>)
+ 8001c90:	635a      	str	r2, [r3, #52]	; 0x34
 				TIM1->CCR2 = (uint32_t) ((Throttle_in * (50-(ESC2_start_signal-1)) / 50) + (50+ESC2_start_signal-1));
- 8001c96:	4b2f      	ldr	r3, [pc, #188]	; (8001d54 <TaskMotor+0x1a4>)
- 8001c98:	881b      	ldrh	r3, [r3, #0]
- 8001c9a:	461a      	mov	r2, r3
- 8001c9c:	7bbb      	ldrb	r3, [r7, #14]
- 8001c9e:	f1c3 0333 	rsb	r3, r3, #51	; 0x33
- 8001ca2:	fb02 f303 	mul.w	r3, r2, r3
- 8001ca6:	4a2c      	ldr	r2, [pc, #176]	; (8001d58 <TaskMotor+0x1a8>)
- 8001ca8:	fb82 1203 	smull	r1, r2, r2, r3
- 8001cac:	1112      	asrs	r2, r2, #4
- 8001cae:	17db      	asrs	r3, r3, #31
- 8001cb0:	1ad2      	subs	r2, r2, r3
- 8001cb2:	7bbb      	ldrb	r3, [r7, #14]
- 8001cb4:	3331      	adds	r3, #49	; 0x31
- 8001cb6:	441a      	add	r2, r3
- 8001cb8:	4b1f      	ldr	r3, [pc, #124]	; (8001d38 <TaskMotor+0x188>)
- 8001cba:	639a      	str	r2, [r3, #56]	; 0x38
+ 8001c92:	4b2f      	ldr	r3, [pc, #188]	; (8001d50 <TaskMotor+0x1a4>)
+ 8001c94:	881b      	ldrh	r3, [r3, #0]
+ 8001c96:	461a      	mov	r2, r3
+ 8001c98:	7bbb      	ldrb	r3, [r7, #14]
+ 8001c9a:	f1c3 0333 	rsb	r3, r3, #51	; 0x33
+ 8001c9e:	fb02 f303 	mul.w	r3, r2, r3
+ 8001ca2:	4a2c      	ldr	r2, [pc, #176]	; (8001d54 <TaskMotor+0x1a8>)
+ 8001ca4:	fb82 1203 	smull	r1, r2, r2, r3
+ 8001ca8:	1112      	asrs	r2, r2, #4
+ 8001caa:	17db      	asrs	r3, r3, #31
+ 8001cac:	1ad2      	subs	r2, r2, r3
+ 8001cae:	7bbb      	ldrb	r3, [r7, #14]
+ 8001cb0:	3331      	adds	r3, #49	; 0x31
+ 8001cb2:	441a      	add	r2, r3
+ 8001cb4:	4b1f      	ldr	r3, [pc, #124]	; (8001d34 <TaskMotor+0x188>)
+ 8001cb6:	639a      	str	r2, [r3, #56]	; 0x38
 				TIM1->CCR3 = (uint32_t) ((Throttle_in * (50-(ESC3_start_signal-1)) / 50) + (50+ESC3_start_signal-1));
- 8001cbc:	4b25      	ldr	r3, [pc, #148]	; (8001d54 <TaskMotor+0x1a4>)
- 8001cbe:	881b      	ldrh	r3, [r3, #0]
- 8001cc0:	461a      	mov	r2, r3
- 8001cc2:	7b7b      	ldrb	r3, [r7, #13]
- 8001cc4:	f1c3 0333 	rsb	r3, r3, #51	; 0x33
- 8001cc8:	fb02 f303 	mul.w	r3, r2, r3
- 8001ccc:	4a22      	ldr	r2, [pc, #136]	; (8001d58 <TaskMotor+0x1a8>)
- 8001cce:	fb82 1203 	smull	r1, r2, r2, r3
- 8001cd2:	1112      	asrs	r2, r2, #4
- 8001cd4:	17db      	asrs	r3, r3, #31
- 8001cd6:	1ad2      	subs	r2, r2, r3
- 8001cd8:	7b7b      	ldrb	r3, [r7, #13]
- 8001cda:	3331      	adds	r3, #49	; 0x31
- 8001cdc:	441a      	add	r2, r3
- 8001cde:	4b16      	ldr	r3, [pc, #88]	; (8001d38 <TaskMotor+0x188>)
- 8001ce0:	63da      	str	r2, [r3, #60]	; 0x3c
+ 8001cb8:	4b25      	ldr	r3, [pc, #148]	; (8001d50 <TaskMotor+0x1a4>)
+ 8001cba:	881b      	ldrh	r3, [r3, #0]
+ 8001cbc:	461a      	mov	r2, r3
+ 8001cbe:	7b7b      	ldrb	r3, [r7, #13]
+ 8001cc0:	f1c3 0333 	rsb	r3, r3, #51	; 0x33
+ 8001cc4:	fb02 f303 	mul.w	r3, r2, r3
+ 8001cc8:	4a22      	ldr	r2, [pc, #136]	; (8001d54 <TaskMotor+0x1a8>)
+ 8001cca:	fb82 1203 	smull	r1, r2, r2, r3
+ 8001cce:	1112      	asrs	r2, r2, #4
+ 8001cd0:	17db      	asrs	r3, r3, #31
+ 8001cd2:	1ad2      	subs	r2, r2, r3
+ 8001cd4:	7b7b      	ldrb	r3, [r7, #13]
+ 8001cd6:	3331      	adds	r3, #49	; 0x31
+ 8001cd8:	441a      	add	r2, r3
+ 8001cda:	4b16      	ldr	r3, [pc, #88]	; (8001d34 <TaskMotor+0x188>)
+ 8001cdc:	63da      	str	r2, [r3, #60]	; 0x3c
 				TIM1->CCR4 = (uint32_t) ((Throttle_in * (50-(ESC4_start_signal-1)) / 50) + (50+ESC4_start_signal-1));
- 8001ce2:	4b1c      	ldr	r3, [pc, #112]	; (8001d54 <TaskMotor+0x1a4>)
- 8001ce4:	881b      	ldrh	r3, [r3, #0]
- 8001ce6:	461a      	mov	r2, r3
- 8001ce8:	7b3b      	ldrb	r3, [r7, #12]
- 8001cea:	f1c3 0333 	rsb	r3, r3, #51	; 0x33
- 8001cee:	fb02 f303 	mul.w	r3, r2, r3
- 8001cf2:	4a19      	ldr	r2, [pc, #100]	; (8001d58 <TaskMotor+0x1a8>)
- 8001cf4:	fb82 1203 	smull	r1, r2, r2, r3
- 8001cf8:	1112      	asrs	r2, r2, #4
- 8001cfa:	17db      	asrs	r3, r3, #31
- 8001cfc:	1ad2      	subs	r2, r2, r3
- 8001cfe:	7b3b      	ldrb	r3, [r7, #12]
- 8001d00:	3331      	adds	r3, #49	; 0x31
- 8001d02:	441a      	add	r2, r3
- 8001d04:	4b0c      	ldr	r3, [pc, #48]	; (8001d38 <TaskMotor+0x188>)
- 8001d06:	641a      	str	r2, [r3, #64]	; 0x40
- 8001d08:	e00b      	b.n	8001d22 <TaskMotor+0x172>
+ 8001cde:	4b1c      	ldr	r3, [pc, #112]	; (8001d50 <TaskMotor+0x1a4>)
+ 8001ce0:	881b      	ldrh	r3, [r3, #0]
+ 8001ce2:	461a      	mov	r2, r3
+ 8001ce4:	7b3b      	ldrb	r3, [r7, #12]
+ 8001ce6:	f1c3 0333 	rsb	r3, r3, #51	; 0x33
+ 8001cea:	fb02 f303 	mul.w	r3, r2, r3
+ 8001cee:	4a19      	ldr	r2, [pc, #100]	; (8001d54 <TaskMotor+0x1a8>)
+ 8001cf0:	fb82 1203 	smull	r1, r2, r2, r3
+ 8001cf4:	1112      	asrs	r2, r2, #4
+ 8001cf6:	17db      	asrs	r3, r3, #31
+ 8001cf8:	1ad2      	subs	r2, r2, r3
+ 8001cfa:	7b3b      	ldrb	r3, [r7, #12]
+ 8001cfc:	3331      	adds	r3, #49	; 0x31
+ 8001cfe:	441a      	add	r2, r3
+ 8001d00:	4b0c      	ldr	r3, [pc, #48]	; (8001d34 <TaskMotor+0x188>)
+ 8001d02:	641a      	str	r2, [r3, #64]	; 0x40
+ 8001d04:	e00b      	b.n	8001d1e <TaskMotor+0x172>
 			}
 			else
 			{
 				TIM1->CCR1 = (uint32_t) (50);
- 8001d0a:	4b0b      	ldr	r3, [pc, #44]	; (8001d38 <TaskMotor+0x188>)
- 8001d0c:	2232      	movs	r2, #50	; 0x32
- 8001d0e:	635a      	str	r2, [r3, #52]	; 0x34
+ 8001d06:	4b0b      	ldr	r3, [pc, #44]	; (8001d34 <TaskMotor+0x188>)
+ 8001d08:	2232      	movs	r2, #50	; 0x32
+ 8001d0a:	635a      	str	r2, [r3, #52]	; 0x34
 				TIM1->CCR2 = (uint32_t) (50);
- 8001d10:	4b09      	ldr	r3, [pc, #36]	; (8001d38 <TaskMotor+0x188>)
- 8001d12:	2232      	movs	r2, #50	; 0x32
- 8001d14:	639a      	str	r2, [r3, #56]	; 0x38
+ 8001d0c:	4b09      	ldr	r3, [pc, #36]	; (8001d34 <TaskMotor+0x188>)
+ 8001d0e:	2232      	movs	r2, #50	; 0x32
+ 8001d10:	639a      	str	r2, [r3, #56]	; 0x38
 				TIM1->CCR3 = (uint32_t) (50);
- 8001d16:	4b08      	ldr	r3, [pc, #32]	; (8001d38 <TaskMotor+0x188>)
- 8001d18:	2232      	movs	r2, #50	; 0x32
- 8001d1a:	63da      	str	r2, [r3, #60]	; 0x3c
+ 8001d12:	4b08      	ldr	r3, [pc, #32]	; (8001d34 <TaskMotor+0x188>)
+ 8001d14:	2232      	movs	r2, #50	; 0x32
+ 8001d16:	63da      	str	r2, [r3, #60]	; 0x3c
 				TIM1->CCR4 = (uint32_t) (50);
- 8001d1c:	4b06      	ldr	r3, [pc, #24]	; (8001d38 <TaskMotor+0x188>)
- 8001d1e:	2232      	movs	r2, #50	; 0x32
- 8001d20:	641a      	str	r2, [r3, #64]	; 0x40
+ 8001d18:	4b06      	ldr	r3, [pc, #24]	; (8001d34 <TaskMotor+0x188>)
+ 8001d1a:	2232      	movs	r2, #50	; 0x32
+ 8001d1c:	641a      	str	r2, [r3, #64]	; 0x40
 			}
 		}
 		osMutexRelease(RemoteDataMutexHandle);
- 8001d22:	4b06      	ldr	r3, [pc, #24]	; (8001d3c <TaskMotor+0x18c>)
- 8001d24:	681b      	ldr	r3, [r3, #0]
- 8001d26:	4618      	mov	r0, r3
- 8001d28:	f00a fed6 	bl	800cad8 <osMutexRelease>
+ 8001d1e:	4b06      	ldr	r3, [pc, #24]	; (8001d38 <TaskMotor+0x18c>)
+ 8001d20:	681b      	ldr	r3, [r3, #0]
+ 8001d22:	4618      	mov	r0, r3
+ 8001d24:	f00a fed8 	bl	800cad8 <osMutexRelease>
 
 		osDelay(100);
- 8001d2c:	2064      	movs	r0, #100	; 0x64
- 8001d2e:	f00a fe58 	bl	800c9e2 <osDelay>
+ 8001d28:	2064      	movs	r0, #100	; 0x64
+ 8001d2a:	f00a fe5a 	bl	800c9e2 <osDelay>
 		if (osMutexWait(RemoteDataMutexHandle, osWaitForever) == osOK)
- 8001d32:	e75d      	b.n	8001bf0 <TaskMotor+0x40>
- 8001d34:	2000093c 	.word	0x2000093c
- 8001d38:	40010000 	.word	0x40010000
- 8001d3c:	20000be8 	.word	0x20000be8
- 8001d40:	20000222 	.word	0x20000222
- 8001d44:	40021000 	.word	0x40021000
- 8001d48:	20000224 	.word	0x20000224
- 8001d4c:	20000001 	.word	0x20000001
- 8001d50:	20000228 	.word	0x20000228
- 8001d54:	20000218 	.word	0x20000218
- 8001d58:	51eb851f 	.word	0x51eb851f
+ 8001d2e:	e75d      	b.n	8001bec <TaskMotor+0x40>
+ 8001d30:	2000093c 	.word	0x2000093c
+ 8001d34:	40010000 	.word	0x40010000
+ 8001d38:	20000be8 	.word	0x20000be8
+ 8001d3c:	20000222 	.word	0x20000222
+ 8001d40:	40021000 	.word	0x40021000
+ 8001d44:	20000224 	.word	0x20000224
+ 8001d48:	20000001 	.word	0x20000001
+ 8001d4c:	20000228 	.word	0x20000228
+ 8001d50:	20000218 	.word	0x20000218
+ 8001d54:	51eb851f 	.word	0x51eb851f
 
-08001d5c <TaskPower>:
+08001d58 <TaskPower>:
 void TaskPower(void const *argument)
 {
- 8001d5c:	b580      	push	{r7, lr}
- 8001d5e:	b082      	sub	sp, #8
- 8001d60:	af00      	add	r7, sp, #0
- 8001d62:	6078      	str	r0, [r7, #4]
+ 8001d58:	b580      	push	{r7, lr}
+ 8001d5a:	b082      	sub	sp, #8
+ 8001d5c:	af00      	add	r7, sp, #0
+ 8001d5e:	6078      	str	r0, [r7, #4]
 	/* Infinite loop */
 	for (;;)
 	{
 		osDelay(1);
- 8001d64:	2001      	movs	r0, #1
- 8001d66:	f00a fe3c 	bl	800c9e2 <osDelay>
+ 8001d60:	2001      	movs	r0, #1
+ 8001d62:	f00a fe3e 	bl	800c9e2 <osDelay>
 	{
- 8001d6a:	e7fb      	b.n	8001d64 <TaskPower+0x8>
+ 8001d66:	e7fb      	b.n	8001d60 <TaskPower+0x8>
 
-08001d6c <TaskRemote>:
+08001d68 <TaskRemote>:
 // Task Remote
 // - Starts Interrupt UART communication with the Receiver
 // - If a complete package of data has arrived from the Remote Controller to the Buffer,
 //   it processes that and saves it to the corresponding Global variables.
 void TaskRemote(void const *argument)
 {
- 8001d6c:	b580      	push	{r7, lr}
- 8001d6e:	b086      	sub	sp, #24
- 8001d70:	af00      	add	r7, sp, #0
- 8001d72:	6078      	str	r0, [r7, #4]
+ 8001d68:	b580      	push	{r7, lr}
+ 8001d6a:	b086      	sub	sp, #24
+ 8001d6c:	af00      	add	r7, sp, #0
+ 8001d6e:	6078      	str	r0, [r7, #4]
 	static uint16_t channelValues[IBUS_MAXCHANNELS];// Output values of the channels (1000 ... 2000)
 
 	HAL_UART_Receive_DMA(&huart2, &Uart2Buffer, 64);
- 8001d74:	2240      	movs	r2, #64	; 0x40
- 8001d76:	497f      	ldr	r1, [pc, #508]	; (8001f74 <TaskRemote+0x208>)
- 8001d78:	487f      	ldr	r0, [pc, #508]	; (8001f78 <TaskRemote+0x20c>)
- 8001d7a:	f009 f9f2 	bl	800b162 <HAL_UART_Receive_DMA>
+ 8001d70:	2240      	movs	r2, #64	; 0x40
+ 8001d72:	497f      	ldr	r1, [pc, #508]	; (8001f70 <TaskRemote+0x208>)
+ 8001d74:	487f      	ldr	r0, [pc, #508]	; (8001f74 <TaskRemote+0x20c>)
+ 8001d76:	f009 f9f4 	bl	800b162 <HAL_UART_Receive_DMA>
 
 	/* Infinite loop */
 	while (1)
 	{
 		Log("R-RBFS-WS");
- 8001d7e:	487f      	ldr	r0, [pc, #508]	; (8001f7c <TaskRemote+0x210>)
- 8001d80:	f7ff fabe 	bl	8001300 <Log>
+ 8001d7a:	487f      	ldr	r0, [pc, #508]	; (8001f78 <TaskRemote+0x210>)
+ 8001d7c:	f7ff fac0 	bl	8001300 <Log>
 		if (osSemaphoreWait(RemoteBufferFullSemaphoreHandle, osWaitForever) == osOK)
- 8001d84:	4b7e      	ldr	r3, [pc, #504]	; (8001f80 <TaskRemote+0x214>)
- 8001d86:	681b      	ldr	r3, [r3, #0]
- 8001d88:	f04f 31ff 	mov.w	r1, #4294967295
- 8001d8c:	4618      	mov	r0, r3
- 8001d8e:	f00a ff0b 	bl	800cba8 <osSemaphoreWait>
- 8001d92:	4603      	mov	r3, r0
- 8001d94:	2b00      	cmp	r3, #0
- 8001d96:	f040 80e8 	bne.w	8001f6a <TaskRemote+0x1fe>
+ 8001d80:	4b7e      	ldr	r3, [pc, #504]	; (8001f7c <TaskRemote+0x214>)
+ 8001d82:	681b      	ldr	r3, [r3, #0]
+ 8001d84:	f04f 31ff 	mov.w	r1, #4294967295
+ 8001d88:	4618      	mov	r0, r3
+ 8001d8a:	f00a ff0d 	bl	800cba8 <osSemaphoreWait>
+ 8001d8e:	4603      	mov	r3, r0
+ 8001d90:	2b00      	cmp	r3, #0
+ 8001d92:	f040 80e8 	bne.w	8001f66 <TaskRemote+0x1fe>
 		{
 			Log("R-RBFS-WE");
- 8001d9a:	487a      	ldr	r0, [pc, #488]	; (8001f84 <TaskRemote+0x218>)
- 8001d9c:	f7ff fab0 	bl	8001300 <Log>
+ 8001d96:	487a      	ldr	r0, [pc, #488]	; (8001f80 <TaskRemote+0x218>)
+ 8001d98:	f7ff fab2 	bl	8001300 <Log>
 
 			//Find the last complete 32 bit iBus packet in the 64 bit RemoteBuffer
 			Log("R-RBM-WS");
- 8001da0:	4879      	ldr	r0, [pc, #484]	; (8001f88 <TaskRemote+0x21c>)
- 8001da2:	f7ff faad 	bl	8001300 <Log>
+ 8001d9c:	4879      	ldr	r0, [pc, #484]	; (8001f84 <TaskRemote+0x21c>)
+ 8001d9e:	f7ff faaf 	bl	8001300 <Log>
 			if (osMutexWait(RemoteBufferMutexHandle, osWaitForever) == osOK)
- 8001da6:	4b79      	ldr	r3, [pc, #484]	; (8001f8c <TaskRemote+0x220>)
- 8001da8:	681b      	ldr	r3, [r3, #0]
- 8001daa:	f04f 31ff 	mov.w	r1, #4294967295
- 8001dae:	4618      	mov	r0, r3
- 8001db0:	f00a fe44 	bl	800ca3c <osMutexWait>
- 8001db4:	4603      	mov	r3, r0
- 8001db6:	2b00      	cmp	r3, #0
- 8001db8:	d138      	bne.n	8001e2c <TaskRemote+0xc0>
+ 8001da2:	4b79      	ldr	r3, [pc, #484]	; (8001f88 <TaskRemote+0x220>)
+ 8001da4:	681b      	ldr	r3, [r3, #0]
+ 8001da6:	f04f 31ff 	mov.w	r1, #4294967295
+ 8001daa:	4618      	mov	r0, r3
+ 8001dac:	f00a fe46 	bl	800ca3c <osMutexWait>
+ 8001db0:	4603      	mov	r3, r0
+ 8001db2:	2b00      	cmp	r3, #0
+ 8001db4:	d138      	bne.n	8001e28 <TaskRemote+0xc0>
 			{
 				Log("R-RBM-WE");
- 8001dba:	4875      	ldr	r0, [pc, #468]	; (8001f90 <TaskRemote+0x224>)
- 8001dbc:	f7ff faa0 	bl	8001300 <Log>
+ 8001db6:	4875      	ldr	r0, [pc, #468]	; (8001f8c <TaskRemote+0x224>)
+ 8001db8:	f7ff faa2 	bl	8001300 <Log>
 
 				for (int i = 32; i >= 0; i--)
- 8001dc0:	2320      	movs	r3, #32
- 8001dc2:	617b      	str	r3, [r7, #20]
- 8001dc4:	e024      	b.n	8001e10 <TaskRemote+0xa4>
+ 8001dbc:	2320      	movs	r3, #32
+ 8001dbe:	617b      	str	r3, [r7, #20]
+ 8001dc0:	e024      	b.n	8001e0c <TaskRemote+0xa4>
 				{
 					if (RemoteBuffer[i] == 0x20 && RemoteBuffer[i+1] == 0x40)
- 8001dc6:	4a73      	ldr	r2, [pc, #460]	; (8001f94 <TaskRemote+0x228>)
- 8001dc8:	697b      	ldr	r3, [r7, #20]
- 8001dca:	4413      	add	r3, r2
- 8001dcc:	781b      	ldrb	r3, [r3, #0]
- 8001dce:	b2db      	uxtb	r3, r3
- 8001dd0:	2b20      	cmp	r3, #32
- 8001dd2:	d11a      	bne.n	8001e0a <TaskRemote+0x9e>
- 8001dd4:	697b      	ldr	r3, [r7, #20]
- 8001dd6:	3301      	adds	r3, #1
- 8001dd8:	4a6e      	ldr	r2, [pc, #440]	; (8001f94 <TaskRemote+0x228>)
- 8001dda:	5cd3      	ldrb	r3, [r2, r3]
- 8001ddc:	b2db      	uxtb	r3, r3
- 8001dde:	2b40      	cmp	r3, #64	; 0x40
- 8001de0:	d113      	bne.n	8001e0a <TaskRemote+0x9e>
+ 8001dc2:	4a73      	ldr	r2, [pc, #460]	; (8001f90 <TaskRemote+0x228>)
+ 8001dc4:	697b      	ldr	r3, [r7, #20]
+ 8001dc6:	4413      	add	r3, r2
+ 8001dc8:	781b      	ldrb	r3, [r3, #0]
+ 8001dca:	b2db      	uxtb	r3, r3
+ 8001dcc:	2b20      	cmp	r3, #32
+ 8001dce:	d11a      	bne.n	8001e06 <TaskRemote+0x9e>
+ 8001dd0:	697b      	ldr	r3, [r7, #20]
+ 8001dd2:	3301      	adds	r3, #1
+ 8001dd4:	4a6e      	ldr	r2, [pc, #440]	; (8001f90 <TaskRemote+0x228>)
+ 8001dd6:	5cd3      	ldrb	r3, [r2, r3]
+ 8001dd8:	b2db      	uxtb	r3, r3
+ 8001dda:	2b40      	cmp	r3, #64	; 0x40
+ 8001ddc:	d113      	bne.n	8001e06 <TaskRemote+0x9e>
 					{
 						for (int j = 0; j < IBUS_PACKET_SIZE; j++)
- 8001de2:	2300      	movs	r3, #0
- 8001de4:	613b      	str	r3, [r7, #16]
- 8001de6:	e00d      	b.n	8001e04 <TaskRemote+0x98>
+ 8001dde:	2300      	movs	r3, #0
+ 8001de0:	613b      	str	r3, [r7, #16]
+ 8001de2:	e00d      	b.n	8001e00 <TaskRemote+0x98>
 							LastIbusPacket[j] = RemoteBuffer[i+j];
- 8001de8:	697a      	ldr	r2, [r7, #20]
- 8001dea:	693b      	ldr	r3, [r7, #16]
- 8001dec:	4413      	add	r3, r2
- 8001dee:	4a69      	ldr	r2, [pc, #420]	; (8001f94 <TaskRemote+0x228>)
- 8001df0:	5cd3      	ldrb	r3, [r2, r3]
- 8001df2:	b2d9      	uxtb	r1, r3
- 8001df4:	4a68      	ldr	r2, [pc, #416]	; (8001f98 <TaskRemote+0x22c>)
- 8001df6:	693b      	ldr	r3, [r7, #16]
- 8001df8:	4413      	add	r3, r2
- 8001dfa:	460a      	mov	r2, r1
- 8001dfc:	701a      	strb	r2, [r3, #0]
+ 8001de4:	697a      	ldr	r2, [r7, #20]
+ 8001de6:	693b      	ldr	r3, [r7, #16]
+ 8001de8:	4413      	add	r3, r2
+ 8001dea:	4a69      	ldr	r2, [pc, #420]	; (8001f90 <TaskRemote+0x228>)
+ 8001dec:	5cd3      	ldrb	r3, [r2, r3]
+ 8001dee:	b2d9      	uxtb	r1, r3
+ 8001df0:	4a68      	ldr	r2, [pc, #416]	; (8001f94 <TaskRemote+0x22c>)
+ 8001df2:	693b      	ldr	r3, [r7, #16]
+ 8001df4:	4413      	add	r3, r2
+ 8001df6:	460a      	mov	r2, r1
+ 8001df8:	701a      	strb	r2, [r3, #0]
 						for (int j = 0; j < IBUS_PACKET_SIZE; j++)
- 8001dfe:	693b      	ldr	r3, [r7, #16]
- 8001e00:	3301      	adds	r3, #1
- 8001e02:	613b      	str	r3, [r7, #16]
- 8001e04:	693b      	ldr	r3, [r7, #16]
- 8001e06:	2b1f      	cmp	r3, #31
- 8001e08:	ddee      	ble.n	8001de8 <TaskRemote+0x7c>
+ 8001dfa:	693b      	ldr	r3, [r7, #16]
+ 8001dfc:	3301      	adds	r3, #1
+ 8001dfe:	613b      	str	r3, [r7, #16]
+ 8001e00:	693b      	ldr	r3, [r7, #16]
+ 8001e02:	2b1f      	cmp	r3, #31
+ 8001e04:	ddee      	ble.n	8001de4 <TaskRemote+0x7c>
 				for (int i = 32; i >= 0; i--)
- 8001e0a:	697b      	ldr	r3, [r7, #20]
- 8001e0c:	3b01      	subs	r3, #1
- 8001e0e:	617b      	str	r3, [r7, #20]
- 8001e10:	697b      	ldr	r3, [r7, #20]
- 8001e12:	2b00      	cmp	r3, #0
- 8001e14:	dad7      	bge.n	8001dc6 <TaskRemote+0x5a>
+ 8001e06:	697b      	ldr	r3, [r7, #20]
+ 8001e08:	3b01      	subs	r3, #1
+ 8001e0a:	617b      	str	r3, [r7, #20]
+ 8001e0c:	697b      	ldr	r3, [r7, #20]
+ 8001e0e:	2b00      	cmp	r3, #0
+ 8001e10:	dad7      	bge.n	8001dc2 <TaskRemote+0x5a>
 					}
 				}
 
 				Log("R-RBM-RS");
- 8001e16:	4861      	ldr	r0, [pc, #388]	; (8001f9c <TaskRemote+0x230>)
- 8001e18:	f7ff fa72 	bl	8001300 <Log>
+ 8001e12:	4861      	ldr	r0, [pc, #388]	; (8001f98 <TaskRemote+0x230>)
+ 8001e14:	f7ff fa74 	bl	8001300 <Log>
 				osMutexRelease(RemoteBufferMutexHandle);
- 8001e1c:	4b5b      	ldr	r3, [pc, #364]	; (8001f8c <TaskRemote+0x220>)
- 8001e1e:	681b      	ldr	r3, [r3, #0]
- 8001e20:	4618      	mov	r0, r3
- 8001e22:	f00a fe59 	bl	800cad8 <osMutexRelease>
+ 8001e18:	4b5b      	ldr	r3, [pc, #364]	; (8001f88 <TaskRemote+0x220>)
+ 8001e1a:	681b      	ldr	r3, [r3, #0]
+ 8001e1c:	4618      	mov	r0, r3
+ 8001e1e:	f00a fe5b 	bl	800cad8 <osMutexRelease>
 				Log("R-RBM-RE");
- 8001e26:	485e      	ldr	r0, [pc, #376]	; (8001fa0 <TaskRemote+0x234>)
- 8001e28:	f7ff fa6a 	bl	8001300 <Log>
+ 8001e22:	485e      	ldr	r0, [pc, #376]	; (8001f9c <TaskRemote+0x234>)
+ 8001e24:	f7ff fa6c 	bl	8001300 <Log>
 			// And cycle through the raw data and convert it to actual integer values
 			// ibus pattern example:
 			// i=0  1     2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21  22 23 24  25  26 27  28 28  30 31
 			//   20 40    DB 5  DC 5  54 5  DC 5  E8 3  D0 7  D2 5  E8 3  DC 5  DC 5   DC 5   DC 5   DC 5   DC 5   DA F3
 			// | Header | CH1 | CH2 | CH3 | CH4 | CH5 | CH6 | CH7 | CH8 | CH9 | CH10 | CH11 | CH12 | CH13 | CH14 | Checksum |
 			for (int i = 0; i < IBUS_MAXCHANNELS; i++)
- 8001e2c:	2300      	movs	r3, #0
- 8001e2e:	60fb      	str	r3, [r7, #12]
- 8001e30:	e018      	b.n	8001e64 <TaskRemote+0xf8>
+ 8001e28:	2300      	movs	r3, #0
+ 8001e2a:	60fb      	str	r3, [r7, #12]
+ 8001e2c:	e018      	b.n	8001e60 <TaskRemote+0xf8>
 				channelValues[i] = (LastIbusPacket[3 + 2 * i] << 8) + LastIbusPacket[2 + 2 * i];
- 8001e32:	68fb      	ldr	r3, [r7, #12]
- 8001e34:	005b      	lsls	r3, r3, #1
- 8001e36:	3303      	adds	r3, #3
- 8001e38:	4a57      	ldr	r2, [pc, #348]	; (8001f98 <TaskRemote+0x22c>)
- 8001e3a:	5cd3      	ldrb	r3, [r2, r3]
- 8001e3c:	b2db      	uxtb	r3, r3
- 8001e3e:	b29b      	uxth	r3, r3
- 8001e40:	021b      	lsls	r3, r3, #8
- 8001e42:	b29a      	uxth	r2, r3
- 8001e44:	68fb      	ldr	r3, [r7, #12]
- 8001e46:	3301      	adds	r3, #1
- 8001e48:	005b      	lsls	r3, r3, #1
- 8001e4a:	4953      	ldr	r1, [pc, #332]	; (8001f98 <TaskRemote+0x22c>)
- 8001e4c:	5ccb      	ldrb	r3, [r1, r3]
- 8001e4e:	b2db      	uxtb	r3, r3
- 8001e50:	b29b      	uxth	r3, r3
- 8001e52:	4413      	add	r3, r2
- 8001e54:	b299      	uxth	r1, r3
- 8001e56:	4a53      	ldr	r2, [pc, #332]	; (8001fa4 <TaskRemote+0x238>)
- 8001e58:	68fb      	ldr	r3, [r7, #12]
- 8001e5a:	f822 1013 	strh.w	r1, [r2, r3, lsl #1]
+ 8001e2e:	68fb      	ldr	r3, [r7, #12]
+ 8001e30:	005b      	lsls	r3, r3, #1
+ 8001e32:	3303      	adds	r3, #3
+ 8001e34:	4a57      	ldr	r2, [pc, #348]	; (8001f94 <TaskRemote+0x22c>)
+ 8001e36:	5cd3      	ldrb	r3, [r2, r3]
+ 8001e38:	b2db      	uxtb	r3, r3
+ 8001e3a:	b29b      	uxth	r3, r3
+ 8001e3c:	021b      	lsls	r3, r3, #8
+ 8001e3e:	b29a      	uxth	r2, r3
+ 8001e40:	68fb      	ldr	r3, [r7, #12]
+ 8001e42:	3301      	adds	r3, #1
+ 8001e44:	005b      	lsls	r3, r3, #1
+ 8001e46:	4953      	ldr	r1, [pc, #332]	; (8001f94 <TaskRemote+0x22c>)
+ 8001e48:	5ccb      	ldrb	r3, [r1, r3]
+ 8001e4a:	b2db      	uxtb	r3, r3
+ 8001e4c:	b29b      	uxth	r3, r3
+ 8001e4e:	4413      	add	r3, r2
+ 8001e50:	b299      	uxth	r1, r3
+ 8001e52:	4a53      	ldr	r2, [pc, #332]	; (8001fa0 <TaskRemote+0x238>)
+ 8001e54:	68fb      	ldr	r3, [r7, #12]
+ 8001e56:	f822 1013 	strh.w	r1, [r2, r3, lsl #1]
 			for (int i = 0; i < IBUS_MAXCHANNELS; i++)
- 8001e5e:	68fb      	ldr	r3, [r7, #12]
- 8001e60:	3301      	adds	r3, #1
- 8001e62:	60fb      	str	r3, [r7, #12]
- 8001e64:	68fb      	ldr	r3, [r7, #12]
- 8001e66:	2b09      	cmp	r3, #9
- 8001e68:	dde3      	ble.n	8001e32 <TaskRemote+0xc6>
+ 8001e5a:	68fb      	ldr	r3, [r7, #12]
+ 8001e5c:	3301      	adds	r3, #1
+ 8001e5e:	60fb      	str	r3, [r7, #12]
+ 8001e60:	68fb      	ldr	r3, [r7, #12]
+ 8001e62:	2b09      	cmp	r3, #9
+ 8001e64:	dde3      	ble.n	8001e2e <TaskRemote+0xc6>
 
 			// Setting the speed
 
 			if (osMutexWait(RemoteDataMutexHandle, osWaitForever) == osOK)
- 8001e6a:	4b4f      	ldr	r3, [pc, #316]	; (8001fa8 <TaskRemote+0x23c>)
- 8001e6c:	681b      	ldr	r3, [r3, #0]
- 8001e6e:	f04f 31ff 	mov.w	r1, #4294967295
- 8001e72:	4618      	mov	r0, r3
- 8001e74:	f00a fde2 	bl	800ca3c <osMutexWait>
- 8001e78:	4603      	mov	r3, r0
- 8001e7a:	2b00      	cmp	r3, #0
- 8001e7c:	d170      	bne.n	8001f60 <TaskRemote+0x1f4>
+ 8001e66:	4b4f      	ldr	r3, [pc, #316]	; (8001fa4 <TaskRemote+0x23c>)
+ 8001e68:	681b      	ldr	r3, [r3, #0]
+ 8001e6a:	f04f 31ff 	mov.w	r1, #4294967295
+ 8001e6e:	4618      	mov	r0, r3
+ 8001e70:	f00a fde4 	bl	800ca3c <osMutexWait>
+ 8001e74:	4603      	mov	r3, r0
+ 8001e76:	2b00      	cmp	r3, #0
+ 8001e78:	d170      	bne.n	8001f5c <TaskRemote+0x1f4>
 //						sprintf(str, "%d ", channelValues[i]);
 //						HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
 //					}
 //					HAL_UART_Transmit(&huart3, "\r\n", sizeof("\r\n"), HAL_MAX_DELAY);
 
 				Throttle_in = (channelValues[THROTTLE_CHANNEL] / 20) - 50;
- 8001e7e:	4b49      	ldr	r3, [pc, #292]	; (8001fa4 <TaskRemote+0x238>)
- 8001e80:	889b      	ldrh	r3, [r3, #4]
- 8001e82:	4a4a      	ldr	r2, [pc, #296]	; (8001fac <TaskRemote+0x240>)
- 8001e84:	fba2 2303 	umull	r2, r3, r2, r3
- 8001e88:	091b      	lsrs	r3, r3, #4
- 8001e8a:	b29b      	uxth	r3, r3
- 8001e8c:	3b32      	subs	r3, #50	; 0x32
- 8001e8e:	b29a      	uxth	r2, r3
- 8001e90:	4b47      	ldr	r3, [pc, #284]	; (8001fb0 <TaskRemote+0x244>)
- 8001e92:	801a      	strh	r2, [r3, #0]
+ 8001e7a:	4b49      	ldr	r3, [pc, #292]	; (8001fa0 <TaskRemote+0x238>)
+ 8001e7c:	889b      	ldrh	r3, [r3, #4]
+ 8001e7e:	4a4a      	ldr	r2, [pc, #296]	; (8001fa8 <TaskRemote+0x240>)
+ 8001e80:	fba2 2303 	umull	r2, r3, r2, r3
+ 8001e84:	091b      	lsrs	r3, r3, #4
+ 8001e86:	b29b      	uxth	r3, r3
+ 8001e88:	3b32      	subs	r3, #50	; 0x32
+ 8001e8a:	b29a      	uxth	r2, r3
+ 8001e8c:	4b47      	ldr	r3, [pc, #284]	; (8001fac <TaskRemote+0x244>)
+ 8001e8e:	801a      	strh	r2, [r3, #0]
 				Pitch_in = (channelValues[PITCH_CHANNEL] / 20) - 75;
- 8001e94:	4b43      	ldr	r3, [pc, #268]	; (8001fa4 <TaskRemote+0x238>)
- 8001e96:	885b      	ldrh	r3, [r3, #2]
- 8001e98:	4a44      	ldr	r2, [pc, #272]	; (8001fac <TaskRemote+0x240>)
- 8001e9a:	fba2 2303 	umull	r2, r3, r2, r3
- 8001e9e:	091b      	lsrs	r3, r3, #4
+ 8001e90:	4b43      	ldr	r3, [pc, #268]	; (8001fa0 <TaskRemote+0x238>)
+ 8001e92:	885b      	ldrh	r3, [r3, #2]
+ 8001e94:	4a44      	ldr	r2, [pc, #272]	; (8001fa8 <TaskRemote+0x240>)
+ 8001e96:	fba2 2303 	umull	r2, r3, r2, r3
+ 8001e9a:	091b      	lsrs	r3, r3, #4
+ 8001e9c:	b29b      	uxth	r3, r3
+ 8001e9e:	3b4b      	subs	r3, #75	; 0x4b
  8001ea0:	b29b      	uxth	r3, r3
- 8001ea2:	3b4b      	subs	r3, #75	; 0x4b
- 8001ea4:	b29b      	uxth	r3, r3
- 8001ea6:	b21a      	sxth	r2, r3
- 8001ea8:	4b42      	ldr	r3, [pc, #264]	; (8001fb4 <TaskRemote+0x248>)
- 8001eaa:	801a      	strh	r2, [r3, #0]
+ 8001ea2:	b21a      	sxth	r2, r3
+ 8001ea4:	4b42      	ldr	r3, [pc, #264]	; (8001fb0 <TaskRemote+0x248>)
+ 8001ea6:	801a      	strh	r2, [r3, #0]
 				Roll_in = (channelValues[ROLL_CHANNEL] / 20) - 75;
- 8001eac:	4b3d      	ldr	r3, [pc, #244]	; (8001fa4 <TaskRemote+0x238>)
- 8001eae:	881b      	ldrh	r3, [r3, #0]
- 8001eb0:	4a3e      	ldr	r2, [pc, #248]	; (8001fac <TaskRemote+0x240>)
- 8001eb2:	fba2 2303 	umull	r2, r3, r2, r3
- 8001eb6:	091b      	lsrs	r3, r3, #4
+ 8001ea8:	4b3d      	ldr	r3, [pc, #244]	; (8001fa0 <TaskRemote+0x238>)
+ 8001eaa:	881b      	ldrh	r3, [r3, #0]
+ 8001eac:	4a3e      	ldr	r2, [pc, #248]	; (8001fa8 <TaskRemote+0x240>)
+ 8001eae:	fba2 2303 	umull	r2, r3, r2, r3
+ 8001eb2:	091b      	lsrs	r3, r3, #4
+ 8001eb4:	b29b      	uxth	r3, r3
+ 8001eb6:	3b4b      	subs	r3, #75	; 0x4b
  8001eb8:	b29b      	uxth	r3, r3
- 8001eba:	3b4b      	subs	r3, #75	; 0x4b
- 8001ebc:	b29b      	uxth	r3, r3
- 8001ebe:	b21a      	sxth	r2, r3
- 8001ec0:	4b3d      	ldr	r3, [pc, #244]	; (8001fb8 <TaskRemote+0x24c>)
- 8001ec2:	801a      	strh	r2, [r3, #0]
+ 8001eba:	b21a      	sxth	r2, r3
+ 8001ebc:	4b3d      	ldr	r3, [pc, #244]	; (8001fb4 <TaskRemote+0x24c>)
+ 8001ebe:	801a      	strh	r2, [r3, #0]
 				Yaw_in = (channelValues[YAW_CHANNEL] / 20) - 75;
- 8001ec4:	4b37      	ldr	r3, [pc, #220]	; (8001fa4 <TaskRemote+0x238>)
- 8001ec6:	88db      	ldrh	r3, [r3, #6]
- 8001ec8:	4a38      	ldr	r2, [pc, #224]	; (8001fac <TaskRemote+0x240>)
- 8001eca:	fba2 2303 	umull	r2, r3, r2, r3
- 8001ece:	091b      	lsrs	r3, r3, #4
+ 8001ec0:	4b37      	ldr	r3, [pc, #220]	; (8001fa0 <TaskRemote+0x238>)
+ 8001ec2:	88db      	ldrh	r3, [r3, #6]
+ 8001ec4:	4a38      	ldr	r2, [pc, #224]	; (8001fa8 <TaskRemote+0x240>)
+ 8001ec6:	fba2 2303 	umull	r2, r3, r2, r3
+ 8001eca:	091b      	lsrs	r3, r3, #4
+ 8001ecc:	b29b      	uxth	r3, r3
+ 8001ece:	3b4b      	subs	r3, #75	; 0x4b
  8001ed0:	b29b      	uxth	r3, r3
- 8001ed2:	3b4b      	subs	r3, #75	; 0x4b
- 8001ed4:	b29b      	uxth	r3, r3
- 8001ed6:	b21a      	sxth	r2, r3
- 8001ed8:	4b38      	ldr	r3, [pc, #224]	; (8001fbc <TaskRemote+0x250>)
- 8001eda:	801a      	strh	r2, [r3, #0]
+ 8001ed2:	b21a      	sxth	r2, r3
+ 8001ed4:	4b38      	ldr	r3, [pc, #224]	; (8001fb8 <TaskRemote+0x250>)
+ 8001ed6:	801a      	strh	r2, [r3, #0]
 				SWA = (channelValues[SWA_CHANNEL] / 20) - 50;
- 8001edc:	4b31      	ldr	r3, [pc, #196]	; (8001fa4 <TaskRemote+0x238>)
- 8001ede:	891b      	ldrh	r3, [r3, #8]
- 8001ee0:	4a32      	ldr	r2, [pc, #200]	; (8001fac <TaskRemote+0x240>)
- 8001ee2:	fba2 2303 	umull	r2, r3, r2, r3
- 8001ee6:	091b      	lsrs	r3, r3, #4
- 8001ee8:	b29b      	uxth	r3, r3
- 8001eea:	3b32      	subs	r3, #50	; 0x32
- 8001eec:	b29a      	uxth	r2, r3
- 8001eee:	4b34      	ldr	r3, [pc, #208]	; (8001fc0 <TaskRemote+0x254>)
- 8001ef0:	801a      	strh	r2, [r3, #0]
+ 8001ed8:	4b31      	ldr	r3, [pc, #196]	; (8001fa0 <TaskRemote+0x238>)
+ 8001eda:	891b      	ldrh	r3, [r3, #8]
+ 8001edc:	4a32      	ldr	r2, [pc, #200]	; (8001fa8 <TaskRemote+0x240>)
+ 8001ede:	fba2 2303 	umull	r2, r3, r2, r3
+ 8001ee2:	091b      	lsrs	r3, r3, #4
+ 8001ee4:	b29b      	uxth	r3, r3
+ 8001ee6:	3b32      	subs	r3, #50	; 0x32
+ 8001ee8:	b29a      	uxth	r2, r3
+ 8001eea:	4b34      	ldr	r3, [pc, #208]	; (8001fbc <TaskRemote+0x254>)
+ 8001eec:	801a      	strh	r2, [r3, #0]
 				SWB = (channelValues[SWB_CHANNEL] / 20) - 50;
- 8001ef2:	4b2c      	ldr	r3, [pc, #176]	; (8001fa4 <TaskRemote+0x238>)
- 8001ef4:	895b      	ldrh	r3, [r3, #10]
- 8001ef6:	4a2d      	ldr	r2, [pc, #180]	; (8001fac <TaskRemote+0x240>)
- 8001ef8:	fba2 2303 	umull	r2, r3, r2, r3
- 8001efc:	091b      	lsrs	r3, r3, #4
- 8001efe:	b29b      	uxth	r3, r3
- 8001f00:	3b32      	subs	r3, #50	; 0x32
- 8001f02:	b29a      	uxth	r2, r3
- 8001f04:	4b2f      	ldr	r3, [pc, #188]	; (8001fc4 <TaskRemote+0x258>)
- 8001f06:	801a      	strh	r2, [r3, #0]
+ 8001eee:	4b2c      	ldr	r3, [pc, #176]	; (8001fa0 <TaskRemote+0x238>)
+ 8001ef0:	895b      	ldrh	r3, [r3, #10]
+ 8001ef2:	4a2d      	ldr	r2, [pc, #180]	; (8001fa8 <TaskRemote+0x240>)
+ 8001ef4:	fba2 2303 	umull	r2, r3, r2, r3
+ 8001ef8:	091b      	lsrs	r3, r3, #4
+ 8001efa:	b29b      	uxth	r3, r3
+ 8001efc:	3b32      	subs	r3, #50	; 0x32
+ 8001efe:	b29a      	uxth	r2, r3
+ 8001f00:	4b2f      	ldr	r3, [pc, #188]	; (8001fc0 <TaskRemote+0x258>)
+ 8001f02:	801a      	strh	r2, [r3, #0]
 				SWC = (channelValues[SWC_CHANNEL] / 20) - 50;
- 8001f08:	4b26      	ldr	r3, [pc, #152]	; (8001fa4 <TaskRemote+0x238>)
- 8001f0a:	899b      	ldrh	r3, [r3, #12]
- 8001f0c:	4a27      	ldr	r2, [pc, #156]	; (8001fac <TaskRemote+0x240>)
- 8001f0e:	fba2 2303 	umull	r2, r3, r2, r3
- 8001f12:	091b      	lsrs	r3, r3, #4
- 8001f14:	b29b      	uxth	r3, r3
- 8001f16:	3b32      	subs	r3, #50	; 0x32
- 8001f18:	b29a      	uxth	r2, r3
- 8001f1a:	4b2b      	ldr	r3, [pc, #172]	; (8001fc8 <TaskRemote+0x25c>)
- 8001f1c:	801a      	strh	r2, [r3, #0]
+ 8001f04:	4b26      	ldr	r3, [pc, #152]	; (8001fa0 <TaskRemote+0x238>)
+ 8001f06:	899b      	ldrh	r3, [r3, #12]
+ 8001f08:	4a27      	ldr	r2, [pc, #156]	; (8001fa8 <TaskRemote+0x240>)
+ 8001f0a:	fba2 2303 	umull	r2, r3, r2, r3
+ 8001f0e:	091b      	lsrs	r3, r3, #4
+ 8001f10:	b29b      	uxth	r3, r3
+ 8001f12:	3b32      	subs	r3, #50	; 0x32
+ 8001f14:	b29a      	uxth	r2, r3
+ 8001f16:	4b2b      	ldr	r3, [pc, #172]	; (8001fc4 <TaskRemote+0x25c>)
+ 8001f18:	801a      	strh	r2, [r3, #0]
 				SWD = (channelValues[SWD_CHANNEL] / 20) - 50;
- 8001f1e:	4b21      	ldr	r3, [pc, #132]	; (8001fa4 <TaskRemote+0x238>)
- 8001f20:	89db      	ldrh	r3, [r3, #14]
- 8001f22:	4a22      	ldr	r2, [pc, #136]	; (8001fac <TaskRemote+0x240>)
- 8001f24:	fba2 2303 	umull	r2, r3, r2, r3
- 8001f28:	091b      	lsrs	r3, r3, #4
- 8001f2a:	b29b      	uxth	r3, r3
- 8001f2c:	3b32      	subs	r3, #50	; 0x32
- 8001f2e:	b29a      	uxth	r2, r3
- 8001f30:	4b26      	ldr	r3, [pc, #152]	; (8001fcc <TaskRemote+0x260>)
- 8001f32:	801a      	strh	r2, [r3, #0]
+ 8001f1a:	4b21      	ldr	r3, [pc, #132]	; (8001fa0 <TaskRemote+0x238>)
+ 8001f1c:	89db      	ldrh	r3, [r3, #14]
+ 8001f1e:	4a22      	ldr	r2, [pc, #136]	; (8001fa8 <TaskRemote+0x240>)
+ 8001f20:	fba2 2303 	umull	r2, r3, r2, r3
+ 8001f24:	091b      	lsrs	r3, r3, #4
+ 8001f26:	b29b      	uxth	r3, r3
+ 8001f28:	3b32      	subs	r3, #50	; 0x32
+ 8001f2a:	b29a      	uxth	r2, r3
+ 8001f2c:	4b26      	ldr	r3, [pc, #152]	; (8001fc8 <TaskRemote+0x260>)
+ 8001f2e:	801a      	strh	r2, [r3, #0]
 				VRA = (channelValues[VRA_CHANNEL] / 20) - 50;
- 8001f34:	4b1b      	ldr	r3, [pc, #108]	; (8001fa4 <TaskRemote+0x238>)
- 8001f36:	8a1b      	ldrh	r3, [r3, #16]
- 8001f38:	4a1c      	ldr	r2, [pc, #112]	; (8001fac <TaskRemote+0x240>)
- 8001f3a:	fba2 2303 	umull	r2, r3, r2, r3
- 8001f3e:	091b      	lsrs	r3, r3, #4
- 8001f40:	b29b      	uxth	r3, r3
- 8001f42:	3b32      	subs	r3, #50	; 0x32
- 8001f44:	b29a      	uxth	r2, r3
- 8001f46:	4b22      	ldr	r3, [pc, #136]	; (8001fd0 <TaskRemote+0x264>)
- 8001f48:	801a      	strh	r2, [r3, #0]
+ 8001f30:	4b1b      	ldr	r3, [pc, #108]	; (8001fa0 <TaskRemote+0x238>)
+ 8001f32:	8a1b      	ldrh	r3, [r3, #16]
+ 8001f34:	4a1c      	ldr	r2, [pc, #112]	; (8001fa8 <TaskRemote+0x240>)
+ 8001f36:	fba2 2303 	umull	r2, r3, r2, r3
+ 8001f3a:	091b      	lsrs	r3, r3, #4
+ 8001f3c:	b29b      	uxth	r3, r3
+ 8001f3e:	3b32      	subs	r3, #50	; 0x32
+ 8001f40:	b29a      	uxth	r2, r3
+ 8001f42:	4b22      	ldr	r3, [pc, #136]	; (8001fcc <TaskRemote+0x264>)
+ 8001f44:	801a      	strh	r2, [r3, #0]
 				VRB = (channelValues[VRB_CHANNEL] / 20) - 50;
- 8001f4a:	4b16      	ldr	r3, [pc, #88]	; (8001fa4 <TaskRemote+0x238>)
- 8001f4c:	8a5b      	ldrh	r3, [r3, #18]
- 8001f4e:	4a17      	ldr	r2, [pc, #92]	; (8001fac <TaskRemote+0x240>)
- 8001f50:	fba2 2303 	umull	r2, r3, r2, r3
- 8001f54:	091b      	lsrs	r3, r3, #4
- 8001f56:	b29b      	uxth	r3, r3
- 8001f58:	3b32      	subs	r3, #50	; 0x32
- 8001f5a:	b29a      	uxth	r2, r3
- 8001f5c:	4b1d      	ldr	r3, [pc, #116]	; (8001fd4 <TaskRemote+0x268>)
- 8001f5e:	801a      	strh	r2, [r3, #0]
+ 8001f46:	4b16      	ldr	r3, [pc, #88]	; (8001fa0 <TaskRemote+0x238>)
+ 8001f48:	8a5b      	ldrh	r3, [r3, #18]
+ 8001f4a:	4a17      	ldr	r2, [pc, #92]	; (8001fa8 <TaskRemote+0x240>)
+ 8001f4c:	fba2 2303 	umull	r2, r3, r2, r3
+ 8001f50:	091b      	lsrs	r3, r3, #4
+ 8001f52:	b29b      	uxth	r3, r3
+ 8001f54:	3b32      	subs	r3, #50	; 0x32
+ 8001f56:	b29a      	uxth	r2, r3
+ 8001f58:	4b1d      	ldr	r3, [pc, #116]	; (8001fd0 <TaskRemote+0x268>)
+ 8001f5a:	801a      	strh	r2, [r3, #0]
 				//sprintf(str1, "In: %d\r\n", channelValues[THROTTLE_CHANNEL]);
 				//HAL_UART_Transmit(&huart3, str1, 11, HAL_MAX_DELAY);
 
 
 			}
 			osMutexRelease(RemoteDataMutexHandle);
- 8001f60:	4b11      	ldr	r3, [pc, #68]	; (8001fa8 <TaskRemote+0x23c>)
- 8001f62:	681b      	ldr	r3, [r3, #0]
- 8001f64:	4618      	mov	r0, r3
- 8001f66:	f00a fdb7 	bl	800cad8 <osMutexRelease>
+ 8001f5c:	4b11      	ldr	r3, [pc, #68]	; (8001fa4 <TaskRemote+0x23c>)
+ 8001f5e:	681b      	ldr	r3, [r3, #0]
+ 8001f60:	4618      	mov	r0, r3
+ 8001f62:	f00a fdb9 	bl	800cad8 <osMutexRelease>
 
 			// Signal to the UART2 Callback
 			//RemoteBufferInProgress = true;
 		}
 
 		osDelay(100);
- 8001f6a:	2064      	movs	r0, #100	; 0x64
- 8001f6c:	f00a fd39 	bl	800c9e2 <osDelay>
+ 8001f66:	2064      	movs	r0, #100	; 0x64
+ 8001f68:	f00a fd3b 	bl	800c9e2 <osDelay>
 		Log("R-RBFS-WS");
- 8001f70:	e705      	b.n	8001d7e <TaskRemote+0x12>
- 8001f72:	bf00      	nop
- 8001f74:	2000036c 	.word	0x2000036c
- 8001f78:	20000a5c 	.word	0x20000a5c
- 8001f7c:	080156e0 	.word	0x080156e0
- 8001f80:	20000c04 	.word	0x20000c04
- 8001f84:	080156ec 	.word	0x080156ec
- 8001f88:	080156f8 	.word	0x080156f8
- 8001f8c:	20000bf8 	.word	0x20000bf8
- 8001f90:	08015704 	.word	0x08015704
- 8001f94:	200003ac 	.word	0x200003ac
- 8001f98:	200003ec 	.word	0x200003ec
- 8001f9c:	08015710 	.word	0x08015710
- 8001fa0:	0801571c 	.word	0x0801571c
- 8001fa4:	2000056c 	.word	0x2000056c
- 8001fa8:	20000be8 	.word	0x20000be8
- 8001fac:	cccccccd 	.word	0xcccccccd
- 8001fb0:	20000218 	.word	0x20000218
- 8001fb4:	2000021e 	.word	0x2000021e
- 8001fb8:	20000220 	.word	0x20000220
- 8001fbc:	2000021c 	.word	0x2000021c
- 8001fc0:	20000222 	.word	0x20000222
- 8001fc4:	20000224 	.word	0x20000224
- 8001fc8:	20000226 	.word	0x20000226
- 8001fcc:	20000228 	.word	0x20000228
- 8001fd0:	2000022a 	.word	0x2000022a
- 8001fd4:	2000022c 	.word	0x2000022c
+ 8001f6c:	e705      	b.n	8001d7a <TaskRemote+0x12>
+ 8001f6e:	bf00      	nop
+ 8001f70:	2000036c 	.word	0x2000036c
+ 8001f74:	20000a5c 	.word	0x20000a5c
+ 8001f78:	080156e0 	.word	0x080156e0
+ 8001f7c:	20000c04 	.word	0x20000c04
+ 8001f80:	080156ec 	.word	0x080156ec
+ 8001f84:	080156f8 	.word	0x080156f8
+ 8001f88:	20000bf8 	.word	0x20000bf8
+ 8001f8c:	08015704 	.word	0x08015704
+ 8001f90:	200003ac 	.word	0x200003ac
+ 8001f94:	200003ec 	.word	0x200003ec
+ 8001f98:	08015710 	.word	0x08015710
+ 8001f9c:	0801571c 	.word	0x0801571c
+ 8001fa0:	2000056c 	.word	0x2000056c
+ 8001fa4:	20000be8 	.word	0x20000be8
+ 8001fa8:	cccccccd 	.word	0xcccccccd
+ 8001fac:	20000218 	.word	0x20000218
+ 8001fb0:	2000021e 	.word	0x2000021e
+ 8001fb4:	20000220 	.word	0x20000220
+ 8001fb8:	2000021c 	.word	0x2000021c
+ 8001fbc:	20000222 	.word	0x20000222
+ 8001fc0:	20000224 	.word	0x20000224
+ 8001fc4:	20000226 	.word	0x20000226
+ 8001fc8:	20000228 	.word	0x20000228
+ 8001fcc:	2000022a 	.word	0x2000022a
+ 8001fd0:	2000022c 	.word	0x2000022c
+ 8001fd4:	00000000 	.word	0x00000000
 
 08001fd8 <TaskSensorData>:
 extern osMutexId ImuMutexHandle;
@@ -4875,17 +4875,17 @@ static void MX_SPI1_Init(void)
  8002b28:	4b14      	ldr	r3, [pc, #80]	; (8002b7c <MX_SPI1_Init+0x74>)
  8002b2a:	2200      	movs	r2, #0
  8002b2c:	611a      	str	r2, [r3, #16]
-  hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
+  hspi1.Init.CLKPhase = SPI_PHASE_2EDGE;
  8002b2e:	4b13      	ldr	r3, [pc, #76]	; (8002b7c <MX_SPI1_Init+0x74>)
- 8002b30:	2200      	movs	r2, #0
+ 8002b30:	2201      	movs	r2, #1
  8002b32:	615a      	str	r2, [r3, #20]
   hspi1.Init.NSS = SPI_NSS_HARD_OUTPUT;
  8002b34:	4b11      	ldr	r3, [pc, #68]	; (8002b7c <MX_SPI1_Init+0x74>)
  8002b36:	f44f 2280 	mov.w	r2, #262144	; 0x40000
  8002b3a:	619a      	str	r2, [r3, #24]
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_128;
  8002b3c:	4b0f      	ldr	r3, [pc, #60]	; (8002b7c <MX_SPI1_Init+0x74>)
- 8002b3e:	2238      	movs	r2, #56	; 0x38
+ 8002b3e:	2230      	movs	r2, #48	; 0x30
  8002b40:	61da      	str	r2, [r3, #28]
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
  8002b42:	4b0e      	ldr	r3, [pc, #56]	; (8002b7c <MX_SPI1_Init+0x74>)
@@ -4907,9 +4907,9 @@ static void MX_SPI1_Init(void)
  8002b5a:	4b08      	ldr	r3, [pc, #32]	; (8002b7c <MX_SPI1_Init+0x74>)
  8002b5c:	2200      	movs	r2, #0
  8002b5e:	631a      	str	r2, [r3, #48]	; 0x30
-  hspi1.Init.NSSPMode = SPI_NSS_PULSE_ENABLE;
+  hspi1.Init.NSSPMode = SPI_NSS_PULSE_DISABLE;
  8002b60:	4b06      	ldr	r3, [pc, #24]	; (8002b7c <MX_SPI1_Init+0x74>)
- 8002b62:	2208      	movs	r2, #8
+ 8002b62:	2200      	movs	r2, #0
  8002b64:	635a      	str	r2, [r3, #52]	; 0x34
   if (HAL_SPI_Init(&hspi1) != HAL_OK)
  8002b66:	4805      	ldr	r0, [pc, #20]	; (8002b7c <MX_SPI1_Init+0x74>)
@@ -5915,7 +5915,7 @@ void RunTaskRemote(void const * argument)
   /* USER CODE BEGIN RunTaskRemote */
 	TaskRemote(argument);
  8003114:	6878      	ldr	r0, [r7, #4]
- 8003116:	f7fe fe29 	bl	8001d6c <TaskRemote>
+ 8003116:	f7fe fe27 	bl	8001d68 <TaskRemote>
   /* USER CODE END RunTaskRemote */
 }
  800311a:	bf00      	nop
@@ -5937,7 +5937,7 @@ void RunTaskMotor(void const * argument)
   /* USER CODE BEGIN RunTaskMotor */
 	TaskMotor(argument);
  800312a:	6878      	ldr	r0, [r7, #4]
- 800312c:	f7fe fd40 	bl	8001bb0 <TaskMotor>
+ 800312c:	f7fe fd3e 	bl	8001bac <TaskMotor>
   /* USER CODE END RunTaskMotor */
 }
  8003130:	bf00      	nop
@@ -5959,7 +5959,7 @@ void RunTaskPower(void const * argument)
   /* USER CODE BEGIN RunTaskPower */
 	TaskPower(argument);
  8003140:	6878      	ldr	r0, [r7, #4]
- 8003142:	f7fe fe0b 	bl	8001d5c <TaskPower>
+ 8003142:	f7fe fe09 	bl	8001d58 <TaskPower>
   /* USER CODE END RunTaskPower */
 }
  8003146:	bf00      	nop
@@ -10192,8 +10192,8 @@ uint8_t MPU_Init(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250)
  8004e0e:	490b      	ldr	r1, [pc, #44]	; (8004e3c <MPU_Init+0xd4>)
  8004e10:	4809      	ldr	r0, [pc, #36]	; (8004e38 <MPU_Init+0xd0>)
  8004e12:	f006 f8df 	bl	800afd4 <HAL_UART_Transmit>
-	MPU_calibrateGyro(SPIx, pMPU9250, 10);
- 8004e16:	220a      	movs	r2, #10
+	MPU_calibrateGyro(SPIx, pMPU9250, 20);
+ 8004e16:	2214      	movs	r2, #20
  8004e18:	6839      	ldr	r1, [r7, #0]
  8004e1a:	6878      	ldr	r0, [r7, #4]
  8004e1c:	f000 f850 	bl	8004ec0 <MPU_calibrateGyro>

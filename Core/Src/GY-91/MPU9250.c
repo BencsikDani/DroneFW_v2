@@ -41,7 +41,7 @@ uint8_t MPU_Init(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250)
 
 	// Calibrate the IMU
 	HAL_UART_Transmit(&huart3, "CALIBRATING...\r\n", strlen("CALIBRATING...\r\n"), HAL_MAX_DELAY);
-	MPU_calibrateGyro(SPIx, pMPU9250, 10);
+	MPU_calibrateGyro(SPIx, pMPU9250, 20);
 
 	return 0;
 }
@@ -314,7 +314,7 @@ void MPU_calcAttitude(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250)
     pMPU9250->attitude.lastTick = currentTick;
 
     //pMPU9250->attitude.roll += (pMPU9250->sensorData.gx * pMPU9250->attitude.dt);
-n    pMPU9250->attitude.roll = pMPU9250->attitude.tau * (pMPU9250->attitude.roll + pMPU9250->sensorData.gx * pMPU9250->attitude.dt) + (1.0f - pMPU9250->attitude.tau) * accelRoll;
+    pMPU9250->attitude.roll = pMPU9250->attitude.tau * (pMPU9250->attitude.roll + pMPU9250->sensorData.gx * pMPU9250->attitude.dt) + (1.0f - pMPU9250->attitude.tau) * accelRoll;
     //pMPU9250->attitude.pitch += (pMPU9250->sensorData.gy * pMPU9250->attitude.dt);
     pMPU9250->attitude.pitch = pMPU9250->attitude.tau * (pMPU9250->attitude.pitch + pMPU9250->sensorData.gy * pMPU9250->attitude.dt) + (1.0f - pMPU9250->attitude.tau) * accelPitch;
     pMPU9250->attitude.yaw += (pMPU9250->sensorData.gz * pMPU9250->attitude.dt);
