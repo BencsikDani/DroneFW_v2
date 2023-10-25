@@ -48,8 +48,8 @@ void TaskController(void const *argument)
 				&& osMutexWait(RemoteDataMutexHandle, osWaitForever) == osOK
 				&& osMutexWait(ImuMutexHandle, osWaitForever) == osOK)
 		{
-			PID_Roll_AngVel.Kp = VRA / 50.0;
-			PID_Roll_AngVel.Kd = VRB / 50.0;
+			PID_Roll_AngVel.Kp = VRA / 1000.0;
+			PID_Roll_AngVel.Kd = VRB / 1000.0;
 
 			//float AngVelRef = PIDController_Update(&PID_Roll_Attitude, Roll_in/5, Roll_measured);
 			Roll_controlled = PIDController_Update(&PID_Roll_AngVel, (Roll_in), GyroData[0]);

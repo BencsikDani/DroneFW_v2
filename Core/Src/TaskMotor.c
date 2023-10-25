@@ -10,14 +10,14 @@ extern osMutexId ControllerMutexHandle;
 
 uint32_t ConvertToPwm(int32_t raw)
 {
-	// Norm raw data to 0-50
+	// Norm raw data to 0-1000
 	if (raw < 0)
 		raw = 0;
-	else if (raw > 50)
-		raw = 50;
+	else if (raw > 1000)
+		raw = 1000;
 
-	// Add 50, so the range will be 50-100
-	return (uint32_t)(raw + 50);
+	// Add 50, so the range will be 1000-2000
+	return (uint32_t)(raw + 1000);
 }
 
 void TaskMotor(void const *argument)
@@ -78,10 +78,10 @@ void TaskMotor(void const *argument)
 				//{
 				if (osMutexWait(ControllerMutexHandle, osWaitForever) == osOK)
 				{
-					ESC1_Speed = Throttle_in + Roll_controlled; // - (Pitch_in/5) - (Yaw_in/5);
-					ESC2_Speed = Throttle_in - Roll_controlled; // - (Pitch_in/5) + (Yaw_in/5);
-					ESC3_Speed = Throttle_in - Roll_controlled; // + (Pitch_in/5) - (Yaw_in/5);
-					ESC4_Speed = Throttle_in + Roll_controlled; // + (Pitch_in/5) + (Yaw_in/5);
+					ESC1_Speed = Throttle_in;// + Roll_controlled; // - (Pitch_in/5) - (Yaw_in/5);
+					ESC2_Speed = Throttle_in;// - Roll_controlled; // - (Pitch_in/5) + (Yaw_in/5);
+					ESC3_Speed = Throttle_in;// - Roll_controlled; // + (Pitch_in/5) - (Yaw_in/5);
+					ESC4_Speed = Throttle_in;// + Roll_controlled; // + (Pitch_in/5) + (Yaw_in/5);
 				}
 				osMutexRelease(ControllerMutexHandle);
 
@@ -98,10 +98,10 @@ void TaskMotor(void const *argument)
 			}
 			else
 			{
-				TIM1->CCR1 = (uint32_t) (50);
-				TIM1->CCR2 = (uint32_t) (50);
-				TIM1->CCR3 = (uint32_t) (50);
-				TIM1->CCR4 = (uint32_t) (50);
+				TIM1->CCR1 = (uint32_t) (1000);
+				TIM1->CCR2 = (uint32_t) (1000);
+				TIM1->CCR3 = (uint32_t) (1000);
+				TIM1->CCR4 = (uint32_t) (1000);
 			}
 		}
 		osMutexRelease(RemoteDataMutexHandle);
