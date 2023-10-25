@@ -14,6 +14,7 @@
 #define WHO_AM_I          0x75
 #define USER_CTRL         0x6A
 #define PWR_MGMT_1        0x6B
+#define CONFIG            0x1A
 #define GYRO_CONFIG       0x1B
 #define ACCEL_CONFIG      0x1C
 #define ACCEL_XOUT_H      0x3B

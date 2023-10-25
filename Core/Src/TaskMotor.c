@@ -6,9 +6,26 @@
 
 extern TIM_HandleTypeDef htim1;
 extern osMutexId RemoteDataMutexHandle;
+extern osMutexId ControllerMutexHandle;
+
+uint32_t ConvertToPwm(int32_t raw)
+{
+	// Norm raw data to 0-50
+	if (raw < 0)
+		raw = 0;
+	else if (raw > 50)
+		raw = 50;
+
+	// Add 50, so the range will be 50-100
+	return (uint32_t)(raw + 50);
+}
 
 void TaskMotor(void const *argument)
 {
+	TickType_t xLastWakeTime;
+	const TickType_t xFrequency = 200; //Hz
+	const TickType_t xTickDuration = (1000 * 1 / xFrequency) / portTICK_PERIOD_MS; // Ticks to delay the task for
+
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
@@ -24,47 +41,60 @@ void TaskMotor(void const *argument)
 	TIM1->CCR3 = (uint32_t) (50);
 	TIM1->CCR4 = (uint32_t) (50);
 
+	xLastWakeTime = xTaskGetTickCount();
 	/* Infinite loop */
 	while (1)
 	{
+		// Wait for the next cycle.
+		vTaskDelayUntil(&xLastWakeTime, xTickDuration);
+
+		TickType_t time = xTaskGetTickCount();
+
 		//Log("Mot - RDMutEnter");
 		if (osMutexWait(RemoteDataMutexHandle, osWaitForever) == osOK)
 		{
+			// Hardware safety
 			if (SWA < 10)
 				HAL_GPIO_WritePin(ESC_DOWN_OUT_GPIO_Port, ESC_DOWN_OUT_Pin, GPIO_PIN_SET);
 
 			else
 				HAL_GPIO_WritePin(ESC_DOWN_OUT_GPIO_Port, ESC_DOWN_OUT_Pin, GPIO_PIN_RESET);
 
+			// Software safety
 			if (SWB < 10)
 				Rotors = false;
 			else
 				Rotors = true;
 
-
-			if (SWD < 10)
-			{
-				ESC1_start_signal = 1;
-				ESC2_start_signal = 1;
-				ESC3_start_signal = 1;
-				ESC4_start_signal = 1;
-			}
-			else
-			{
-				ESC1_start_signal = 1;
-				ESC2_start_signal = 1;
-				ESC3_start_signal = 1;
-				ESC4_start_signal = 3;
-			}
-
-
 			// Setting PWM speed
 			if (Rotors)
 			{
-				TIM1->CCR1 = (uint32_t) ((Throttle_in * (50-(ESC1_start_signal-1)) / 50) + (50+ESC1_start_signal-1));
-				TIM1->CCR2 = (uint32_t) ((Throttle_in * (50-(ESC2_start_signal-1)) / 50) + (50+ESC2_start_signal-1));
-				TIM1->CCR3 = (uint32_t) ((Throttle_in * (50-(ESC3_start_signal-1)) / 50) + (50+ESC3_start_signal-1));
-				TIM1->CCR4 = (uint32_t) ((Throttle_in * (50-(ESC4_start_signal-1)) / 50) + (50+ESC4_start_signal-1));
+				int32_t ESC1_Speed;
+				int32_t ESC2_Speed;
+				int32_t ESC3_Speed;
+				int32_t ESC4_Speed;
+
+				// if (Throttle_in)
+				//{
+				if (osMutexWait(ControllerMutexHandle, osWaitForever) == osOK)
+				{
+					ESC1_Speed = Throttle_in + Roll_controlled; // - (Pitch_in/5) - (Yaw_in/5);
+					ESC2_Speed = Throttle_in - Roll_controlled; // - (Pitch_in/5) + (Yaw_in/5);
+					ESC3_Speed = Throttle_in - Roll_controlled; // + (Pitch_in/5) - (Yaw_in/5);
+					ESC4_Speed = Throttle_in + Roll_controlled; // + (Pitch_in/5) + (Yaw_in/5);
+				}
+				osMutexRelease(ControllerMutexHandle);
+
+				//}
+//				ESC1_Speed = 0;
+//				ESC2_Speed = 0;
+//				ESC3_Speed = 0;
+//				ESC4_Speed = 0;
+
+				TIM1->CCR1 = ConvertToPwm(ESC1_Speed);
+				TIM1->CCR2 = ConvertToPwm(ESC2_Speed);
+				TIM1->CCR3 = ConvertToPwm(ESC3_Speed);
+				TIM1->CCR4 = ConvertToPwm(ESC4_Speed);
 			}
 			else
 			{
@@ -76,6 +106,6 @@ void TaskMotor(void const *argument)
 		}
 		osMutexRelease(RemoteDataMutexHandle);
 
-		osDelay(100);
+		//LogN(xTaskGetTickCount() - time);
 	}
 }

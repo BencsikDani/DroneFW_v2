@@ -7,6 +7,7 @@
 #include "GY-271/HMC5883L.h"
 #include "HCSR04/HCSR04.h"
 #include "GPS/GPS.h"
+#include "Controller/PID.h"
 #include "stdio.h"
 #include "stdbool.h"
 
@@ -35,6 +36,7 @@
 
 extern bool Diag;
 extern bool DebugIsOn;
+extern bool Tune;
 
 extern int Uart2CallbackCounter;
 
@@ -45,15 +47,19 @@ extern bool IsMagnAvailable;
 extern bool IsDistAvailable;
 extern bool IsGpsAvailable;
 
+// Controllers
+extern PIDController PID_Roll_Attitude;
+extern PIDController PID_Roll_AngVel;
+
 // Transmitter channel variables
 extern uint16_t Throttle_in;
 extern uint16_t Throttle_controlled;
-extern int16_t Yaw_in;
-extern int16_t Yaw_controlled;
-extern int16_t Pitch_in;
-extern int16_t Pitch_controlled;
 extern int16_t Roll_in;
 extern int16_t Roll_controlled;
+extern int16_t Pitch_in;
+extern int16_t Pitch_controlled;
+extern int16_t Yaw_in;
+extern int16_t Yaw_controlled;
 extern uint16_t SWA;
 extern uint16_t SWB;
 extern uint16_t SWC;

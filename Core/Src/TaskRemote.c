@@ -19,23 +19,35 @@ extern UART_HandleTypeDef huart3;
 //   it processes that and saves it to the corresponding Global variables.
 void TaskRemote(void const *argument)
 {
+	TickType_t xLastWakeTime;
+	const TickType_t xFrequency = 50; //Hz
+	const TickType_t xTickDuration = (1000 * 1 / xFrequency) / portTICK_PERIOD_MS; // Ticks to delay the task for
+
 	static uint16_t channelValues[IBUS_MAXCHANNELS];// Output values of the channels (1000 ... 2000)
 
 	HAL_UART_Receive_DMA(&huart2, &Uart2Buffer, 64);
 
+	xLastWakeTime = xTaskGetTickCount();
 	/* Infinite loop */
 	while (1)
 	{
-		Log("R-RBFS-WS");
+		//Log("R-WS");
+		// Wait for the next cycle.
+		vTaskDelayUntil(&xLastWakeTime, xTickDuration);
+		//Log("R-WE");
+
+		TickType_t time = xTaskGetTickCount();
+
+		//Log("R-RBFS-WS");
 		if (osSemaphoreWait(RemoteBufferFullSemaphoreHandle, osWaitForever) == osOK)
 		{
-			Log("R-RBFS-WE");
+			//Log("R-RBFS-WE");
 
 			//Find the last complete 32 bit iBus packet in the 64 bit RemoteBuffer
-			Log("R-RBM-WS");
+			//Log("R-RBM-WS");
 			if (osMutexWait(RemoteBufferMutexHandle, osWaitForever) == osOK)
 			{
-				Log("R-RBM-WE");
+				//Log("R-RBM-WE");
 
 				for (int i = 32; i >= 0; i--)
 				{
@@ -46,9 +58,9 @@ void TaskRemote(void const *argument)
 					}
 				}
 
-				Log("R-RBM-RS");
+				//Log("R-RBM-RS");
 				osMutexRelease(RemoteBufferMutexHandle);
-				Log("R-RBM-RE");
+				//Log("R-RBM-RE");
 			}
 
 
@@ -61,10 +73,10 @@ void TaskRemote(void const *argument)
 				channelValues[i] = (LastIbusPacket[3 + 2 * i] << 8) + LastIbusPacket[2 + 2 * i];
 
 			// Setting the speed
-
+			//Log("R-RDM-WS");
 			if (osMutexWait(RemoteDataMutexHandle, osWaitForever) == osOK)
 			{
-
+				//Log("R-RDM-WE");
 
 				// Transmit raw channel values
 //					char str[10];
@@ -92,7 +104,9 @@ void TaskRemote(void const *argument)
 
 
 			}
+			//Log("R-RDM-RS");
 			osMutexRelease(RemoteDataMutexHandle);
+			//Log("R-RDM-RE");
 
 
 			//char str2[40];
@@ -104,6 +118,6 @@ void TaskRemote(void const *argument)
 			//RemoteBufferInProgress = true;
 		}
 
-		osDelay(100);
+		//LogN(xTaskGetTickCount() - time);
 	}
 }

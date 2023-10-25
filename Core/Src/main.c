@@ -82,6 +82,7 @@ osMutexId ImuMutexHandle;
 osMutexId GpsDataMutexHandle;
 osMutexId DistMutexHandle;
 osMutexId RemoteBufferMutexHandle;
+osMutexId ControllerMutexHandle;
 osSemaphoreId DistSemaphoreHandle;
 osSemaphoreId GpsBufferSemaphoreHandle;
 osSemaphoreId RemoteBufferFullSemaphoreHandle;
@@ -326,6 +327,10 @@ int main(void)
   osMutexDef(RemoteBufferMutex);
   RemoteBufferMutexHandle = osMutexCreate(osMutex(RemoteBufferMutex));
 
+  /* definition and creation of ControllerMutex */
+  osMutexDef(ControllerMutex);
+  ControllerMutexHandle = osMutexCreate(osMutex(ControllerMutex));
+
   /* USER CODE BEGIN RTOS_MUTEX */
 
 	osMutexRelease(MagnMutexHandle);
@@ -333,6 +338,7 @@ int main(void)
 	osMutexRelease(ImuMutexHandle);
 	osMutexRelease(GpsDataMutexHandle);
 	osMutexRelease(RemoteBufferMutexHandle);
+	osMutexRelease(ControllerMutexHandle);
 
   /* USER CODE END RTOS_MUTEX */
 
@@ -371,7 +377,7 @@ int main(void)
 
   /* Create the thread(s) */
   /* definition and creation of TaskSensorData */
-  osThreadDef(TaskSensorData, RunTaskSensorData, osPriorityRealtime, 0, 512);
+  osThreadDef(TaskSensorData, RunTaskSensorData, osPriorityHigh, 0, 512);
   TaskSensorDataHandle = osThreadCreate(osThread(TaskSensorData), NULL);
 
   /* definition and creation of TaskController */
@@ -379,7 +385,7 @@ int main(void)
   TaskControllerHandle = osThreadCreate(osThread(TaskController), NULL);
 
   /* definition and creation of TaskRemote */
-  osThreadDef(TaskRemote, RunTaskRemote, osPriorityHigh, 0, 512);
+  osThreadDef(TaskRemote, RunTaskRemote, osPriorityRealtime, 0, 512);
   TaskRemoteHandle = osThreadCreate(osThread(TaskRemote), NULL);
 
   /* definition and creation of TaskMotor */
@@ -426,7 +432,7 @@ void SystemClock_Config(void)
   /** Configure the main internal regulator output voltage
   */
   __HAL_RCC_PWR_CLK_ENABLE();
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
@@ -436,7 +442,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLM = 16;
+  RCC_OscInitStruct.PLL.PLLM = 8;
   RCC_OscInitStruct.PLL.PLLN = 216;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 2;
@@ -458,10 +464,10 @@ void SystemClock_Config(void)
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_7) != HAL_OK)
   {
     Error_Handler();
   }
@@ -483,7 +489,7 @@ static void MX_I2C1_Init(void)
 
   /* USER CODE END I2C1_Init 1 */
   hi2c1.Instance = I2C1;
-  hi2c1.Init.Timing = 0x20808DD4;
+  hi2c1.Init.Timing = 0xA0404E72;
   hi2c1.Init.OwnAddress1 = 0;
   hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -535,10 +541,10 @@ static void MX_SPI1_Init(void)
   hspi1.Init.Mode = SPI_MODE_MASTER;
   hspi1.Init.Direction = SPI_DIRECTION_2LINES;
   hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
-  hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
+  hspi1.Init.CLKPolarity = SPI_POLARITY_HIGH;
   hspi1.Init.CLKPhase = SPI_PHASE_2EDGE;
   hspi1.Init.NSS = SPI_NSS_HARD_OUTPUT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_128;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -578,7 +584,7 @@ static void MX_SPI2_Init(void)
   hspi2.Init.CLKPolarity = SPI_POLARITY_HIGH;
   hspi2.Init.CLKPhase = SPI_PHASE_2EDGE;
   hspi2.Init.NSS = SPI_NSS_SOFT;
-  hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;
+  hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;
   hspi2.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi2.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi2.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -646,7 +652,7 @@ static void MX_TIM1_Init(void)
   sConfigOC.Pulse = 0;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
-  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  sConfigOC.OCFastMode = TIM_OCFAST_ENABLE;
   sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
   sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
   if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
@@ -822,11 +828,11 @@ static void MX_USART3_UART_Init(void)
 
   /* USER CODE END USART3_Init 1 */
   huart3.Instance = USART3;
-  huart3.Init.BaudRate = 115200;
+  huart3.Init.BaudRate = 921600;
   huart3.Init.WordLength = UART_WORDLENGTH_8B;
   huart3.Init.StopBits = UART_STOPBITS_1;
   huart3.Init.Parity = UART_PARITY_NONE;
-  huart3.Init.Mode = UART_MODE_TX_RX;
+  huart3.Init.Mode = UART_MODE_TX;
   huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
   huart3.Init.OverSampling = UART_OVERSAMPLING_16;
   huart3.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
@@ -852,7 +858,7 @@ static void MX_DMA_Init(void)
 
   /* DMA interrupt init */
   /* DMA1_Stream5_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 5, 0);
+  HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 8, 0);
   HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
 
 }

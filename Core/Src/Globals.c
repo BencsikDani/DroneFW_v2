@@ -10,6 +10,7 @@
 
 bool Diag = true;
 bool DebugIsOn = false;
+bool Tune = true;
 
 int Uart2CallbackCounter = 0;
 
@@ -19,6 +20,10 @@ bool IsImuAvailable = false;
 bool IsMagnAvailable = false;
 bool IsDistAvailable = false;
 bool IsGpsAvailable = false;
+
+// Controllers
+PIDController PID_Roll_Attitude;
+PIDController PID_Roll_AngVel;
 
 // Transmitter channel variables
 uint16_t Throttle_in = 0;

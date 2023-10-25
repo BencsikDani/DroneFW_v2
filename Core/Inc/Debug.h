@@ -3,4 +3,6 @@
 
 void Log(const char* str);
 
+void LogN(const uint32_t n);
+
 #endif /* DEBUG_H */

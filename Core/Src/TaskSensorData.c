@@ -3,6 +3,7 @@
 #include "GY-271/HMC5883L.h"
 #include "HCSR04/HCSR04.h"
 #include "GPS/GPS.h"
+#include "LPF.h"
 #include "cmsis_os.h"
 #include "math.h"
 #include "Globals.h"
@@ -24,13 +25,53 @@ extern osMutexId GpsDataMutexHandle;
 
 void TaskSensorData(void const *argument)
 {
+	TickType_t xLastWakeTime;
+	const TickType_t xFrequency = 200; //Hz
+	const TickType_t xTickDuration = (1000 * 1 / xFrequency) / portTICK_PERIOD_MS; // Ticks to delay the task for
+
+	bool Recalibrate = false;
+
+	/*
+	LPF GyroLPF[3];
+
+	GyroLPF[0].T = 0.005;
+	GyroLPF[0].f_cutoff = 100;
+	LPF_Init(&(GyroLPF[0]));
+
+	GyroLPF[1].T = 0.005;
+	GyroLPF[1].f_cutoff = 100;
+	LPF_Init(&(GyroLPF[1]));
+
+	GyroLPF[2].T = 0.005;
+	GyroLPF[2].f_cutoff = 100;
+	LPF_Init(&(GyroLPF[2]));
+	*/
+
+	xLastWakeTime = xTaskGetTickCount();
 	/* Infinite loop */
 	while (1)
 	{
+		// Wait for the next cycle.
+		vTaskDelayUntil(&xLastWakeTime, xTickDuration);
+
+		TickType_t time = xTaskGetTickCount();
+
 		// IMU Data
 		if (IsImuAvailable)
 		{
-			//Log("SD-IA");
+			Log("SD-RDM-WS");
+			if (osMutexWait(RemoteDataMutexHandle, osWaitForever) == osOK)
+			{
+				Log("SD-RDM-WE");
+				if (SWC == 50)
+				{
+					Recalibrate = true;
+				}
+
+			}
+			Log("SD-RDM-RS");
+			osMutexRelease(RemoteDataMutexHandle);
+			Log("SD-RDM-RE");
 
 			//MPU9250_GetData(AccData, &TempData, GyroData, MagData, false);
 			//MPU_readRawData(&hspi2, &MPU9250);
@@ -38,10 +79,17 @@ void TaskSensorData(void const *argument)
 
 			BMP280_measure(&BMP280);
 
-			//Log("SD-IMW-S");
+			Log("SD-IM-WS");
 			if (osMutexWait(ImuMutexHandle, osWaitForever) == osOK)
 			{
-				//Log("SD-IMW-E");
+				Log("SD-IM-WE");
+				if (Recalibrate)
+				{
+					HAL_UART_Transmit(&huart3, "CALIBRATING...\r\n", strlen("CALIBRATING...\r\n"), HAL_MAX_DELAY);
+					MPU_calibrateGyro(&hspi2, &MPU9250, 20);
+
+					Recalibrate = false;
+				}
 
 				AccData[0] = MPU9250.sensorData.ax;
 				AccData[1] = MPU9250.sensorData.ay;
@@ -50,6 +98,9 @@ void TaskSensorData(void const *argument)
 				GyroData[0] = MPU9250.sensorData.gx;
 				GyroData[1] = MPU9250.sensorData.gy;
 				GyroData[2] = MPU9250.sensorData.gz;
+				//GyroData[0] = LPF_Update(&(GyroLPF[0]), MPU9250.sensorData.gx);
+				//GyroData[1] = LPF_Update(&(GyroLPF[1]), MPU9250.sensorData.gy);
+				//GyroData[2] = LPF_Update(&(GyroLPF[2]), MPU9250.sensorData.gz);
 				Roll_measured = MPU9250.attitude.roll;
 				Pitch_measured = MPU9250.attitude.pitch;
 				Yaw_measured = MPU9250.attitude.yaw;
@@ -58,20 +109,19 @@ void TaskSensorData(void const *argument)
 				BMP_Pres = BMP280.measurement.pressure;
 				BMP_Alt = BMP280.measurement.altitude;
 
-				//Log("SD-IMR-S");
 			}
+			Log("SD-IM-RS");
 			osMutexRelease(ImuMutexHandle);
-			//Log("SD-IMR-E");
+			Log("SD-IM-RE");
 		}
 
 		// Magnetometer Data
 		if (IsMagnAvailable)
 		{
-			//Log("SD-MA");
-			//Log("SD-MMW-S");
+			Log("SD-MM-WS");
 			if (osMutexWait(MagnMutexHandle, osWaitForever) == osOK)
 			{
-				//Log("SD-MMW-E");
+				Log("SD-MM-WE");
 
 				struct Vector res = HMC5883L_readRaw();
 				MAG_X_RAW = res.XAxis;
@@ -110,11 +160,10 @@ void TaskSensorData(void const *argument)
 					MAG_dir += 360.0f;
 				if (MAG_dir > 360.0f)
 					MAG_dir -= 360.0f;
-
-				//Log("SD-MMR-S");
 			}
+			Log("SD-MM-RS");
 			osMutexRelease(MagnMutexHandle);
-			//Log("SD-MMR-E");
+			Log("SD-MM-RE");
 		}
 
 		// Distance Data
@@ -128,21 +177,20 @@ void TaskSensorData(void const *argument)
 			}
 			else if (HCSR04.Triggered)
 			{
-				//Log("SD-DSW-S");
-				if (osSemaphoreWait(DistSemaphoreHandle, osWaitForever) == osOK)
+				Log("SD-DS-WS");
+				if (osSemaphoreWait(DistSemaphoreHandle, 0) == osOK)
 				{
-					//Log("SD-DSW-E");
-					//Log("SD-DMW-S");
+					Log("SD-DS-WE");
+					Log("SD-DM-WS");
 					if (osMutexWait(DistMutexHandle, osWaitForever) == osOK)
 					{
-						//Log("SD-DMW-E");
+						Log("SD-DM-WE");
 
 						Distance = HCSR04_Read(&HCSR04);
-
-						//Log("SD-DMR-S");
 					}
+					Log("SD-DM-RS");
 					osMutexRelease(DistMutexHandle);
-					//Log("SD-DMR-E");
+					Log("SD-DM-RE");
 
 					HCSR04.Triggered = false;
 				}
@@ -173,6 +221,6 @@ void TaskSensorData(void const *argument)
 			}
 		}
 
-		osDelay(5);
+		//LogN(xTaskGetTickCount() - time);
 	}
 }
