@@ -87,16 +87,16 @@ void TaskRemote(void const *argument)
 //					}
 //					HAL_UART_Transmit(&huart3, "\r\n", sizeof("\r\n"), HAL_MAX_DELAY);
 
-				Throttle_in = (channelValues[THROTTLE_CHANNEL] / 20) - 50;
-				Pitch_in = (channelValues[PITCH_CHANNEL] / 20) - 75;
-				Roll_in = (channelValues[ROLL_CHANNEL] / 20) - 75;
-				Yaw_in = (channelValues[YAW_CHANNEL] / 20) - 75;
-				SWA = (channelValues[SWA_CHANNEL] / 20) - 50;
-				SWB = (channelValues[SWB_CHANNEL] / 20) - 50;
-				SWC = (channelValues[SWC_CHANNEL] / 20) - 50;
-				SWD = (channelValues[SWD_CHANNEL] / 20) - 50;
-				VRA = (channelValues[VRA_CHANNEL] / 20) - 50;
-				VRB = (channelValues[VRB_CHANNEL] / 20) - 50;
+				Throttle_in = channelValues[THROTTLE_CHANNEL] - 1000;
+				Pitch_in = channelValues[PITCH_CHANNEL] - 1500;
+				Roll_in = channelValues[ROLL_CHANNEL] - 1500;
+				Yaw_in = channelValues[YAW_CHANNEL] - 1500;
+				SWA = channelValues[SWA_CHANNEL] - 1000;
+				SWB = channelValues[SWB_CHANNEL] - 1000;
+				SWC = channelValues[SWC_CHANNEL] - 1000;
+				SWD = channelValues[SWD_CHANNEL] - 1000;
+				VRA = channelValues[VRA_CHANNEL] - 1000;
+				VRB = channelValues[VRB_CHANNEL] - 1000;
 
 				//char str1[40];
 				//sprintf(str1, "In: %d\r\n", channelValues[THROTTLE_CHANNEL]);
