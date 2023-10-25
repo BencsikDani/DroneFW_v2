@@ -23,7 +23,7 @@ uint8_t MPU_Init(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250)
 	HAL_GPIO_WritePin(SPI2_IMU_CSBM_GPIO_Port, SPI2_IMU_CSBM_Pin, GPIO_PIN_SET);
 
 	// Set the config parameters
-	pMPU9250->settings.gFullScaleRange = GFSR_250DPS;
+	pMPU9250->settings.gFullScaleRange = GFSR_500DPS;
 	pMPU9250->settings.aFullScaleRange = AFSR_2G;
 	pMPU9250->settings.CS_PIN = SPI2_IMU_CSIMU_Pin;
 	pMPU9250->settings.CS_PORT = SPI2_IMU_CSIMU_GPIO_Port;
@@ -71,6 +71,12 @@ uint8_t MPU_begin(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250)
         // Set the full scale ranges
         MPU_writeAccFullScaleRange(SPIx, pMPU9250, pMPU9250->settings.aFullScaleRange);
         MPU_writeGyroFullScaleRange(SPIx, pMPU9250, pMPU9250->settings.gFullScaleRange);
+
+        // Set 41 Hz LPF in Config Register
+        uint8_t addr = CONFIG;
+        uint8_t val = 0x03;
+        MPU_REG_WRITE(SPIx, pMPU9250, &addr, &val);
+
         return 1;
     }
     else

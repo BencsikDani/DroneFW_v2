@@ -17,3 +17,14 @@ void Log(const char* msg)
 		HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
 	}
 }
+
+void LogN(const uint32_t n)
+{
+	if (/* DebugIsOn*/ 1)
+	{
+		char str[100];
+
+		sprintf(str, "%d\r\n", n);
+		HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
+	}
+}

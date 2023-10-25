@@ -1,6 +1,7 @@
 "./Core/Src/Controller/PID.o"
 "./Core/Src/Debug.o"
 "./Core/Src/Globals.o"
+"./Core/Src/LPF.o"
 "./Core/Src/TaskController.o"
 "./Core/Src/TaskDiagnostics.o"
 "./Core/Src/TaskMotor.o"

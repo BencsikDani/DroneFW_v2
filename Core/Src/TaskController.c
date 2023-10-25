@@ -2,57 +2,62 @@
 #include "Controller/PID.h"
 
 extern osMutexId DistMutexHandle;
+extern osMutexId ImuMutexHandle;
+extern osMutexId RemoteDataMutexHandle;
+extern osMutexId ControllerMutexHandle;
 
 void TaskController(void const *argument)
 {
-	// Inner loop controllers
-	PIDController PID_Thrust;
-	PID_Thrust.Kd = 10;
-	PID_Thrust.Ki = 10;
-	PID_Thrust.Kd = 10;
-	PID_Thrust.T = 0.01f;
-	PID_Thrust.limMin = 0;
-	PID_Thrust.limMax = 30;
-	PIDController_Init(&PID_Thrust);
+	TickType_t xLastWakeTime;
+	const TickType_t xFrequency = 200; //Hz
+	const TickType_t xTickDuration = (1000 * 1 / xFrequency) / portTICK_PERIOD_MS; // Ticks to delay the task for
 
-	PIDController PID_Yaw;
-	PID_Yaw.Kd = 0;
-	PID_Yaw.Ki = 0;
-	PID_Yaw.Kd = 0;
-	PID_Yaw.T = 0;
-	PID_Yaw.limMin = 0;
-	PID_Yaw.limMax = 50;
-	PIDController_Init(&PID_Yaw);
+	PID_Roll_Attitude.Kp = 0;
+	PID_Roll_Attitude.Ki = 0;
+	PID_Roll_Attitude.Kd = 0;
+	PID_Roll_Attitude.T = 0;
+	PID_Roll_Attitude.limMin = 0;
+	PID_Roll_Attitude.limMax = 50;
+	PIDController_Init(&PID_Roll_Attitude);
 
-	PIDController PID_Pitch;
-	PID_Pitch.Kd = 0;
-	PID_Pitch.Ki = 0;
-	PID_Pitch.Kd = 0;
-	PID_Pitch.T = 0;
-	PID_Pitch.limMin = 0;
-	PID_Pitch.limMax = 50;
-	PIDController_Init(&PID_Pitch);
+	PID_Roll_AngVel.Kp = 0;
+	PID_Roll_AngVel.Ki = 0;
+	PID_Roll_AngVel.Kd = 0;
+	PID_Roll_AngVel.T = 0.005;
+	PID_Roll_AngVel.limMin = -25;
+	PID_Roll_AngVel.limMax = 25;
+	PIDController_Init(&PID_Roll_AngVel);
 
-	PIDController PID_Roll;
-	PID_Roll.Kd = 0;
-	PID_Roll.Ki = 0;
-	PID_Roll.Kd = 0;
-	PID_Roll.T = 0;
-	PID_Roll.limMin = 0;
-	PID_Roll.limMax = 50;
-	PIDController_Init(&PID_Roll);
-
+	xLastWakeTime = xTaskGetTickCount();
 	// Infinite loop
 	while (1)
 	{
+		// Wait for the next cycle.
+		vTaskDelayUntil(&xLastWakeTime, xTickDuration);
 
-		if (osMutexWait(DistMutexHandle, osWaitForever) == osOK)
+		TickType_t time = xTaskGetTickCount();
+
+//		if (osMutexWait(DistMutexHandle, osWaitForever) == osOK)
+//		{
+//			Throttle_controlled = PIDController_Update(&PID_Thrust, 0.2f, Distance/1000.0f);
+//		}
+//		osMutexRelease(DistMutexHandle);
+
+
+		if (osMutexWait(ControllerMutexHandle, osWaitForever) == osOK
+				&& osMutexWait(RemoteDataMutexHandle, osWaitForever) == osOK
+				&& osMutexWait(ImuMutexHandle, osWaitForever) == osOK)
 		{
-			Throttle_controlled = PIDController_Update(&PID_Thrust, 0.2f, Distance/1000.0f);
+			PID_Roll_AngVel.Kp = VRA / 50.0;
+			PID_Roll_AngVel.Kd = VRB / 50.0;
+
+			//float AngVelRef = PIDController_Update(&PID_Roll_Attitude, Roll_in/5, Roll_measured);
+			Roll_controlled = PIDController_Update(&PID_Roll_AngVel, (Roll_in), GyroData[0]);
 		}
-		osMutexRelease(DistMutexHandle);
+		osMutexRelease(ControllerMutexHandle);
+		osMutexRelease(RemoteDataMutexHandle);
+		osMutexRelease(ImuMutexHandle);
 
-
-		osDelay(10);
+		//LogN(xTaskGetTickCount() - time);
 	}
 }

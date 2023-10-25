@@ -2,6 +2,7 @@
 #define PID_CONTROLLER_H
 
 #include "stdbool.h"
+#include <stdint.h>
 
 typedef struct {
 
@@ -11,6 +12,7 @@ typedef struct {
 	// Sample time (in seconds)
 	// Should be less then (T_system / 10)
 	float T;
+	uint32_t lastTick;
 
 	// Derivative low-pass filter
 	float tau, alpha;

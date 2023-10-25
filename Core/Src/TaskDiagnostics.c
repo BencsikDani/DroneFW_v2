@@ -13,6 +13,7 @@ extern osMutexId RemoteDataMutexHandle;
 extern osMutexId ImuMutexHandle;
 extern osMutexId DistMutexHandle;
 extern osMutexId GpsDataMutexHandle;
+extern osMutexId ControllerMutexHandle;
 
 void DisassembleFloatIntoUint8s(float* n, uint8_t* array, int position)
 {
@@ -21,6 +22,10 @@ void DisassembleFloatIntoUint8s(float* n, uint8_t* array, int position)
 
 void TaskDiagnostics(void const *argument)
 {
+	TickType_t xLastWakeTime;
+	const TickType_t xFrequency = 5; //Hz
+	const TickType_t xTickDuration = (1000 * 1 / xFrequency) / portTICK_PERIOD_MS; // Ticks to delay the task for
+
 	char UARTstr[512];
 	int8_t SpiIntData[64];
 	uint8_t SpiFloatData1[64];
@@ -30,9 +35,15 @@ void TaskDiagnostics(void const *argument)
 	SpiFloatData1[0] = (uint8_t)('f');
 	SpiFloatData2[0] = (uint8_t)('g');
 
+	xLastWakeTime = xTaskGetTickCount();
 	/* Infinite loop */
 	while (1)
 	{
+		// Wait for the next cycle.
+		vTaskDelayUntil(&xLastWakeTime, xTickDuration);
+
+		TickType_t time = xTaskGetTickCount();
+
 		if(osMutexWait(RemoteDataMutexHandle, osWaitForever) == osOK)
 		{
 			sprintf(UARTstr, "Throttle: (%d) %d %d %d %d\r\n", Throttle_in, TIM1->CCR1-50, TIM1->CCR2-50, TIM1->CCR3-50, TIM1->CCR4-50);
@@ -49,7 +60,7 @@ void TaskDiagnostics(void const *argument)
 			SpiIntData[7] = (int8_t)Pitch_in;
 
 			sprintf(UARTstr, "%sRoll: %d\r\n", UARTstr, Roll_in);
-			SpiIntData[8] = (int8_t)Roll_in;
+			SpiIntData[8] = (int8_t)(Roll_in);
 
 			sprintf(UARTstr, "%sSWA: %d\r\n", UARTstr, SWA);
 			SpiIntData[9] = (int8_t)SWA;
@@ -101,7 +112,7 @@ void TaskDiagnostics(void const *argument)
 			osMutexRelease(ImuMutexHandle);
 		}
 
-		if (/*IsMagnAvailable*/ 0)
+		if ( /*IsMagnAvailable*/ 0 )
 		{
 			if (osMutexWait(MagnMutexHandle, osWaitForever) == osOK)
 			{
@@ -127,7 +138,7 @@ void TaskDiagnostics(void const *argument)
 			osMutexRelease(DistMutexHandle);
 		}
 
-		if (IsGpsAvailable)
+		if ( /*IsGpsAvailable */ 0 )
 		{
 			if (osMutexWait(GpsDataMutexHandle, osWaitForever) == osOK)
 			{
@@ -147,6 +158,17 @@ void TaskDiagnostics(void const *argument)
 			osMutexRelease(GpsDataMutexHandle);
 		}
 
+		if (Tune)
+		{
+			if (osMutexWait(ControllerMutexHandle, osWaitForever) == osOK)
+			{
+				SpiIntData[20] = (int8_t)Roll_controlled;
+				DisassembleFloatIntoUint8s(&(PID_Roll_AngVel.Kp), SpiFloatData2, 17);
+				DisassembleFloatIntoUint8s(&(PID_Roll_AngVel.Kd), SpiFloatData2, 21);
+			}
+			osMutexRelease(ControllerMutexHandle);
+		}
+
 
 		sprintf(UARTstr, "%s\r\n\r\n", UARTstr);
 
@@ -161,6 +183,7 @@ void TaskDiagnostics(void const *argument)
 			HAL_SPI_Transmit(&hspi1, SpiFloatData2, 64, HAL_MAX_DELAY);
 		}
 
-		osDelay(250);
+
+		//LogN(xTaskGetTickCount() - time);
 	}
 }
