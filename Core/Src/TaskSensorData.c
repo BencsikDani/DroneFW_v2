@@ -63,7 +63,7 @@ void TaskSensorData(void const *argument)
 			if (osMutexWait(RemoteDataMutexHandle, osWaitForever) == osOK)
 			{
 				Log("SD-RDM-WE");
-				if (SWC == 50)
+				if (SWC > 990)
 				{
 					Recalibrate = true;
 				}

@@ -26,6 +26,7 @@
 #include "stdio.h"
 #include "string.h"
 #include "stdbool.h"
+#include "printf.h"
 //#include "core_cm4.h"
 #include "Globals.h"
 
@@ -225,6 +226,17 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 			sprintf(str, "UART4 Error Callback: %lu\r\n", huart->ErrorCode);
 			HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
 		}
+	}
+}
+
+void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
+{
+	if (hspi == &hspi1)
+	{
+		for (int i = 0; i < 64; i++)
+			SPI1Data[i] = Spi1Buffer[i];
+
+		HAL_SPI_Receive_IT(&hspi1, Spi1Buffer, 64);
 	}
 }
 
