@@ -21,9 +21,9 @@
 
 // Transmitter channel numbers
 #define THROTTLE_CHANNEL 3-1
-#define YAW_CHANNEL 4-1
 #define PITCH_CHANNEL 2-1
 #define ROLL_CHANNEL 1-1
+#define YAW_CHANNEL 4-1
 #define SWA_CHANNEL 5-1
 #define SWB_CHANNEL 6-1
 #define SWC_CHANNEL 7-1
@@ -54,10 +54,10 @@ extern PIDController PID_Roll_AngVel;
 // Transmitter channel variables
 extern uint16_t Throttle_in;
 extern uint16_t Throttle_controlled;
-extern int16_t Roll_in;
-extern int16_t Roll_controlled;
 extern int16_t Pitch_in;
 extern int16_t Pitch_controlled;
+extern int16_t Roll_in;
+extern int16_t Roll_controlled;
 extern int16_t Yaw_in;
 extern int16_t Yaw_controlled;
 extern uint16_t SWA;
@@ -109,5 +109,7 @@ extern volatile uint8_t GPSPackageIndex;
 extern volatile uint8_t GPSPackageBuffer[GPS_BUFFSIZE];
 extern volatile bool ProcessGPSPackageBuffer;
 
+extern volatile uint8_t Spi1Buffer[64];
+extern volatile uint8_t SPI1Data[64];
 
 #endif /* GLOBALS_H */

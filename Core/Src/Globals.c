@@ -8,7 +8,7 @@
 
 #include "stdbool.h"
 
-bool Diag = true;
+bool Diag = false;
 bool DebugIsOn = false;
 bool Tune = true;
 
@@ -28,12 +28,12 @@ PIDController PID_Roll_AngVel;
 // Transmitter channel variables
 uint16_t Throttle_in = 0;
 uint16_t Throttle_controlled = 0;
-int16_t Yaw_in = 0;
-int16_t Yaw_controlled = 0;
 int16_t Pitch_in = 0;
 int16_t Pitch_controlled = 0;
 int16_t Roll_in = 0;
 int16_t Roll_controlled = 0;
+int16_t Yaw_in = 0;
+int16_t Yaw_controlled = 0;
 uint16_t SWA = 0;
 uint16_t SWB = 0;
 uint16_t SWC = 0;
@@ -84,4 +84,6 @@ volatile uint8_t GPSPackageIndex = 0;
 volatile uint8_t GPSPackageBuffer[GPS_BUFFSIZE] = { 0 };
 volatile bool ProcessGPSPackageBuffer = false;
 
+volatile uint8_t Spi1Buffer[64] = { 0 };
+volatile uint8_t SPI1Data[64] = { 0 };
 

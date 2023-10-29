@@ -1,4 +1,5 @@
 #include "Controller/PID.h"
+#include <stdint.h>
 
 void PIDController_Init(PIDController *pid)
 {
@@ -83,7 +84,6 @@ float PIDController_Update(PIDController *pid, float reference, float measuremen
 		// Store error for later use
 		pid->prevError = error;
 
-		// Return controller output
-		return pid->out;
+		return 0;
 	}
 }
