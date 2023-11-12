@@ -17,6 +17,7 @@
 #define CONFIG            0x1A
 #define GYRO_CONFIG       0x1B
 #define ACCEL_CONFIG      0x1C
+#define ACCEL_CONFIG_2     0x1D
 #define ACCEL_XOUT_H      0x3B
 #define READWRITE         0x80
 #define CS_SELECT         0

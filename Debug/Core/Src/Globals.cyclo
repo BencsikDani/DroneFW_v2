@@ -1,0 +1,4 @@
+../Core/Src/Globals.c:93:6:FloatToUint8s	1
+../Core/Src/Globals.c:98:6:FloatFromUint8s	1
+../Core/Src/Globals.c:103:6:Uint16ToUint8s	1
+../Core/Src/Globals.c:108:6:Int16ToUint8s	1

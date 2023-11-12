@@ -11,6 +11,7 @@
 bool Diag = false;
 bool DebugIsOn = false;
 bool Tune = true;
+bool Tune_single_true_double_false = false;
 
 int Uart2CallbackCounter = 0;
 
@@ -24,14 +25,16 @@ bool IsGpsAvailable = false;
 // Controllers
 PIDController PID_Roll_Attitude;
 PIDController PID_Roll_AngVel;
+PIDController PID_Pitch_Attitude;
+PIDController PID_Pitch_AngVel;
 
 // Transmitter channel variables
 uint16_t Throttle_in = 0;
 uint16_t Throttle_controlled = 0;
-int16_t Pitch_in = 0;
-int16_t Pitch_controlled = 0;
 int16_t Roll_in = 0;
 int16_t Roll_controlled = 0;
+int16_t Pitch_in = 0;
+int16_t Pitch_controlled = 0;
 int16_t Yaw_in = 0;
 int16_t Yaw_controlled = 0;
 uint16_t SWA = 0;
@@ -85,5 +88,25 @@ volatile uint8_t GPSPackageBuffer[GPS_BUFFSIZE] = { 0 };
 volatile bool ProcessGPSPackageBuffer = false;
 
 volatile uint8_t Spi1Buffer[64] = { 0 };
-volatile uint8_t SPI1Data[64] = { 0 };
+volatile uint8_t Spi1ReceivedData[64] = { 0 };
+
+void FloatToUint8s(float* src, uint8_t* array, int position)
+{
+	memcpy(array+position, src, sizeof(float));
+}
+
+void FloatFromUint8s(uint8_t* array, int position, float* dest)
+{
+  memcpy(dest, array+position, sizeof(float));
+}
+
+void Uint16ToUint8s(uint16_t* src, uint8_t* array, int position)
+{
+	memcpy(array+position, src, sizeof(uint16_t));
+}
+
+void Int16ToUint8s(int16_t* src, uint8_t* array, int position)
+{
+	memcpy(array+position, src, sizeof(int16_t));
+}
 

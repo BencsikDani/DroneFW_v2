@@ -37,6 +37,7 @@
 extern bool Diag;
 extern bool DebugIsOn;
 extern bool Tune;
+extern bool Tune_single_true_double_false;
 
 extern int Uart2CallbackCounter;
 
@@ -50,14 +51,16 @@ extern bool IsGpsAvailable;
 // Controllers
 extern PIDController PID_Roll_Attitude;
 extern PIDController PID_Roll_AngVel;
+extern PIDController PID_Pitch_Attitude;
+extern PIDController PID_Pitch_AngVel;
 
 // Transmitter channel variables
 extern uint16_t Throttle_in;
 extern uint16_t Throttle_controlled;
-extern int16_t Pitch_in;
-extern int16_t Pitch_controlled;
 extern int16_t Roll_in;
 extern int16_t Roll_controlled;
+extern int16_t Pitch_in;
+extern int16_t Pitch_controlled;
 extern int16_t Yaw_in;
 extern int16_t Yaw_controlled;
 extern uint16_t SWA;
@@ -110,6 +113,14 @@ extern volatile uint8_t GPSPackageBuffer[GPS_BUFFSIZE];
 extern volatile bool ProcessGPSPackageBuffer;
 
 extern volatile uint8_t Spi1Buffer[64];
-extern volatile uint8_t SPI1Data[64];
+extern volatile uint8_t Spi1ReceivedData[64];
+
+void FloatToUint8s(float* src, uint8_t* array, int position);
+
+void FloatFromUint8s(uint8_t* array, int position, float* dest);
+
+void Uint16ToUint8s(uint16_t* src, uint8_t* array, int position);
+
+void Int16ToUint8s(int16_t* src, uint8_t* array, int position);
 
 #endif /* GLOBALS_H */

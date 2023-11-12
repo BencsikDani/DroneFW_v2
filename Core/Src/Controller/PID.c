@@ -7,9 +7,10 @@ void PIDController_Init(PIDController *pid)
 	pid->antiWindup = false;
 
 	// Clear controller variables
-	pid->prevError  = 0.0f;
 	pid->integrator = 0.0f;
+	pid->prevError  = 0.0f;
 	pid->differentiator  = 0.0f;
+	pid->prevMeasurement = 0.0f;
 
 	// Clear output
 	pid->out = 0.0f;
@@ -56,9 +57,11 @@ float PIDController_Update(PIDController *pid, float reference, float measuremen
 			pid->integrator = pid->integrator + ( pid->Ki * (pid->T / 2) * (error + pid->prevError) );
 
 		// Derivative with low-pass filter
-		pid->differentiator = (1 - pid->alpha) * pid->differentiator
-				+ pid->alpha *  (pid->Kd * (error - pid->prevError) / pid->T);
-
+		//pid->differentiator = (1 - pid->alpha) * pid->differentiator
+		//		+ pid->alpha *  (pid->Kd * (error - pid->prevError) / pid->T);
+		// Derivative on measurement with low-pass filter and sign inversion
+		pid->differentiator = -((1 - pid->alpha) * pid->differentiator
+				+ pid->alpha *  (pid->Kd * (measurement - pid->prevMeasurement) / pid->T));
 		// Compute output
 		pid->out = proportional + pid->integrator + pid->differentiator;
 		float preSaturationOutput = pid->out;
@@ -69,20 +72,21 @@ float PIDController_Update(PIDController *pid, float reference, float measuremen
 		else if (pid->out < pid->limMin)
 			pid->out = pid->limMin;
 
-		// Anti-windup check
+		// Anti-windup zcheck
 		// If clamping had an effect...
-		if (preSaturationOutput != pid->out)
+		if (preSaturationOutput != pid->out
+				// ...and if the integrator is trying to make saturation worse
+				&& ((preSaturationOutput > 0 && error > 0) || (preSaturationOutput < 0 && error < 0)))
 		{
-			// ...and if the integrator is trying to make saturation worse
-			if ((preSaturationOutput > 0 && error > 0)
-					|| (preSaturationOutput < 0 && error < 0))
-				pid->antiWindup = true;
+			pid->antiWindup = true;
+
 		}
 		else
 			pid->antiWindup = false;
 
 		// Store error for later use
 		pid->prevError = error;
+		pid->prevMeasurement = measurement;
 
 		return 0;
 	}
