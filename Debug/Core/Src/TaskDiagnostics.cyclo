@@ -1,4 +1,1 @@
-../Core/Src/TaskDiagnostics.c:19:6:FloatToUint8s	1
-../Core/Src/TaskDiagnostics.c:24:6:Uint16ToUint8s	1
-../Core/Src/TaskDiagnostics.c:29:6:Int16ToUint8s	1
-../Core/Src/TaskDiagnostics.c:34:6:TaskDiagnostics	11
+../Core/Src/TaskDiagnostics.c:19:6:TaskDiagnostics	7

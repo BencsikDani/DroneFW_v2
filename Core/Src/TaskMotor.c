@@ -1,7 +1,6 @@
 #include "main.h"
 #include "cmsis_os.h"
 #include "Globals.h"
-
 #include "Debug.h"
 
 extern TIM_HandleTypeDef htim1;
@@ -74,22 +73,24 @@ void TaskMotor(void const *argument)
 				int32_t ESC3_Speed;
 				int32_t ESC4_Speed;
 
-				// if (Throttle_in)
-				//{
-				if (osMutexWait(ControllerMutexHandle, osWaitForever) == osOK)
+				if (Throttle_in > 10)
 				{
-					ESC1_Speed = Throttle_in + Roll_controlled; // - (Pitch_in/5) - (Yaw_in/5);
-					ESC2_Speed = Throttle_in - Roll_controlled; // - (Pitch_in/5) + (Yaw_in/5);
-					ESC3_Speed = Throttle_in - Roll_controlled; // + (Pitch_in/5) - (Yaw_in/5);
-					ESC4_Speed = Throttle_in + Roll_controlled; // + (Pitch_in/5) + (Yaw_in/5);
+					if (osMutexWait(ControllerMutexHandle, osWaitForever) == osOK)
+					{
+						ESC1_Speed = Throttle_in + Roll_controlled  - (Pitch_in/5); //- (Yaw_in/5);
+						ESC2_Speed = Throttle_in - Roll_controlled - (Pitch_in/5); //+ (Yaw_in/5);
+						ESC3_Speed = Throttle_in - Roll_controlled  + (Pitch_in/5); //- (Yaw_in/5);
+						ESC4_Speed = Throttle_in + Roll_controlled  + (Pitch_in/5); // + (Yaw_in/5);
+					}
+					osMutexRelease(ControllerMutexHandle);
 				}
-				osMutexRelease(ControllerMutexHandle);
-
-				//}
-//				ESC1_Speed = 0;
-//				ESC2_Speed = 0;
-//				ESC3_Speed = 0;
-//				ESC4_Speed = 0;
+				else
+				{
+					ESC1_Speed = 0;
+					ESC2_Speed = 0;
+					ESC3_Speed = 0;
+					ESC4_Speed = 0;
+				}
 
 				TIM1->CCR1 = ConvertToPwm(ESC1_Speed);
 				TIM1->CCR2 = ConvertToPwm(ESC2_Speed);
@@ -98,10 +99,10 @@ void TaskMotor(void const *argument)
 			}
 			else
 			{
-				TIM1->CCR1 = (uint32_t) (1000);
-				TIM1->CCR2 = (uint32_t) (1000);
-				TIM1->CCR3 = (uint32_t) (1000);
-				TIM1->CCR4 = (uint32_t) (1000);
+				TIM1->CCR1 = ConvertToPwm(0);
+				TIM1->CCR2 = ConvertToPwm(0);
+				TIM1->CCR3 = ConvertToPwm(0);
+				TIM1->CCR4 = ConvertToPwm(0);
 			}
 		}
 		osMutexRelease(RemoteDataMutexHandle);

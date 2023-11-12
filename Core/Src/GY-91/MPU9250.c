@@ -72,10 +72,15 @@ uint8_t MPU_begin(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250)
         MPU_writeAccFullScaleRange(SPIx, pMPU9250, pMPU9250->settings.aFullScaleRange);
         MPU_writeGyroFullScaleRange(SPIx, pMPU9250, pMPU9250->settings.gFullScaleRange);
 
-        // Set 41 Hz LPF in Config Register
+        // Set 10 Hz LPF for Gyro in Config Register
         uint8_t addr = CONFIG;
-        uint8_t val = 0x03;
+        uint8_t val = 0x05;
         MPU_REG_WRITE(SPIx, pMPU9250, &addr, &val);
+
+        // Set 10 Hz LPF for Accelerometer in Acc_cfg_2 Register
+	    addr = ACCEL_CONFIG_2;
+	    val = 0x05;
+	    MPU_REG_WRITE(SPIx, pMPU9250, &addr, &val);
 
         return 1;
     }

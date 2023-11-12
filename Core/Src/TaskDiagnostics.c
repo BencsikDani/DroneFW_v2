@@ -16,21 +16,6 @@ extern osMutexId DistMutexHandle;
 extern osMutexId GpsDataMutexHandle;
 extern osMutexId ControllerMutexHandle;
 
-void FloatToUint8s(float* src, uint8_t* array, int position)
-{
-	memcpy(array+position, src, sizeof(float));
-}
-
-void Uint16ToUint8s(uint16_t* src, uint8_t* array, int position)
-{
-	memcpy(array+position, src, sizeof(uint16_t));
-}
-
-void Int16ToUint8s(int16_t* src, uint8_t* array, int position)
-{
-	memcpy(array+position, src, sizeof(int16_t));
-}
-
 void TaskDiagnostics(void const *argument)
 {
 	TickType_t xLastWakeTime;
@@ -175,52 +160,12 @@ void TaskDiagnostics(void const *argument)
 			osMutexRelease(GpsDataMutexHandle);
 		}
 
-		if (Tune)
-		{
-			if (osMutexWait(ControllerMutexHandle, osWaitForever) == osOK
-					&& osMutexWait(ImuMutexHandle, osWaitForever) == osOK)
-			{
-				// PID1 data
-				//Gains
-				FloatToUint8s(&(PID_Roll_Attitude.Kp), SpiFloatData2, 17);
-				FloatToUint8s(&(PID_Roll_Attitude.Ki), SpiFloatData2, 21);
-				FloatToUint8s(&(PID_Roll_Attitude.Kd), SpiFloatData2, 25);
-				// Reference
-					// Roll_in_devided
-				// Measurement
-				FloatToUint8s(&(Roll_measured), SpiFloatData2, 29);
-				// Output
-				FloatToUint8s(&(PID_Roll_Attitude.out), SpiFloatData2, 33);
-
-
-				// PID2 data
-				// Gains
-				FloatToUint8s(&(PID_Roll_AngVel.Kp), SpiFloatData2, 37);
-				FloatToUint8s(&(PID_Roll_AngVel.Ki), SpiFloatData2, 41);
-				FloatToUint8s(&(PID_Roll_AngVel.Kd), SpiFloatData2, 45);
-				// Reference
-					// PID1 out
-				// Measurement
-					// GyroData[0]
-				// Output
-				Int16ToUint8s(&Roll_controlled, SpiIntData, 33);
-			}
-			osMutexRelease(ControllerMutexHandle);
-			osMutexRelease(ImuMutexHandle);
-		}
-
-
 		sprintf(UARTstr, "%s\r\n\r\n", UARTstr);
 
 		// Sending log info
 		if (Diag)
 		{
 			HAL_UART_Transmit(&huart3, UARTstr, strlen(UARTstr), HAL_MAX_DELAY);
-		}
-
-		if (Tune)
-		{
-			HAL_UART_Transmit(&huart3, SPI1Data, 64, HAL_MAX_DELAY);
 
 			HAL_SPI_Transmit(&hspi1, SpiIntData, 64, HAL_MAX_DELAY);
 			osDelay(10);

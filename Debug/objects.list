@@ -8,6 +8,7 @@
 "./Core/Src/TaskPower.o"
 "./Core/Src/TaskRemote.o"
 "./Core/Src/TaskSensorData.o"
+"./Core/Src/TaskTune.o"
 "./Core/Src/freertos.o"
 "./Core/Src/main.o"
 "./Core/Src/printf.o"

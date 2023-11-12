@@ -24,9 +24,10 @@ typedef struct {
 	bool antiWindup;
 
 	// Controller "memory"
-	float prevError;
 	float integrator;
+	float prevError;
 	float differentiator;
+	float prevMeasurement;
 
 	// Controller output
 	float out;

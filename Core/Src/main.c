@@ -36,6 +36,7 @@
 #include "TaskMotor.h"
 #include "TaskPower.h"
 #include "TaskDiagnostics.h"
+#include "TaskTune.h"
 
 #include "Debug.h"
 
@@ -77,6 +78,7 @@ osThreadId TaskRemoteHandle;
 osThreadId TaskMotorHandle;
 osThreadId TaskPowerHandle;
 osThreadId TaskDiagnosticsHandle;
+osThreadId TaskTuneHandle;
 osMutexId MagnMutexHandle;
 osMutexId RemoteDataMutexHandle;
 osMutexId ImuMutexHandle;
@@ -109,6 +111,7 @@ void RunTaskRemote(void const * argument);
 void RunTaskMotor(void const * argument);
 void RunTaskPower(void const * argument);
 void RunTaskDiagnostics(void const * argument);
+void RunTaskTune(void const * argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -233,11 +236,27 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
 {
 	if (hspi == &hspi1)
 	{
-		for (int i = 0; i < 64; i++)
-			SPI1Data[i] = Spi1Buffer[i];
+		//for (int i = 0; i < 64; i++)
+		//	Spi1ReceivedData[i] = Spi1Buffer[i];
+		//HAL_UART_Transmit(&huart3, Spi1ReceivedData, strlen(Spi1ReceivedData), HAL_MAX_DELAY);
 
-		HAL_SPI_Receive_IT(&hspi1, Spi1Buffer, 64);
+		//HAL_SPI_Receive_IT(&hspi1, Spi1Buffer, 64);
 	}
+}
+
+void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
+{
+	if (hspi == &hspi1)
+		{
+			if (hspi->ErrorCode != 0)
+			{
+				//Diag = false;
+
+				char str[32];
+				sprintf(str, "SPI1 Error Callback: %d\r\n", hspi->ErrorCode);
+				HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
+			}
+		}
 }
 
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
@@ -302,7 +321,7 @@ int main(void)
 
   	// Init Distance sensor
   	if (HCSR04_Init(&HCSR04, &htim3) == 0)
-  		IsDistAvailable = true;
+  		IsDistAvailable = false;
   	else
   		IsDistAvailable = false;
 
@@ -393,7 +412,7 @@ int main(void)
   TaskSensorDataHandle = osThreadCreate(osThread(TaskSensorData), NULL);
 
   /* definition and creation of TaskController */
-  osThreadDef(TaskController, RunTaskController, osPriorityAboveNormal, 0, 128);
+  osThreadDef(TaskController, RunTaskController, osPriorityAboveNormal, 0, 512);
   TaskControllerHandle = osThreadCreate(osThread(TaskController), NULL);
 
   /* definition and creation of TaskRemote */
@@ -401,16 +420,20 @@ int main(void)
   TaskRemoteHandle = osThreadCreate(osThread(TaskRemote), NULL);
 
   /* definition and creation of TaskMotor */
-  osThreadDef(TaskMotor, RunTaskMotor, osPriorityNormal, 0, 128);
+  osThreadDef(TaskMotor, RunTaskMotor, osPriorityNormal, 0, 256);
   TaskMotorHandle = osThreadCreate(osThread(TaskMotor), NULL);
 
   /* definition and creation of TaskPower */
-  osThreadDef(TaskPower, RunTaskPower, osPriorityBelowNormal, 0, 128);
+  osThreadDef(TaskPower, RunTaskPower, osPriorityBelowNormal, 0, 256);
   TaskPowerHandle = osThreadCreate(osThread(TaskPower), NULL);
 
   /* definition and creation of TaskDiagnostics */
-  osThreadDef(TaskDiagnostics, RunTaskDiagnostics, osPriorityLow, 0, 512);
+  osThreadDef(TaskDiagnostics, RunTaskDiagnostics, osPriorityLow, 0, 2048);
   TaskDiagnosticsHandle = osThreadCreate(osThread(TaskDiagnostics), NULL);
+
+  /* definition and creation of TaskTune */
+  osThreadDef(TaskTune, RunTaskTune, osPriorityBelowNormal, 0, 512);
+  TaskTuneHandle = osThreadCreate(osThread(TaskTune), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -1015,6 +1038,20 @@ void RunTaskDiagnostics(void const * argument)
   /* USER CODE BEGIN RunTaskDiagnostics */
 	TaskDiagnostics(argument);
   /* USER CODE END RunTaskDiagnostics */
+}
+
+/* USER CODE BEGIN Header_RunTaskTune */
+/**
+* @brief Function implementing the TaskTune thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_RunTaskTune */
+void RunTaskTune(void const * argument)
+{
+  /* USER CODE BEGIN RunTaskTune */
+	TaskTune(argument);
+  /* USER CODE END RunTaskTune */
 }
 
 /**
