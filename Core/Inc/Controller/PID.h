@@ -24,16 +24,22 @@ typedef struct {
 	bool antiWindup;
 
 	// Controller "memory"
-	float integrator;
-	float prevError;
-	float differentiator;
-	float prevMeasurement;
+	float integrator, integrator_result;
+	float prev_error;
+	float differentiator, differentiator_result;
+	float prev_measurement;
 
 	// Controller output
 	float out;
 } PIDController;
 
+typedef struct {
+	PIDController inner, outer;
+} DoublePIDController;
+
 void PIDController_Init(PIDController *pid);
 float PIDController_Update(PIDController *pid, float setpoint, float measurement);
+void DoublePIDController_Init(DoublePIDController *pid);
+float DoublePIDController_Update(DoublePIDController *pid, float outer_reference, float outer_measurement, float inner_measurement);
 
 #endif

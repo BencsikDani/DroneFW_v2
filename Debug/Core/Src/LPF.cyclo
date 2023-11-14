@@ -1,2 +1,2 @@
 ../Core/Src/LPF.c:3:6:LPF_Init	1
-../Core/Src/LPF.c:14:7:LPF_Update	1
+../Core/Src/LPF.c:14:7:LPF_Calculate	1

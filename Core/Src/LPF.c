@@ -11,7 +11,7 @@ void LPF_Init(LPF *lpf)
 	lpf->beta = (2.0 * lpf->tau - lpf->T) / (2.0 * lpf->tau + lpf->T);
 }
 
-float LPF_Update(LPF *lpf, float U)
+float LPF_Calculate(LPF *lpf, float U)
 {
 	float Y = lpf->alpha * (U + lpf->prevU) + lpf->beta * lpf->prevY;
 

@@ -8,7 +8,7 @@
 
 #include "stdbool.h"
 
-bool Diag = false;
+bool Diag = true;
 bool DebugIsOn = false;
 bool Tune = true;
 bool Tune_single_true_double_false = false;
@@ -23,10 +23,13 @@ bool IsDistAvailable = false;
 bool IsGpsAvailable = false;
 
 // Controllers
-PIDController PID_Roll_Attitude;
-PIDController PID_Roll_AngVel;
-PIDController PID_Pitch_Attitude;
-PIDController PID_Pitch_AngVel;
+//PIDController PID_Roll_Attitude;
+//PIDController PID_Roll_AngVel;
+//PIDController PID_Pitch_Attitude;
+//PIDController PID_Pitch_AngVel;
+DoublePIDController DPID_Roll;
+DoublePIDController DPID_Pitch;
+
 
 // Transmitter channel variables
 uint16_t Throttle_in = 0;
