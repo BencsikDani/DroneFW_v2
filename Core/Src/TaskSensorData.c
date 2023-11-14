@@ -31,21 +31,21 @@ void TaskSensorData(void const *argument)
 
 	bool Recalibrate = false;
 
-	/*
+
 	LPF GyroLPF[3];
 
-	GyroLPF[0].T = 0.005;
+	GyroLPF[0].T = 1.0 / xFrequency;
 	GyroLPF[0].f_cutoff = 100;
 	LPF_Init(&(GyroLPF[0]));
 
-	GyroLPF[1].T = 0.005;
+	GyroLPF[1].T = 1.0 / xFrequency;
 	GyroLPF[1].f_cutoff = 100;
 	LPF_Init(&(GyroLPF[1]));
 
-	GyroLPF[2].T = 0.005;
+	GyroLPF[2].T = 1.0 / xFrequency;
 	GyroLPF[2].f_cutoff = 100;
 	LPF_Init(&(GyroLPF[2]));
-	*/
+
 
 	xLastWakeTime = xTaskGetTickCount();
 	/* Infinite loop */
@@ -67,7 +67,6 @@ void TaskSensorData(void const *argument)
 				{
 					Recalibrate = true;
 				}
-
 			}
 			Log("SD-RDM-RS");
 			osMutexRelease(RemoteDataMutexHandle);
@@ -95,12 +94,12 @@ void TaskSensorData(void const *argument)
 				AccData[1] = MPU9250.sensorData.ay;
 				AccData[2] = MPU9250.sensorData.az;
 				TempData = MPU9250.sensorData.temp;
-				GyroData[0] = MPU9250.sensorData.gx;
-				GyroData[1] = MPU9250.sensorData.gy;
-				GyroData[2] = MPU9250.sensorData.gz;
-				//GyroData[0] = LPF_Update(&(GyroLPF[0]), MPU9250.sensorData.gx);
-				//GyroData[1] = LPF_Update(&(GyroLPF[1]), MPU9250.sensorData.gy);
-				//GyroData[2] = LPF_Update(&(GyroLPF[2]), MPU9250.sensorData.gz);
+				//GyroData[0] = MPU9250.sensorData.gx;
+				//GyroData[1] = MPU9250.sensorData.gy;
+				//GyroData[2] = MPU9250.sensorData.gz;
+				GyroData[0] = LPF_Calculate(&(GyroLPF[0]), MPU9250.sensorData.gx);
+				GyroData[1] = LPF_Calculate(&(GyroLPF[1]), MPU9250.sensorData.gy);
+				GyroData[2] = LPF_Calculate(&(GyroLPF[2]), MPU9250.sensorData.gz);
 				Roll_measured = MPU9250.attitude.roll;
 				Pitch_measured = MPU9250.attitude.pitch;
 				Yaw_measured = MPU9250.attitude.yaw;

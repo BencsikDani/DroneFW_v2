@@ -17,6 +17,6 @@ typedef struct {
 } LPF;
 
 void LPF_Init(LPF *lpf);
-float LPF_Update(LPF *lpf, float U);
+float LPF_Calculate(LPF *lpf, float U);
 
 #endif

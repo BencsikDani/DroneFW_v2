@@ -49,10 +49,12 @@ extern bool IsDistAvailable;
 extern bool IsGpsAvailable;
 
 // Controllers
-extern PIDController PID_Roll_Attitude;
-extern PIDController PID_Roll_AngVel;
-extern PIDController PID_Pitch_Attitude;
-extern PIDController PID_Pitch_AngVel;
+//extern PIDController PID_Roll_Attitude;
+//extern PIDController PID_Roll_AngVel;
+//extern PIDController PID_Pitch_Attitude;
+//extern PIDController PID_Pitch_AngVel;
+extern DoublePIDController DPID_Roll;
+extern DoublePIDController DPID_Pitch;
 
 // Transmitter channel variables
 extern uint16_t Throttle_in;

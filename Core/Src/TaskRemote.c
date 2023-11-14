@@ -88,9 +88,14 @@ void TaskRemote(void const *argument)
 //					HAL_UART_Transmit(&huart3, "\r\n", sizeof("\r\n"), HAL_MAX_DELAY);
 
 				Throttle_in = channelValues[THROTTLE_CHANNEL] - 1000;
+				// Limit input Throttle, so the Controllers can keep the drone stable at high RPM, too
+				if (Throttle_in > 800)
+					Throttle_in = 800;
+
 				Pitch_in = channelValues[PITCH_CHANNEL] - 1500;
 				Roll_in = channelValues[ROLL_CHANNEL] - 1500;
 				Yaw_in = channelValues[YAW_CHANNEL] - 1500;
+
 				SWA = channelValues[SWA_CHANNEL] - 1000;
 				SWB = channelValues[SWB_CHANNEL] - 1000;
 				SWC = channelValues[SWC_CHANNEL] - 1000;

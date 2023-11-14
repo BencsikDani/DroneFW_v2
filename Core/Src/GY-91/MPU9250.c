@@ -23,8 +23,8 @@ uint8_t MPU_Init(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250)
 	HAL_GPIO_WritePin(SPI2_IMU_CSBM_GPIO_Port, SPI2_IMU_CSBM_Pin, GPIO_PIN_SET);
 
 	// Set the config parameters
-	pMPU9250->settings.gFullScaleRange = GFSR_500DPS;
-	pMPU9250->settings.aFullScaleRange = AFSR_2G;
+	pMPU9250->settings.gFullScaleRange = GFSR_2000DPS;
+	pMPU9250->settings.aFullScaleRange = AFSR_16G;
 	pMPU9250->settings.CS_PIN = SPI2_IMU_CSIMU_Pin;
 	pMPU9250->settings.CS_PORT = SPI2_IMU_CSIMU_GPIO_Port;
 	pMPU9250->attitude.tau = 0.98;
@@ -58,36 +58,63 @@ uint8_t MPU_begin(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250)
     MPU_REG_READ(SPIx, pMPU9250, WHO_AM_I, &check, 1);
     if (check == WHO_AM_I_9250_ANS)
     {
-        // Startup / reset the sensor
+    	// Reset the sensor
+    	addr = PWR_MGMT_1;
+        val = 0x80;
+    	MPU_REG_WRITE(SPIx, pMPU9250, &addr, &val);
+    	HAL_Delay(50);
+
+        // Startup & use PLL
         addr = PWR_MGMT_1;
+        val = 0x01;
+        MPU_REG_WRITE(SPIx, pMPU9250, &addr, &val);
+    	HAL_Delay(50);
+
+        // Enable everything
+        addr = PWR_MGMT_2;
         val = 0x00;
         MPU_REG_WRITE(SPIx, pMPU9250, &addr, &val);
+    	HAL_Delay(50);
+
+        // Sample rate is 1000 Hz
+		addr = SMPLRT_DIV;
+		val = 0x00;
+		MPU_REG_WRITE(SPIx, pMPU9250, &addr, &val);
+    	HAL_Delay(50);
+
+
+    	// Gyro
+    	// Set 92 Hz LPF for gyro
+		uint8_t addr = CONFIG;
+		uint8_t val = 0x02;
+		MPU_REG_WRITE(SPIx, pMPU9250, &addr, &val);
+		HAL_Delay(50);
+
+		// Set the full scale range for gyro
+        MPU_writeGyroFullScaleRange(SPIx, pMPU9250, pMPU9250->settings.gFullScaleRange);
+
+
+		// Accel
+		// Set the full scale range for accel
+        MPU_writeAccFullScaleRange(SPIx, pMPU9250, pMPU9250->settings.aFullScaleRange);
+
+        // Set 44.8 Hz LPF for accel
+		addr = ACCEL_CONFIG_2;
+		val = 0x03;
+		MPU_REG_WRITE(SPIx, pMPU9250, &addr, &val);
+    	HAL_Delay(50);
+
 
         // Disable I2C (SPI only)
         addr = USER_CTRL;
         val = 0x10;
         MPU_REG_WRITE(SPIx, pMPU9250, &addr, &val);
-
-        // Set the full scale ranges
-        MPU_writeAccFullScaleRange(SPIx, pMPU9250, pMPU9250->settings.aFullScaleRange);
-        MPU_writeGyroFullScaleRange(SPIx, pMPU9250, pMPU9250->settings.gFullScaleRange);
-
-        // Set 10 Hz LPF for Gyro in Config Register
-        uint8_t addr = CONFIG;
-        uint8_t val = 0x05;
-        MPU_REG_WRITE(SPIx, pMPU9250, &addr, &val);
-
-        // Set 10 Hz LPF for Accelerometer in Acc_cfg_2 Register
-	    addr = ACCEL_CONFIG_2;
-	    val = 0x05;
-	    MPU_REG_WRITE(SPIx, pMPU9250, &addr, &val);
+    	HAL_Delay(50);
 
         return 1;
     }
     else
-    {
         return 0;
-    }
 }
 
 /// @brief Find offsets for each axis of gyroscope
@@ -198,6 +225,7 @@ void MPU_writeAccFullScaleRange(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250, ui
         MPU_REG_WRITE(SPIx, pMPU9250, &addr, &val);
         break;
     }
+	HAL_Delay(50);
 }
 
 /// @brief Set the gyroscope full scale range
@@ -239,6 +267,7 @@ void MPU_writeGyroFullScaleRange(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250, u
         MPU_REG_WRITE(SPIx, pMPU9250, &addr, &val);
         break;
     }
+	HAL_Delay(50);
 }
 
 /// @brief Read raw data from IMU
