@@ -10,6 +10,7 @@
 #include "Controller/PID.h"
 #include "stdio.h"
 #include "stdbool.h"
+#include "Fusion/Fusion.h"
 
 
 // Transmitter channel details
@@ -79,6 +80,7 @@ extern float GyroData[3];
 extern float Roll_measured;
 extern float Pitch_measured;
 extern float Yaw_measured;
+extern FusionEuler Fusion_output;
 extern int16_t MagData[3];
 
 extern BMP280_t BMP280;

@@ -1,1 +1,9 @@
-../Core/Src/TaskSensorData.c:26:6:TaskSensorData	26
+../Core/Inc/Fusion/FusionMath.h:136:21:FusionRadiansToDegrees	1
+../Core/Inc/Fusion/FusionMath.h:148:21:FusionAsin	3
+../Core/Inc/Fusion/FusionMath.h:216:28:FusionVectorSubtract	1
+../Core/Inc/Fusion/FusionMath.h:255:28:FusionVectorHadamardProduct	1
+../Core/Inc/Fusion/FusionMath.h:418:28:FusionMatrixMultiplyVector	1
+../Core/Inc/Fusion/FusionMath.h:466:27:FusionQuaternionToEuler	1
+../Core/Inc/Fusion/FusionCalibration.h:26:28:FusionCalibrationInertial	1
+../Core/Inc/Fusion/FusionCalibration.h:37:28:FusionCalibrationMagnetic	1
+../Core/Src/TaskSensorData.c:28:6:TaskSensorData	26

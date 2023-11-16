@@ -19,6 +19,7 @@ RM := rm -rf
 -include Core/Src/GY-91/subdir.mk
 -include Core/Src/GY-271/subdir.mk
 -include Core/Src/GPS/subdir.mk
+-include Core/Src/Fusion/subdir.mk
 -include Core/Src/Controller/subdir.mk
 -include Core/Src/subdir.mk
 -include objects.mk

@@ -27,18 +27,20 @@ void TaskTune(void const *argument)
 	PIDController* PID1 = &DPID_Roll.outer;
 	int16_t PID1_ref_devided; // Calculated in every cycle
 	float PID1_ref_devided_float; // Needed only for single loop tuning
-	float* PID1_meas = &Roll_measured;
+	float* PID1_meas = &(Fusion_output.angle.roll);
 	float* PID1_out = &(PID1->out);
 
 	PIDController* PID2 = &DPID_Roll.inner;
 	float* PID2_ref = &(PID1->out);
+	//float* PID2_ref = &(Fusion_output.angle.roll);
 	float* PID2_meas = GyroData;
+	//float* PID2_meas = &Roll_measured;
 	int16_t* PID2_out = &Roll_controlled;
 
 	PIDController* PID3 = &DPID_Pitch.outer;
 	int16_t PID3_ref_devided; // Calculated in every cycle
 	float PID3_ref_devided_float; // Needed only for single loop tuning
-	float* PID3_meas = &Pitch_measured;
+	float* PID3_meas = &(Fusion_output.angle.pitch);
 	float* PID3_out = &(PID3->out);
 
 	PIDController* PID4 = &DPID_Pitch.inner;
