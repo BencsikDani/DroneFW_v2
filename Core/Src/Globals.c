@@ -5,6 +5,7 @@
 #include "GPS/GPS.h"
 #include "math.h"
 #include "Globals.h"
+#include "Fusion/Fusion.h"
 
 #include "stdbool.h"
 
@@ -54,6 +55,7 @@ float GyroData[3] = { 0 };
 float Roll_measured = 0;
 float Pitch_measured = 0;
 float Yaw_measured = 0;
+FusionEuler Fusion_output;
 int16_t MagData[3] = { 0 };
 
 BMP280_t BMP280;

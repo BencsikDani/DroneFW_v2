@@ -24,6 +24,7 @@ C_DEPS :=
 SUBDIRS := \
 Core/Src/Controller \
 Core/Src \
+Core/Src/Fusion \
 Core/Src/GPS \
 Core/Src/GY-271 \
 Core/Src/GY-91 \

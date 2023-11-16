@@ -54,8 +54,8 @@ void TaskController(void const *argument)
 
 	// Roll
 	// Outer
-	DPID_Roll.outer.Kp = 10;
-	DPID_Roll.outer.Ki = 5;
+	DPID_Roll.outer.Kp = 5;
+	DPID_Roll.outer.Ki = 8;
 	DPID_Roll.outer.Kd = 0.15;
 	DPID_Roll.outer.T = 0.005;
 	DPID_Roll.outer.limMin = -50;
@@ -134,13 +134,13 @@ void TaskController(void const *argument)
 				DPID_Roll.inner.Kd = VRB / 1000.0;
 
 				// Roll
-				//DoublePIDController_Update(&DPID_Roll, (Roll_in / 25.0f), Roll_measured, GyroData[0]);
-				DoublePIDController_Update(&DPID_Roll, (SWD / 70.0f), Roll_measured, GyroData[0]);
+				//DoublePIDController_Update(&DPID_Roll, (Roll_in / 25.0f), Fusion_output.angle.roll, GyroData[0]);
+				DoublePIDController_Update(&DPID_Roll, (SWD / 70.0f), Fusion_output.angle.roll, GyroData[0]);
 				Roll_controlled = (int16_t)(DPID_Roll.inner.out);
 
 				// Pitch
-				//DoublePIDController_Update(&DPID_Pitch, (Pitch_in / 25.0f), Pitch_measured, GyroData[1]);
-				DoublePIDController_Update(&DPID_Pitch, (SWD / 50.0f), Pitch_measured, GyroData[1]);
+				//DoublePIDController_Update(&DPID_Pitch, (Pitch_in / 25.0f), Fusion_output.angle.pitch, GyroData[1]);
+				DoublePIDController_Update(&DPID_Pitch, (SWD / 50.0f), Fusion_output.angle.pitch, GyroData[1]);
 				Pitch_controlled = (int16_t)(DPID_Pitch.inner.out);
 			}
 

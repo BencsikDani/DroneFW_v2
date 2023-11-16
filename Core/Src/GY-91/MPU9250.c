@@ -84,9 +84,9 @@ uint8_t MPU_begin(SPI_HandleTypeDef *SPIx, MPU9250_t *pMPU9250)
 
 
     	// Gyro
-    	// Set 92 Hz LPF for gyro
+    	// Set 20 Hz LPF for gyro
 		uint8_t addr = CONFIG;
-		uint8_t val = 0x02;
+		uint8_t val = 0x03;
 		MPU_REG_WRITE(SPIx, pMPU9250, &addr, &val);
 		HAL_Delay(50);
 
