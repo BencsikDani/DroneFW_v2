@@ -114,7 +114,7 @@ void TaskDiagnostics(void const *argument)
 			osMutexRelease(ImuMutexHandle);
 		}
 
-		if ( /*IsMagnAvailable*/ 0 )
+		if (IsMagnAvailable)
 		{
 			if (osMutexWait(MagnMutexHandle, osWaitForever) == osOK)
 			{

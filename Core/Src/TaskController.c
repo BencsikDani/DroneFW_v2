@@ -17,54 +17,19 @@ void TaskController(void const *argument)
 	const TickType_t xFrequency = 200; //Hz
 	const TickType_t xTickDuration = (1000 * 1 / xFrequency) / portTICK_PERIOD_MS; // Ticks to delay the task for
 
-
-//	// Roll
-//	PID_Roll_Attitude.Kp = 1.92;
-//	PID_Roll_Attitude.Ki = 0;
-//	PID_Roll_Attitude.Kd = 0.0648;
-//	PID_Roll_Attitude.T = 0.005;
-//	PID_Roll_Attitude.limMin = -50; // deg/s
-//	PID_Roll_Attitude.limMax = 50; // deg/s
-//	PIDController_Init(&PID_Roll_Attitude);
-//
-//	PID_Roll_AngVel.Kp = 2.0;
-//	PID_Roll_AngVel.Ki = 0;
-//	PID_Roll_AngVel.Kd = 0.1;
-//	PID_Roll_AngVel.T = 0.005;
-//	PID_Roll_AngVel.limMin = -500; // Motor control unit
-//	PID_Roll_AngVel.limMax = 500; // Motor control unit
-//	PIDController_Init(&PID_Roll_AngVel);
-//
-//	// Pitch
-//	PID_Pitch_Attitude.Kp = 0;
-//	PID_Pitch_Attitude.Ki = 0;
-//	PID_Pitch_Attitude.Kd = 0;
-//	PID_Pitch_Attitude.T = 0.005;
-//	PID_Pitch_Attitude.limMin = -50; // deg/s
-//	PID_Pitch_Attitude.limMax = 50; // deg/s
-//	PIDController_Init(&PID_Pitch_Attitude);
-//
-//	PID_Pitch_AngVel.Kp = 0;
-//	PID_Pitch_AngVel.Ki = 0;
-//	PID_Pitch_AngVel.Kd = 0;
-//	PID_Pitch_AngVel.T = 0.005;
-//	PID_Pitch_AngVel.limMin = -500; // Motor control unit
-//	PID_Pitch_AngVel.limMax = 500; // Motor control unit
-//	PIDController_Init(&PID_Pitch_AngVel);
-
 	// Roll
 	// Outer
 	DPID_Roll.outer.Kp = 5;
 	DPID_Roll.outer.Ki = 8;
 	DPID_Roll.outer.Kd = 0.15;
-	DPID_Roll.outer.T = 0.005;
+	DPID_Roll.outer.T = 1.0f / xFrequency;
 	DPID_Roll.outer.limMin = -50;
 	DPID_Roll.outer.limMax = 50;
 	// Inner
 	DPID_Roll.inner.Kp = 1.5;
 	DPID_Roll.inner.Ki = 0;
 	DPID_Roll.inner.Kd = 0.1;
-	DPID_Roll.inner.T = 0.005;
+	DPID_Roll.inner.T = 1.0f / xFrequency;
 	DPID_Roll.inner.limMin = -500;
 	DPID_Roll.inner.limMax = 500;
 	// Init
@@ -75,18 +40,28 @@ void TaskController(void const *argument)
 	DPID_Pitch.outer.Kp = 0;
 	DPID_Pitch.outer.Ki = 0;
 	DPID_Pitch.outer.Kd = 0;
-	DPID_Pitch.outer.T = 0.005;
+	DPID_Pitch.outer.T = 1.0f / xFrequency;
 	DPID_Pitch.outer.limMin = -50;
 	DPID_Pitch.outer.limMax = 50;
 	// Inner
 	DPID_Pitch.inner.Kp = 0;
 	DPID_Pitch.inner.Ki = 0;
 	DPID_Pitch.inner.Kd = 0;
-	DPID_Pitch.inner.T = 0.005;
+	DPID_Pitch.inner.T = 1.0f / xFrequency;
 	DPID_Pitch.inner.limMin = -500;
 	DPID_Pitch.inner.limMax = 500;
 	// Init
 	DoublePIDController_Init(&DPID_Pitch);
+
+	// Yaw
+	PID_Yaw.Kp = 0;
+	PID_Yaw.Ki = 0;
+	PID_Yaw.Kd = 0;
+	PID_Yaw.T = 1.0f / xFrequency;
+	PID_Yaw.limMin = -500;
+	PID_Yaw.limMax = 500;
+	// Init
+	PIDController_Init(&PID_Yaw);
 
 
 	xLastWakeTime = xTaskGetTickCount();
@@ -104,21 +79,17 @@ void TaskController(void const *argument)
 		{
 			if (SWC > 490)
 			{
-//				PID_Roll_Attitude.integrator = 0;
-//				PID_Roll_AngVel.integrator = 0;
-//				PID_Pitch_Attitude.integrator = 0;
-//				PID_Pitch_AngVel.integrator = 0;
-
-				DPID_Roll.outer.integrator = 0.0;
-				DPID_Roll.inner.integrator = 0.0;
-				DPID_Pitch.outer.integrator = 0.0;
-				DPID_Pitch.inner.integrator = 0.0;
+				DPID_Roll.outer.integrator = 0.0f;
+				DPID_Roll.inner.integrator = 0.0f;
+				DPID_Pitch.outer.integrator = 0.0f;
+				DPID_Pitch.inner.integrator = 0.0f;
+				PID_Yaw.integrator = 0.0f;
 			}
 
 			if (Tune_single_true_double_false)
 			{
-				DPID_Roll.outer.Kd = VRA / 200.0;
-				DPID_Roll.inner.Kd = VRB / 1000.0;
+				DPID_Roll.outer.Kd = VRA / 200.0f;
+				DPID_Roll.inner.Kd = VRB / 1000.0f;
 
 				// Roll
 				PIDController_Update(&DPID_Roll.inner, (Roll_in / 10.0f), GyroData[0]);
@@ -127,11 +98,15 @@ void TaskController(void const *argument)
 				// Pitch
 				PIDController_Update(&DPID_Pitch.inner, (Pitch_in / 10.0f), GyroData[1]);
 				Pitch_controlled = (int16_t)(DPID_Pitch.inner.out);
+
+				// Yaw
+				PIDController_Update(&PID_Yaw, (Yaw_in / 10.0f), GyroData[2]);
+				Yaw_controlled = (int16_t)(PID_Yaw.out);
 			}
 			else
 			{
-				DPID_Roll.outer.Kd = VRA / 200.0;
-				DPID_Roll.inner.Kd = VRB / 1000.0;
+				DPID_Roll.outer.Kd = VRA / 200.0f;
+				DPID_Roll.inner.Kd = VRB / 1000.0f;
 
 				// Roll
 				//DoublePIDController_Update(&DPID_Roll, (Roll_in / 25.0f), Fusion_output.angle.roll, GyroData[0]);
@@ -140,15 +115,13 @@ void TaskController(void const *argument)
 
 				// Pitch
 				//DoublePIDController_Update(&DPID_Pitch, (Pitch_in / 25.0f), Fusion_output.angle.pitch, GyroData[1]);
-				DoublePIDController_Update(&DPID_Pitch, (SWD / 50.0f), Fusion_output.angle.pitch, GyroData[1]);
+				DoublePIDController_Update(&DPID_Pitch, (SWD / 70.0f), Fusion_output.angle.pitch, GyroData[1]);
 				Pitch_controlled = (int16_t)(DPID_Pitch.inner.out);
-			}
 
-//			char str[20];
-//			//sprintf(str, "%1.2f\r\n", PID_Roll_AngVel.out);
-//			//sprintf(str, "%d\r\n", Roll_controlled);
-//			sprintf(str, "%1.2f, %d\r\n", PID_Roll_AngVel.out, Roll_controlled);
-//			HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
+				// Yaw
+				PIDController_Update(&PID_Yaw, (Yaw_in / 10.0f), GyroData[2]);
+				Yaw_controlled = (int16_t)(PID_Yaw.out);
+			}
 		}
 		osMutexRelease(ControllerMutexHandle);
 		osMutexRelease(RemoteDataMutexHandle);

@@ -8,7 +8,7 @@ uint8_t HMC5883L_Init()
 {
 	HMC5883L_setRange(HMC5883L_RANGE_8_1GA);
 	HMC5883L_setMeasurementMode(HMC5883L_CONTINOUS);
-	HMC5883L_setDataRate(HMC5883L_DATARATE_30HZ);
+	HMC5883L_setDataRate(HMC5883L_DATARATE_75HZ);
 	HMC5883L_setSamples(HMC5883L_SAMPLES_4);
 	HMC5883L_setOffset(0, 0);
 
@@ -92,7 +92,9 @@ void HMC5883L_setMeasurementMode(uint8_t mode)
     uint8_t value;
 
     value = HMC5883L_readRegister8(HMC5883L_REG_MODE);
+    // Mask out the lower 2 bits
     value &= 0b11111100;
+    // Set the lower 2 bits
     value |= mode;
 
     HMC5883L_writeRegister8(HMC5883L_REG_MODE, value);
@@ -113,7 +115,9 @@ void HMC5883L_setDataRate(uint8_t dataRate)
     uint8_t value;
 
     value = HMC5883L_readRegister8(HMC5883L_REG_CONFIG_A);
+    // Mask out bits
     value &= 0b11100011;
+    // Set bits
     value |= (dataRate << 2);
 
     HMC5883L_writeRegister8(HMC5883L_REG_CONFIG_A, value);
@@ -135,7 +139,9 @@ void HMC5883L_setSamples(uint8_t samples)
     uint8_t value;
 
     value = HMC5883L_readRegister8(HMC5883L_REG_CONFIG_A);
+    // Mask out bits
     value &= 0b10011111;
+    // Set bits
     value |= (samples << 5);
 
     HMC5883L_writeRegister8(HMC5883L_REG_CONFIG_A, value);
