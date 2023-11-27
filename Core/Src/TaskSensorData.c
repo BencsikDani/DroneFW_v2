@@ -37,15 +37,15 @@ void TaskSensorData(void const *argument)
 	LPF GyroLPF[3];
 
 	GyroLPF[0].T = 1.0 / xFrequency;
-	GyroLPF[0].f_cutoff = 50;
+	GyroLPF[0].f_cutoff = 40;
 	LPF_Init(&(GyroLPF[0]));
 
 	GyroLPF[1].T = 1.0 / xFrequency;
-	GyroLPF[1].f_cutoff = 50;
+	GyroLPF[1].f_cutoff = 40;
 	LPF_Init(&(GyroLPF[1]));
 
 	GyroLPF[2].T = 1.0 / xFrequency;
-	GyroLPF[2].f_cutoff = 50;
+	GyroLPF[2].f_cutoff = 40;
 	LPF_Init(&(GyroLPF[2]));
 
 
@@ -138,39 +138,6 @@ void TaskSensorData(void const *argument)
 				//Pitch_measured = MPU9250.attitude.pitch;
 				//Yaw_measured = MPU9250.attitude.yaw;
 
-
-
-
-				// Acquire latest sensor data
-				//const clock_t timestamp = clock(); // replace this with actual gyroscope timestamp
-
-				FusionVector accelerometer = {AccData[0], AccData[1], AccData[2]}; // replace this with actual accelerometer data in g
-				FusionVector gyroscope = {GyroData[0], GyroData[1], GyroData[2]}; // replace this with actual gyroscope data in degrees/s
-				FusionVector magnetometer = {1.0f, 0.0f, 0.0f}; // replace this with actual magnetometer data in arbitrary units
-
-				// Apply run-time calibration
-				gyroscope = FusionCalibrationInertial(gyroscope, gyroscopeMisalignment, gyroscopeSensitivity, gyroscopeOffset);
-				accelerometer = FusionCalibrationInertial(accelerometer, accelerometerMisalignment, accelerometerSensitivity, accelerometerOffset);
-				magnetometer = FusionCalibrationMagnetic(magnetometer, softIronMatrix, hardIronOffset);
-
-				// Update gyroscope offset correction algorithm
-				gyroscope = FusionOffsetUpdate(&offset, gyroscope);
-
-				// Calculate delta time (in seconds) to account for gyroscope sample clock error
-				//static clock_t previousTimestamp;
-				//const float deltaTime = (float) (timestamp - previousTimestamp) / (float) CLOCKS_PER_SEC;
-				//previousTimestamp = timestamp;
-
-				// Update gyroscope AHRS algorithm
-				//FusionAhrsUpdate(&ahrs, gyroscope, accelerometer, magnetometer, 1.0f / xFrequency);
-				FusionAhrsUpdateNoMagnetometer(&ahrs, gyroscope, accelerometer, 1.0f / xFrequency);
-
-				// Algorithm outputs
-				Fusion_output = FusionQuaternionToEuler(FusionAhrsGetQuaternion(&ahrs));
-
-
-
-
 				BMP_Temp = BMP280.measurement.temperature;
 				BMP_Pres = BMP280.measurement.pressure;
 				BMP_Alt = BMP280.measurement.altitude;
@@ -217,7 +184,6 @@ void TaskSensorData(void const *argument)
 						MAG_dir = 0.0f;
 					else if (MAG_X_RAW < 0)
 						MAG_dir = 180.0f;
-
 				}
 
 				MAG_dir += declination;
@@ -231,6 +197,40 @@ void TaskSensorData(void const *argument)
 			osMutexRelease(MagnMutexHandle);
 			Log("SD-MM-RE");
 		}
+
+		// Calculate Fusion algorithm
+		if ((osMutexWait(ImuMutexHandle, osWaitForever) == osOK)
+			&& (osMutexWait(MagnMutexHandle, osWaitForever) == osOK))
+		{
+			// Acquire latest sensor data
+			//const clock_t timestamp = clock(); // replace this with actual gyroscope timestamp
+
+			FusionVector accelerometer = {AccData[0], AccData[1], AccData[2]}; // accelerometer data in g
+			FusionVector gyroscope = {GyroData[0], GyroData[1], GyroData[2]}; // gyroscope data in degrees/s
+			FusionVector magnetometer = {MAG_X_RAW, MAG_Y_RAW, MAG_Z_RAW}; // magnetometer data in arbitrary units
+
+			// Apply run-time calibration
+			gyroscope = FusionCalibrationInertial(gyroscope, gyroscopeMisalignment, gyroscopeSensitivity, gyroscopeOffset);
+			accelerometer = FusionCalibrationInertial(accelerometer, accelerometerMisalignment, accelerometerSensitivity, accelerometerOffset);
+			magnetometer = FusionCalibrationMagnetic(magnetometer, softIronMatrix, hardIronOffset);
+
+			// Update gyroscope offset correction algorithm
+			gyroscope = FusionOffsetUpdate(&offset, gyroscope);
+
+			// Calculate delta time (in seconds) to account for gyroscope sample clock error
+			//static clock_t previousTimestamp;
+			//const float deltaTime = (float) (timestamp - previousTimestamp) / (float) CLOCKS_PER_SEC;
+			//previousTimestamp = timestamp;
+
+			// Update gyroscope AHRS algorithm
+			FusionAhrsUpdate(&ahrs, gyroscope, accelerometer, magnetometer, 1.0f / xFrequency);
+			//FusionAhrsUpdateNoMagnetometer(&ahrs, gyroscope, accelerometer, 1.0f / xFrequency);
+
+			// Algorithm outputs
+			Fusion_output = FusionQuaternionToEuler(FusionAhrsGetQuaternion(&ahrs));
+		}
+		osMutexRelease(ImuMutexHandle);
+		osMutexRelease(MagnMutexHandle);
 
 		// Distance Data
 		if (IsDistAvailable)

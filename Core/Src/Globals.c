@@ -24,12 +24,9 @@ bool IsDistAvailable = false;
 bool IsGpsAvailable = false;
 
 // Controllers
-//PIDController PID_Roll_Attitude;
-//PIDController PID_Roll_AngVel;
-//PIDController PID_Pitch_Attitude;
-//PIDController PID_Pitch_AngVel;
 DoublePIDController DPID_Roll;
 DoublePIDController DPID_Pitch;
+PIDController PID_Yaw;
 
 
 // Transmitter channel variables
