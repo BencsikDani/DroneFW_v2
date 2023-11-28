@@ -31,24 +31,16 @@ void TaskRemote(void const *argument)
 	/* Infinite loop */
 	while (1)
 	{
-		//Log("R-WS");
 		// Wait for the next cycle.
 		vTaskDelayUntil(&xLastWakeTime, xTickDuration);
-		//Log("R-WE");
 
 		TickType_t time = xTaskGetTickCount();
 
-		//Log("R-RBFS-WS");
 		if (osSemaphoreWait(RemoteBufferFullSemaphoreHandle, osWaitForever) == osOK)
 		{
-			//Log("R-RBFS-WE");
-
 			//Find the last complete 32 bit iBus packet in the 64 bit RemoteBuffer
-			//Log("R-RBM-WS");
 			if (osMutexWait(RemoteBufferMutexHandle, osWaitForever) == osOK)
 			{
-				//Log("R-RBM-WE");
-
 				for (int i = 32; i >= 0; i--)
 				{
 					if (RemoteBuffer[i] == 0x20 && RemoteBuffer[i+1] == 0x40)
@@ -57,10 +49,7 @@ void TaskRemote(void const *argument)
 							LastIbusPacket[j] = RemoteBuffer[i+j];
 					}
 				}
-
-				//Log("R-RBM-RS");
 				osMutexRelease(RemoteBufferMutexHandle);
-				//Log("R-RBM-RE");
 			}
 
 
@@ -73,20 +62,8 @@ void TaskRemote(void const *argument)
 				channelValues[i] = (LastIbusPacket[3 + 2 * i] << 8) + LastIbusPacket[2 + 2 * i];
 
 			// Setting the speed
-			//Log("R-RDM-WS");
 			if (osMutexWait(RemoteDataMutexHandle, osWaitForever) == osOK)
 			{
-				//Log("R-RDM-WE");
-
-				// Transmit raw channel values
-//					char str[10];
-//					for (int i = 0; i < IBUS_MAXCHANNELS; i++)
-//					{
-//						sprintf(str, "%d ", channelValues[i]);
-//						HAL_UART_Transmit(&huart3, str, strlen(str), HAL_MAX_DELAY);
-//					}
-//					HAL_UART_Transmit(&huart3, "\r\n", sizeof("\r\n"), HAL_MAX_DELAY);
-
 				Throttle_in = channelValues[THROTTLE_CHANNEL] - 1000;
 				// Limit input Throttle, so the Controllers can keep the drone stable at high RPM, too
 				if (Throttle_in > 800)
@@ -102,25 +79,8 @@ void TaskRemote(void const *argument)
 				SWD = channelValues[SWD_CHANNEL] - 1000;
 				VRA = channelValues[VRA_CHANNEL] - 1000;
 				VRB = channelValues[VRB_CHANNEL] - 1000;
-
-				//char str1[40];
-				//sprintf(str1, "In: %d\r\n", channelValues[THROTTLE_CHANNEL]);
-				//HAL_UART_Transmit(&huart3, str1, 11, HAL_MAX_DELAY);
-
-
 			}
-			//Log("R-RDM-RS");
 			osMutexRelease(RemoteDataMutexHandle);
-			//Log("R-RDM-RE");
-
-
-			//char str2[40];
-			//sprintf(str2, "Out: %d\r\n\r\n", channelValues[2]);
-			//HAL_UART_Transmit(&huart3, str2, 13, HAL_MAX_DELAY);
-
-
-			// Signal to the UART2 Callback
-			//RemoteBufferInProgress = true;
 		}
 
 		//LogN(xTaskGetTickCount() - time);
