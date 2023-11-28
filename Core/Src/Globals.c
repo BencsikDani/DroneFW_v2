@@ -9,7 +9,7 @@
 
 #include "stdbool.h"
 
-bool Diag = true;
+bool Diag = false;
 bool DebugIsOn = false;
 bool Tune = true;
 bool Tune_single_true_double_false = false;

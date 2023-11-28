@@ -23,7 +23,7 @@ void PIDController_Init(PIDController *pid)
 	pid->lastTick = 0;
 }
 
-float PIDController_Update(PIDController *pid, float reference, float measurement)
+float PIDController_Update(PIDController *pid, float reference, float measurement, bool enable_integration)
 {
 	// Check if enough time has passed for the T sample time
 	bool run = false;
@@ -53,7 +53,7 @@ float PIDController_Update(PIDController *pid, float reference, float measuremen
 		float proportional_result = pid->Kp * error;
 
 		// Integral with Anti-windup
-		if (!pid->antiWindup)
+		if (!pid->antiWindup && enable_integration)
 		{
 			pid->integrator = pid->integrator + error * pid->T;
 			pid->integrator_result = pid->Ki * pid->integrator;
@@ -124,7 +124,7 @@ void DoublePIDController_Init(DoublePIDController *pid)
 	pid->inner.lastTick = 0;
 }
 
-float DoublePIDController_Update(DoublePIDController *pid, float outer_reference, float outer_measurement, float inner_measurement)
+float DoublePIDController_Update(DoublePIDController *pid, float outer_reference, float outer_measurement, float inner_measurement, bool enable_integration)
 {
 	// Check if enough time has passed for the T sample time
 	// I use the outer PID's properties for that
@@ -156,7 +156,7 @@ float DoublePIDController_Update(DoublePIDController *pid, float outer_reference
 		float outer_proportional_result = pid->outer.Kp * outer_error;
 
 		// Integral with Anti-windup
-		if (!pid->outer.antiWindup)
+		if (!pid->outer.antiWindup && enable_integration)
 		{
 			pid->outer.integrator = pid->outer.integrator + outer_error * pid->outer.T;
 			pid->outer.integrator_result = pid->outer.Ki * pid->outer.integrator;
@@ -200,7 +200,7 @@ float DoublePIDController_Update(DoublePIDController *pid, float outer_reference
 		float inner_proportional_result = pid->inner.Kp * inner_error;
 
 		// Integral with Anti-windup
-		if (!pid->inner.antiWindup)
+		if (!pid->inner.antiWindup && enable_integration)
 		{
 			pid->inner.integrator = pid->inner.integrator + inner_error * pid->inner.T;
 			pid->inner.integrator_result = pid->inner.Ki * pid->inner.integrator;
