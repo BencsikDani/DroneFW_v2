@@ -21,6 +21,8 @@ void TaskTune(void const *argument)
 	uint8_t SpiTuneData2[64];
 	SpiTuneData1[0] = (uint8_t)('t');
 	SpiTuneData2[0] = (uint8_t)('u');
+	uint8_t LastValidTuningData[6];
+	bool NewTuneCommand = false;
 
 
 	// PID controllers to be tuned
@@ -78,8 +80,8 @@ void TaskTune(void const *argument)
 				FloatToUint8s(&(PID_Ro->Ki), SpiTuneData1, 5);
 				FloatToUint8s(&(PID_Ro->Kd), SpiTuneData1, 9);
 				// Reference -> Calculated in every cycle
-				//PID1_ref_devided = Roll_in / 25;
-				PID_Ro_ref_devided = SWD / 70;
+				PID_Ro_ref_devided = Roll_in / 25;
+				//PID_Ro_ref_devided = SWD / 70;
 				Int16ToUint8s(&PID_Ro_ref_devided, SpiTuneData1, 13);
 				// Measurement
 				FloatToUint8s(PID_Ro_meas, SpiTuneData1, 15);
@@ -163,58 +165,85 @@ void TaskTune(void const *argument)
 		osDelay(5);
 		HAL_SPI_TransmitReceive(&hspi1, SpiTuneData2, Spi1Buffer, 64, HAL_MAX_DELAY);
 
-		// Tune controllers based on the received data
-		float float_value = 0;
-		FloatFromUint8s(Spi1Buffer, 3, &float_value);
 
-		if (osMutexWait(ControllerMutexHandle, osWaitForever) == osOK)
+
+		// Check if any new valid command has arrived
+		if (Spi1Buffer[1] != 0)
 		{
-			if (Spi1Buffer[1] == 1) // PID_Ro
+			for (int i = 0; i < 6; i++)
 			{
-				if (Spi1Buffer[2] == 'p')
-					PID_Ro->Kp = float_value;
-				else if (Spi1Buffer[2] == 'i')
-					PID_Ro->Ki = float_value;
-				else if (Spi1Buffer[2] == 'd')
-					PID_Ro->Kd = float_value;
-			}
-			else if (Spi1Buffer[1] == 2) // PID_Ri
-			{
-				if (Spi1Buffer[2] == 'p')
-					PID_Ri->Kp = float_value;
-				else if (Spi1Buffer[2] == 'i')
-					PID_Ri->Ki = float_value;
-				else if (Spi1Buffer[2] == 'd')
-					PID_Ri->Kd = float_value;
-			}
-			else if (Spi1Buffer[1] == 3) // PID_Po
-			{
-				if (Spi1Buffer[2] == 'p')
-					PID_Po->Kp = float_value;
-				else if (Spi1Buffer[2] == 'i')
-					PID_Po->Ki = float_value;
-				else if (Spi1Buffer[2] == 'd')
-					PID_Po->Kd = float_value;
-			}
-			else if (Spi1Buffer[1] == 4) // PID_Pi
-			{
-				if (Spi1Buffer[2] == 'p')
-					PID_Pi->Kp = float_value;
-				else if (Spi1Buffer[2] == 'i')
-					PID_Pi->Ki = float_value;
-				else if (Spi1Buffer[2] == 'd')
-					PID_Pi->Kd = float_value;
-			}
-			else if (Spi1Buffer[1] == 5) // PID_Y
-			{
-				if (Spi1Buffer[2] == 'p')
-					PID_Y->Kp = float_value;
-				else if (Spi1Buffer[2] == 'i')
-					PID_Y->Ki = float_value;
-				else if (Spi1Buffer[2] == 'd')
-					PID_Y->Kd = float_value;
+				if (LastValidTuningData[i] == Spi1Buffer[i+1])
+					continue;
+				else
+				{
+					NewTuneCommand = true;
+					break;
+				}
 			}
 		}
-		osMutexRelease(ControllerMutexHandle);
+
+		// If any new tuning command has arrived
+		if (NewTuneCommand)
+		{
+			// Tune controllers based on the received data
+			float float_value = 0;
+			FloatFromUint8s(Spi1Buffer, 3, &float_value);
+
+			if (osMutexWait(ControllerMutexHandle, osWaitForever) == osOK)
+			{
+				if (Spi1Buffer[1] == 1) // PID_Ro
+				{
+					if (Spi1Buffer[2] == 'p')
+						PID_Ro->Kp = float_value;
+					else if (Spi1Buffer[2] == 'i')
+						PID_Ro->Ki = float_value;
+					else if (Spi1Buffer[2] == 'd')
+						PID_Ro->Kd = float_value;
+				}
+				else if (Spi1Buffer[1] == 2) // PID_Ri
+				{
+					if (Spi1Buffer[2] == 'p')
+						PID_Ri->Kp = float_value;
+					else if (Spi1Buffer[2] == 'i')
+						PID_Ri->Ki = float_value;
+					else if (Spi1Buffer[2] == 'd')
+						PID_Ri->Kd = float_value;
+				}
+				else if (Spi1Buffer[1] == 3) // PID_Po
+				{
+					if (Spi1Buffer[2] == 'p')
+						PID_Po->Kp = float_value;
+					else if (Spi1Buffer[2] == 'i')
+						PID_Po->Ki = float_value;
+					else if (Spi1Buffer[2] == 'd')
+						PID_Po->Kd = float_value;
+				}
+				else if (Spi1Buffer[1] == 4) // PID_Pi
+				{
+					if (Spi1Buffer[2] == 'p')
+						PID_Pi->Kp = float_value;
+					else if (Spi1Buffer[2] == 'i')
+						PID_Pi->Ki = float_value;
+					else if (Spi1Buffer[2] == 'd')
+						PID_Pi->Kd = float_value;
+				}
+				else if (Spi1Buffer[1] == 5) // PID_Y
+				{
+					if (Spi1Buffer[2] == 'p')
+						PID_Y->Kp = float_value;
+					else if (Spi1Buffer[2] == 'i')
+						PID_Y->Ki = float_value;
+					else if (Spi1Buffer[2] == 'd')
+						PID_Y->Kd = float_value;
+				}
+			}
+			osMutexRelease(ControllerMutexHandle);
+
+			// And finally save the current tuning data
+			for (int i = 0; i < 6; i++)
+				LastValidTuningData[i] = Spi1Buffer[i+1];
+
+			NewTuneCommand = false;
+		}
 	}
 }

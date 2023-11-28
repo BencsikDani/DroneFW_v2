@@ -38,8 +38,8 @@ typedef struct {
 } DoublePIDController;
 
 void PIDController_Init(PIDController *pid);
-float PIDController_Update(PIDController *pid, float setpoint, float measurement);
+float PIDController_Update(PIDController *pid, float setpoint, float measurement, bool enable_integration);
 void DoublePIDController_Init(DoublePIDController *pid);
-float DoublePIDController_Update(DoublePIDController *pid, float outer_reference, float outer_measurement, float inner_measurement);
+float DoublePIDController_Update(DoublePIDController *pid, float outer_reference, float outer_measurement, float inner_measurement, bool enable_integration);
 
 #endif

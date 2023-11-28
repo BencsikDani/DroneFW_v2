@@ -77,10 +77,10 @@ void TaskMotor(void const *argument)
 				{
 					if (osMutexWait(ControllerMutexHandle, osWaitForever) == osOK)
 					{
-						ESC1_Speed = Throttle_in + Roll_controlled;//  - Pitch_controlled - Yaw_controlled;
-						ESC2_Speed = Throttle_in - Roll_controlled;// - Pitch_controlled + Yaw_controlled;
-						ESC3_Speed = Throttle_in - Roll_controlled;//  + Pitch_controlled - Yaw_controlled;
-						ESC4_Speed = Throttle_in + Roll_controlled;//  + Pitch_controlled + Yaw_controlled;
+						ESC1_Speed = Throttle_in + Roll_controlled + Pitch_controlled - Yaw_controlled;
+						ESC2_Speed = Throttle_in - Roll_controlled + Pitch_controlled + Yaw_controlled;
+						ESC3_Speed = Throttle_in - Roll_controlled - Pitch_controlled - Yaw_controlled;
+						ESC4_Speed = Throttle_in + Roll_controlled - Pitch_controlled + Yaw_controlled;
 					}
 					osMutexRelease(ControllerMutexHandle);
 				}
