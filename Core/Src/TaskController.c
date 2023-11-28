@@ -86,11 +86,11 @@ void TaskController(void const *argument)
 				PID_Yaw.integrator = 0.0f;
 			}
 
+			DPID_Roll.outer.Kd = VRA / 2000.0f;
+			DPID_Roll.inner.Kd = VRB / 2000.0f;
+
 			if (Tune_single_true_double_false)
 			{
-				DPID_Roll.outer.Kd = VRA / 200.0f;
-				DPID_Roll.inner.Kd = VRB / 1000.0f;
-
 				// Roll
 				PIDController_Update(&DPID_Roll.inner, (Roll_in / 10.0f), GyroData[0]);
 				Roll_controlled = (int16_t)(DPID_Roll.inner.out);
@@ -105,9 +105,6 @@ void TaskController(void const *argument)
 			}
 			else
 			{
-				DPID_Roll.outer.Kd = VRA / 200.0f;
-				DPID_Roll.inner.Kd = VRB / 1000.0f;
-
 				// Roll
 				//DoublePIDController_Update(&DPID_Roll, (Roll_in / 25.0f), Fusion_output.angle.roll, GyroData[0]);
 				DoublePIDController_Update(&DPID_Roll, (SWD / 70.0f), Fusion_output.angle.roll, GyroData[0]);

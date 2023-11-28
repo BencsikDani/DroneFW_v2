@@ -33,7 +33,7 @@ void TaskSensorData(void const *argument)
 
 	bool Recalibrate = false;
 
-
+	// Low Pass Filters
 	LPF GyroLPF[3];
 
 	GyroLPF[0].T = 1.0 / xFrequency;
@@ -92,30 +92,18 @@ void TaskSensorData(void const *argument)
 		// IMU Data
 		if (IsImuAvailable)
 		{
-			Log("SD-RDM-WS");
 			if (osMutexWait(RemoteDataMutexHandle, osWaitForever) == osOK)
 			{
-				Log("SD-RDM-WE");
 				if (SWC > 990)
-				{
 					Recalibrate = true;
-				}
 			}
-			Log("SD-RDM-RS");
 			osMutexRelease(RemoteDataMutexHandle);
-			Log("SD-RDM-RE");
 
-			//MPU9250_GetData(AccData, &TempData, GyroData, MagData, false);
-			//MPU_readRawData(&hspi2, &MPU9250);
 			MPU_readProcessedData(&hspi2, &MPU9250);
-			//MPU_calcAttitude(&hspi2, &MPU9250);
-
 			BMP280_measure(&BMP280);
 
-			Log("SD-IM-WS");
 			if (osMutexWait(ImuMutexHandle, osWaitForever) == osOK)
 			{
-				Log("SD-IM-WE");
 				if (Recalibrate)
 				{
 					HAL_UART_Transmit(&huart3, "CALIBRATING...\r\n", strlen("CALIBRATING...\r\n"), HAL_MAX_DELAY);
@@ -127,35 +115,26 @@ void TaskSensorData(void const *argument)
 				AccData[0] = MPU9250.sensorData.ax;
 				AccData[1] = MPU9250.sensorData.ay;
 				AccData[2] = MPU9250.sensorData.az;
+
 				TempData = MPU9250.sensorData.temp;
-				//GyroData[0] = MPU9250.sensorData.gx;
-				//GyroData[1] = MPU9250.sensorData.gy;
-				//GyroData[2] = MPU9250.sensorData.gz;
+
 				GyroData[0] = LPF_Calculate(&(GyroLPF[0]), MPU9250.sensorData.gx);
 				GyroData[1] = LPF_Calculate(&(GyroLPF[1]), MPU9250.sensorData.gy);
 				GyroData[2] = LPF_Calculate(&(GyroLPF[2]), MPU9250.sensorData.gz);
-				//Roll_measured = MPU9250.attitude.roll;
-				//Pitch_measured = MPU9250.attitude.pitch;
-				//Yaw_measured = MPU9250.attitude.yaw;
 
 				BMP_Temp = BMP280.measurement.temperature;
 				BMP_Pres = BMP280.measurement.pressure;
 				BMP_Alt = BMP280.measurement.altitude;
 
 			}
-			Log("SD-IM-RS");
 			osMutexRelease(ImuMutexHandle);
-			Log("SD-IM-RE");
 		}
 
 		// Magnetometer Data
 		if (IsMagnAvailable)
 		{
-			Log("SD-MM-WS");
 			if (osMutexWait(MagnMutexHandle, osWaitForever) == osOK)
 			{
-				Log("SD-MM-WE");
-
 				struct Vector res = HMC5883L_readRaw();
 				MAG_X_RAW = res.XAxis;
 				MAG_Y_RAW = res.YAxis;
@@ -193,9 +172,7 @@ void TaskSensorData(void const *argument)
 				if (MAG_dir > 360.0f)
 					MAG_dir -= 360.0f;
 			}
-			Log("SD-MM-RS");
 			osMutexRelease(MagnMutexHandle);
-			Log("SD-MM-RE");
 		}
 
 		// Calculate Fusion algorithm
@@ -235,7 +212,6 @@ void TaskSensorData(void const *argument)
 		// Distance Data
 		if (IsDistAvailable)
 		{
-			//Log("SD-DA");
 			if (!HCSR04.Triggered)
 			{
 				HCSR04_Trigger(&HCSR04);
@@ -243,20 +219,11 @@ void TaskSensorData(void const *argument)
 			}
 			else if (HCSR04.Triggered)
 			{
-				Log("SD-DS-WS");
 				if (osSemaphoreWait(DistSemaphoreHandle, 0) == osOK)
 				{
-					Log("SD-DS-WE");
-					Log("SD-DM-WS");
 					if (osMutexWait(DistMutexHandle, osWaitForever) == osOK)
-					{
-						Log("SD-DM-WE");
-
 						Distance = HCSR04_Read(&HCSR04);
-					}
-					Log("SD-DM-RS");
 					osMutexRelease(DistMutexHandle);
-					Log("SD-DM-RE");
 
 					HCSR04.Triggered = false;
 				}
@@ -266,7 +233,6 @@ void TaskSensorData(void const *argument)
 		// GPS Data
 		if (IsGpsAvailable)
 		{
-			//Log("SD-GA");
 			if (osSemaphoreWait(GpsBufferSemaphoreHandle, osWaitForever) == osOK)
 			{
 				if (ProcessGPSPackageBuffer)

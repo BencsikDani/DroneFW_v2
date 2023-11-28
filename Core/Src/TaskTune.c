@@ -216,7 +216,5 @@ void TaskTune(void const *argument)
 			}
 		}
 		osMutexRelease(ControllerMutexHandle);
-
-		//HAL_UART_Transmit(&huart3, Spi1Buffer, 64, HAL_MAX_DELAY);
 	}
 }
