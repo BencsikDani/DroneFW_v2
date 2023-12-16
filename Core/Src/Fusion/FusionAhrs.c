@@ -99,6 +99,8 @@ void FusionAhrsSetSettings(FusionAhrs *const ahrs, const FusionAhrsSettings *con
         ahrs->rampedGain = ahrs->settings.gain;
     }
     ahrs->rampedGainStep = (INITIAL_GAIN - ahrs->settings.gain) / INITIALISATION_PERIOD;
+
+    ahrs->fusionEulerOffset = FUSION_EULER_ZERO;
 }
 
 /**

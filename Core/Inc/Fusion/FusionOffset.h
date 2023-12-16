@@ -25,14 +25,18 @@ typedef struct {
     unsigned int timeout;
     unsigned int timer;
     FusionVector gyroscopeOffset;
-} FusionOffset;
+} FusionGyroOffset;
 
 //------------------------------------------------------------------------------
 // Function declarations
 
-void FusionOffsetInitialise(FusionOffset *const offset, const unsigned int sampleRate);
+void FusionOffsetUpdate(FusionAhrs *const ahrs, const FusionVector gyroscope, const FusionVector accelerometer, const FusionVector magnetometer, uint16_t numCalPoints);
 
-FusionVector FusionOffsetUpdate(FusionOffset *const offset, FusionVector gyroscope);
+FusionEuler FusionApplyEulerOffset(FusionEuler uncalibrated, FusionEuler eulerOffset);
+
+void FusionGyroOffsetInitialise(FusionGyroOffset *const offset, const unsigned int sampleRate);
+
+FusionVector FusionGyroOffsetUpdate(FusionGyroOffset *const offset, FusionVector gyroscope);
 
 #endif
 

@@ -57,6 +57,7 @@ extern bool IsGpsAvailable;
 extern DoublePIDController DPID_Roll;
 extern DoublePIDController DPID_Pitch;
 extern PIDController PID_Yaw;
+extern PIDController PID_Throttle;
 
 // Transmitter channel variables
 extern uint16_t Throttle_in;

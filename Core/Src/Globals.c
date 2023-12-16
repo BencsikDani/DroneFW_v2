@@ -9,7 +9,7 @@
 
 #include "stdbool.h"
 
-bool Diag = false;
+bool Diag = true;
 bool DebugIsOn = false;
 bool Tune = true;
 bool Tune_single_true_double_false = false;
@@ -27,7 +27,7 @@ bool IsGpsAvailable = false;
 DoublePIDController DPID_Roll;
 DoublePIDController DPID_Pitch;
 PIDController PID_Yaw;
-
+PIDController PID_Throttle;
 
 // Transmitter channel variables
 uint16_t Throttle_in = 0;

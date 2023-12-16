@@ -31,7 +31,8 @@ void TaskSensorData(void const *argument)
 	const TickType_t xFrequency = 200; //Hz
 	const TickType_t xTickDuration = (1000 * 1 / xFrequency) / portTICK_PERIOD_MS; // Ticks to delay the task for
 
-	bool Recalibrate = false;
+	bool RecalibrateGyro = false;
+	bool RecalibrateFusion = false;
 
 	// Low Pass Filters
 	LPF GyroLPF[3];
@@ -52,20 +53,20 @@ void TaskSensorData(void const *argument)
 	// Fusion algorithm
 
 	// Define calibration (replace with actual calibration data if available)
-	const FusionMatrix gyroscopeMisalignment = {1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f};
-	const FusionVector gyroscopeSensitivity = {1.0f, 1.0f, 1.0f};
-	const FusionVector gyroscopeOffset = {0.0f, 0.0f, 0.0f};
-	const FusionMatrix accelerometerMisalignment = {1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f};
-	const FusionVector accelerometerSensitivity = {1.0f, 1.0f, 1.0f};
-	const FusionVector accelerometerOffset = {0.0f, 0.0f, 0.0f};
-	const FusionMatrix softIronMatrix = {1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f};
-	const FusionVector hardIronOffset = {0.0f, 0.0f, 0.0f};
+//	const FusionMatrix gyroscopeMisalignment = {1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f};
+//	const FusionVector gyroscopeSensitivity = {1.0f, 1.0f, 1.0f};
+//	const FusionVector gyroscopeOffset = {0.0f, 0.0f, 0.0f};
+//	const FusionMatrix accelerometerMisalignment = {1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f};
+//	const FusionVector accelerometerSensitivity = {1.0f, 1.0f, 1.0f};
+//	const FusionVector accelerometerOffset = {0.0f, 0.0f, 0.0f};
+//	const FusionMatrix softIronMatrix = {1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f};
+//	const FusionVector hardIronOffset = {0.0f, 0.0f, 0.0f};
 
 	// Initialize
-	FusionOffset offset;
+	FusionGyroOffset gyroOffset;
 	FusionAhrs ahrs;
 
-	FusionOffsetInitialise(&offset, xFrequency);
+	FusionGyroOffsetInitialise(&gyroOffset, xFrequency);
 	FusionAhrsInitialise(&ahrs);
 
 	// Set AHRS algorithm settings
@@ -95,7 +96,10 @@ void TaskSensorData(void const *argument)
 			if (osMutexWait(RemoteDataMutexHandle, osWaitForever) == osOK)
 			{
 				if (SWC > 990)
-					Recalibrate = true;
+				{
+					RecalibrateGyro = true;
+					RecalibrateFusion = true;
+				}
 			}
 			osMutexRelease(RemoteDataMutexHandle);
 
@@ -104,12 +108,12 @@ void TaskSensorData(void const *argument)
 
 			if (osMutexWait(ImuMutexHandle, osWaitForever) == osOK)
 			{
-				if (Recalibrate)
+				if (RecalibrateGyro)
 				{
-					HAL_UART_Transmit(&huart3, "CALIBRATING...\r\n", strlen("CALIBRATING...\r\n"), HAL_MAX_DELAY);
+					HAL_UART_Transmit(&huart3, "CALIBRATING GYRO...\r\n", strlen("CALIBRATING GYRO...\r\n"), HAL_MAX_DELAY);
 					MPU_calibrateGyro(&hspi2, &MPU9250, 20);
 
-					Recalibrate = false;
+					RecalibrateGyro = false;
 				}
 
 				AccData[0] = MPU9250.sensorData.ax;
@@ -186,13 +190,22 @@ void TaskSensorData(void const *argument)
 			FusionVector gyroscope = {GyroData[0], GyroData[1], GyroData[2]}; // gyroscope data in degrees/s
 			FusionVector magnetometer = {MAG_X_RAW, MAG_Y_RAW, MAG_Z_RAW}; // magnetometer data in arbitrary units
 
+			// Recalibration if needed
+			if (RecalibrateFusion)
+			{
+				HAL_UART_Transmit(&huart3, "CALIBRATING FUSION...\r\n", strlen("CALIBRATING FUSION...\r\n"), HAL_MAX_DELAY);
+				FusionOffsetUpdate(&ahrs, gyroscope, accelerometer, magnetometer, 20);
+
+				RecalibrateFusion = false;
+			}
+
 			// Apply run-time calibration
-			gyroscope = FusionCalibrationInertial(gyroscope, gyroscopeMisalignment, gyroscopeSensitivity, gyroscopeOffset);
-			accelerometer = FusionCalibrationInertial(accelerometer, accelerometerMisalignment, accelerometerSensitivity, accelerometerOffset);
-			magnetometer = FusionCalibrationMagnetic(magnetometer, softIronMatrix, hardIronOffset);
+//			gyroscope = FusionCalibrationInertial(gyroscope, gyroscopeMisalignment, gyroscopeSensitivity, gyroscopeOffset);
+//			accelerometer = FusionCalibrationInertial(accelerometer, accelerometerMisalignment, accelerometerSensitivity, accelerometerOffset);
+//			magnetometer = FusionCalibrationMagnetic(magnetometer, softIronMatrix, hardIronOffset);
 
 			// Update gyroscope offset correction algorithm
-			gyroscope = FusionOffsetUpdate(&offset, gyroscope);
+			gyroscope = FusionGyroOffsetUpdate(&gyroOffset, gyroscope);
 
 			// Calculate delta time (in seconds) to account for gyroscope sample clock error
 			//static clock_t previousTimestamp;
@@ -205,6 +218,7 @@ void TaskSensorData(void const *argument)
 
 			// Algorithm outputs
 			Fusion_output = FusionQuaternionToEuler(FusionAhrsGetQuaternion(&ahrs));
+			Fusion_output = FusionApplyEulerOffset(Fusion_output, ahrs.fusionEulerOffset);
 		}
 		osMutexRelease(ImuMutexHandle);
 		osMutexRelease(MagnMutexHandle);

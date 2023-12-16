@@ -19,16 +19,16 @@ void TaskController(void const *argument)
 
 	// Roll
 	// Outer
-	DPID_Roll.outer.Kp = 5;
-	DPID_Roll.outer.Ki = 0;
-	DPID_Roll.outer.Kd = 0.25;
+	DPID_Roll.outer.Kp = 8;
+	DPID_Roll.outer.Ki = 0.5;
+	DPID_Roll.outer.Kd = 0.15;
 	DPID_Roll.outer.T = 1.0f / xFrequency;
 	DPID_Roll.outer.limMin = -50;
 	DPID_Roll.outer.limMax = 50;
 	// Inner
-	DPID_Roll.inner.Kp = 1.4;
+	DPID_Roll.inner.Kp = 0.6;
 	DPID_Roll.inner.Ki = 0;
-	DPID_Roll.inner.Kd = 0.11;
+	DPID_Roll.inner.Kd = 0.06;
 	DPID_Roll.inner.T = 1.0f / xFrequency;
 	DPID_Roll.inner.limMin = -500;
 	DPID_Roll.inner.limMax = 500;
@@ -37,16 +37,16 @@ void TaskController(void const *argument)
 
 	// Pitch
 	// Outer
-	DPID_Pitch.outer.Kp = 5;
-	DPID_Pitch.outer.Ki = 0;
-	DPID_Pitch.outer.Kd = 0.25;
+	DPID_Pitch.outer.Kp = 8;
+	DPID_Pitch.outer.Ki = 0.5;
+	DPID_Pitch.outer.Kd = 0.15;
 	DPID_Pitch.outer.T = 1.0f / xFrequency;
 	DPID_Pitch.outer.limMin = -50;
 	DPID_Pitch.outer.limMax = 50;
 	// Inner
-	DPID_Pitch.inner.Kp = 1.4;
+	DPID_Pitch.inner.Kp = 0.6;
 	DPID_Pitch.inner.Ki = 0;
-	DPID_Pitch.inner.Kd = 0.11;
+	DPID_Pitch.inner.Kd = 0.06;
 	DPID_Pitch.inner.T = 1.0f / xFrequency;
 	DPID_Pitch.inner.limMin = -500;
 	DPID_Pitch.inner.limMax = 500;
@@ -54,7 +54,7 @@ void TaskController(void const *argument)
 	DoublePIDController_Init(&DPID_Pitch);
 
 	// Yaw
-	PID_Yaw.Kp = 0;
+	PID_Yaw.Kp = 6;
 	PID_Yaw.Ki = 0;
 	PID_Yaw.Kd = 0;
 	PID_Yaw.T = 1.0f / xFrequency;
@@ -62,6 +62,16 @@ void TaskController(void const *argument)
 	PID_Yaw.limMax = 500;
 	// Init
 	PIDController_Init(&PID_Yaw);
+
+	// Throttle
+	PID_Throttle.Kp = 0;
+	PID_Throttle.Ki = 0;
+	PID_Throttle.Kd = 0;
+	PID_Throttle.T = 1.0f / xFrequency;
+	PID_Throttle.limMin = 0;
+	PID_Throttle.limMax = 800;
+	// Init
+	PIDController_Init(&PID_Throttle);
 
 
 	xLastWakeTime = xTaskGetTickCount();
@@ -89,6 +99,8 @@ void TaskController(void const *argument)
 				DPID_Pitch.inner.integrator_result = 0.0f;
 				PID_Yaw.integrator = 0.0f;
 				PID_Yaw.integrator_result = 0.0f;
+				PID_Throttle.integrator = 0.0f;
+				PID_Throttle.integrator_result = 0.0f;
 			}
 			/*
 			DPID_Roll.outer.Kd = VRA / 2000.0f;
@@ -104,12 +116,16 @@ void TaskController(void const *argument)
 				Roll_controlled = (int16_t)(DPID_Roll.inner.out);
 
 				// Pitch
-				PIDController_Update(&DPID_Pitch.inner, (Pitch_in / 10.0f), GyroData[1], (Throttle_in > 10));
+				PIDController_Update(&DPID_Pitch.inner, (-Pitch_in / 10.0f), GyroData[1], (Throttle_in > 10));
 				Pitch_controlled = (int16_t)(DPID_Pitch.inner.out);
 
 				// Yaw
 				PIDController_Update(&PID_Yaw, (Yaw_in / 10.0f), GyroData[2], (Throttle_in > 10));
 				Yaw_controlled = (int16_t)(PID_Yaw.out);
+
+				// Throttle
+				PIDController_Update(&PID_Throttle, Throttle_in, Distance, (Throttle_in > 35));
+				Throttle_controlled = (uint16_t)(PID_Throttle.out);
 			}
 			else
 			{
@@ -119,13 +135,17 @@ void TaskController(void const *argument)
 				Roll_controlled = (int16_t)(DPID_Roll.inner.out);
 
 				// Pitch
-				DoublePIDController_Update(&DPID_Pitch, (Pitch_in / 25.0f), Fusion_output.angle.pitch, GyroData[1], (Throttle_in > 10));
+				DoublePIDController_Update(&DPID_Pitch, (-Pitch_in / 25.0f), Fusion_output.angle.pitch, GyroData[1], (Throttle_in > 10));
 				//DoublePIDController_Update(&DPID_Pitch, (SWD / 70.0f), Fusion_output.angle.pitch, GyroData[1], (Throttle_in > 10));
 				Pitch_controlled = (int16_t)(DPID_Pitch.inner.out);
 
 				// Yaw
 				PIDController_Update(&PID_Yaw, (Yaw_in / 10.0f), GyroData[2], (Throttle_in > 10));
 				Yaw_controlled = (int16_t)(PID_Yaw.out);
+
+				// Throttle
+				PIDController_Update(&PID_Throttle, Throttle_in, Distance, (Throttle_in > 35));
+				Throttle_controlled = (uint16_t)(PID_Throttle.out);
 			}
 		}
 		osMutexRelease(ControllerMutexHandle);
