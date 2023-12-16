@@ -50,6 +50,7 @@ typedef struct {
     bool magnetometerIgnored;
     int magneticRecoveryTrigger;
     int magneticRecoveryTimeout;
+    FusionEuler fusionEulerOffset;
 } FusionAhrs;
 
 /**

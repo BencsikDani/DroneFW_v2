@@ -73,16 +73,30 @@ void TaskMotor(void const *argument)
 				int32_t ESC3_Speed;
 				int32_t ESC4_Speed;
 
-				if (Throttle_in > 10)
+				if (Throttle_in > 50)
 				{
-					if (osMutexWait(ControllerMutexHandle, osWaitForever) == osOK)
+					if (SWD < 10)
 					{
-						ESC1_Speed = Throttle_in + Roll_controlled + Pitch_controlled - Yaw_controlled;
-						ESC2_Speed = Throttle_in - Roll_controlled + Pitch_controlled + Yaw_controlled;
-						ESC3_Speed = Throttle_in - Roll_controlled - Pitch_controlled - Yaw_controlled;
-						ESC4_Speed = Throttle_in + Roll_controlled - Pitch_controlled + Yaw_controlled;
+						if (osMutexWait(ControllerMutexHandle, osWaitForever) == osOK)
+						{
+							ESC1_Speed = Throttle_in + Roll_controlled + Pitch_controlled - Yaw_controlled;
+							ESC2_Speed = Throttle_in - Roll_controlled + Pitch_controlled + Yaw_controlled;
+							ESC3_Speed = Throttle_in - Roll_controlled - Pitch_controlled - Yaw_controlled;
+							ESC4_Speed = Throttle_in + Roll_controlled - Pitch_controlled + Yaw_controlled;
+						}
+						osMutexRelease(ControllerMutexHandle);
 					}
-					osMutexRelease(ControllerMutexHandle);
+					else
+					{
+						if (osMutexWait(ControllerMutexHandle, osWaitForever) == osOK)
+						{
+							ESC1_Speed = Throttle_controlled + Roll_controlled + Pitch_controlled - Yaw_controlled;
+							ESC2_Speed = Throttle_controlled - Roll_controlled + Pitch_controlled + Yaw_controlled;
+							ESC3_Speed = Throttle_controlled - Roll_controlled - Pitch_controlled - Yaw_controlled;
+							ESC4_Speed = Throttle_controlled + Roll_controlled - Pitch_controlled + Yaw_controlled;
+						}
+						osMutexRelease(ControllerMutexHandle);
+					}
 				}
 				else
 				{

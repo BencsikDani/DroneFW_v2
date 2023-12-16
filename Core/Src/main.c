@@ -285,7 +285,7 @@ int main(void)
 
   	// Init Distance sensor
   	if (HCSR04_Init(&HCSR04, &htim3) == 0)
-  		IsDistAvailable = false;
+  		IsDistAvailable = true;
   	else
   		IsDistAvailable = false;
 

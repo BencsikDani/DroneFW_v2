@@ -55,6 +55,11 @@ void TaskTune(void const *argument)
 	float* PID_Y_meas = GyroData+2;
 	int16_t* PID_Y_out = &Yaw_controlled;
 
+	PIDController* PID_T = &PID_Throttle;
+	uint16_t PID_T_ref_devided; // Calculated in every cycle
+	float* PID_T_meas = &Distance;
+	uint16_t* PID_T_out = &Throttle_controlled;
+
 
 	xLastWakeTime = xTaskGetTickCount();
 
@@ -92,20 +97,20 @@ void TaskTune(void const *argument)
 				// Pack PID_Ri data
 				// Gains
 				FloatToUint8s(&(PID_Ri->Kp), SpiTuneData1, 23);
-				FloatToUint8s(&(PID_Ri->Ki), SpiTuneData1, 27);
-				FloatToUint8s(&(PID_Ri->Kd), SpiTuneData1, 31);
+				//FloatToUint8s(&(PID_Ri->Ki), SpiTuneData1, 27);
+				FloatToUint8s(&(PID_Ri->Kd), SpiTuneData1, 27);
 				// Reference
 				if (Tune_single_true_double_false)
 				{
 					PID_Ro_ref_devided_float = Roll_in / 10.0;
-					FloatToUint8s(&PID_Ro_ref_devided_float, SpiTuneData1, 35);
+					FloatToUint8s(&PID_Ro_ref_devided_float, SpiTuneData1, 31);
 				}
 				else
-					FloatToUint8s(PID_Ri_ref, SpiTuneData1, 35);
+					FloatToUint8s(PID_Ri_ref, SpiTuneData1, 31);
 				// Measurement
-				FloatToUint8s(PID_Ri_meas, SpiTuneData1, 39);
+				FloatToUint8s(PID_Ri_meas, SpiTuneData1, 35);
 				// Output
-				Int16ToUint8s(PID_Ri_out, SpiTuneData1, 43);
+				Int16ToUint8s(PID_Ri_out, SpiTuneData1, 39);
 
 
 				// Pack PID_Po data
@@ -114,7 +119,7 @@ void TaskTune(void const *argument)
 				FloatToUint8s(&(PID_Po->Ki), SpiTuneData2, 5);
 				FloatToUint8s(&(PID_Po->Kd), SpiTuneData2, 9);
 				// Reference -> Calculated in every cycle
-				PID_Po_ref_devided = Pitch_in / 25;
+				PID_Po_ref_devided = -Pitch_in / 25;
 				Int16ToUint8s(&PID_Po_ref_devided, SpiTuneData2, 13);
 				// Measurement
 				FloatToUint8s(PID_Po_meas, SpiTuneData2, 15);
@@ -125,34 +130,48 @@ void TaskTune(void const *argument)
 				// Pack PID_Pi data
 				// Gains
 				FloatToUint8s(&(PID_Pi->Kp), SpiTuneData2, 23);
-				FloatToUint8s(&(PID_Pi->Ki), SpiTuneData2, 27);
-				FloatToUint8s(&(PID_Pi->Kd), SpiTuneData2, 31);
+				//FloatToUint8s(&(PID_Pi->Ki), SpiTuneData2, 27);
+				FloatToUint8s(&(PID_Pi->Kd), SpiTuneData2, 27);
 				// Reference
 				if (Tune_single_true_double_false)
 				{
-					PID_Po_ref_devided_float = Pitch_in / 10.0;
-					FloatToUint8s(&PID_Po_ref_devided_float, SpiTuneData2, 35);
+					PID_Po_ref_devided_float = -Pitch_in / 10.0;
+					FloatToUint8s(&PID_Po_ref_devided_float, SpiTuneData2, 31);
 				}
 				else
-					FloatToUint8s(PID_Pi_ref, SpiTuneData2, 35);
+					FloatToUint8s(PID_Pi_ref, SpiTuneData2, 31);
 				// Measurement
-				FloatToUint8s(PID_Pi_meas, SpiTuneData2, 39);
+				FloatToUint8s(PID_Pi_meas, SpiTuneData2, 35);
 				// Output
-				Int16ToUint8s(PID_Pi_out, SpiTuneData2, 43);
+				Int16ToUint8s(PID_Pi_out, SpiTuneData2, 39);
 
 
 				// Pack PID_Y data
 				// Gains
-				FloatToUint8s(&(PID_Y->Kp), SpiTuneData1, 45);
-				FloatToUint8s(&(PID_Y->Ki), SpiTuneData1, 49);
-				FloatToUint8s(&(PID_Y->Kd), SpiTuneData1, 53);
+				FloatToUint8s(&(PID_Y->Kp), SpiTuneData1, 41);
+				FloatToUint8s(&(PID_Y->Ki), SpiTuneData1, 45);
+				FloatToUint8s(&(PID_Y->Kd), SpiTuneData1, 49);
 				// Reference -> Calculated in every cycle
 				PID_Y_ref_devided = Yaw_in / 10;
-				Int16ToUint8s(&PID_Y_ref_devided, SpiTuneData2, 45);
+				Int16ToUint8s(&PID_Y_ref_devided, SpiTuneData2, 41);
 				// Measurement
-				FloatToUint8s(PID_Y_meas, SpiTuneData2, 47);
+				FloatToUint8s(PID_Y_meas, SpiTuneData2, 43);
 				// Output
-				Int16ToUint8s(PID_Y_out, SpiTuneData2, 51);
+				Int16ToUint8s(PID_Y_out, SpiTuneData2, 47);
+
+
+				// Pack PID_T data
+				// Gains
+				FloatToUint8s(&(PID_T->Kp), SpiTuneData2, 49);
+				FloatToUint8s(&(PID_T->Ki), SpiTuneData2, 53);
+				FloatToUint8s(&(PID_T->Kd), SpiTuneData2, 57);
+				// Reference -> Calculated in every cycle
+				PID_T_ref_devided = Throttle_in;
+				Uint16ToUint8s(&PID_T_ref_devided, SpiTuneData1, 53);
+				// Measurement
+				FloatToUint8s(PID_T_meas, SpiTuneData1, 55);
+				// Output
+				Uint16ToUint8s(PID_T_out, SpiTuneData1, 59);
 
 			}
 			osMutexRelease(ControllerMutexHandle);
@@ -235,6 +254,15 @@ void TaskTune(void const *argument)
 						PID_Y->Ki = float_value;
 					else if (Spi1Buffer[2] == 'd')
 						PID_Y->Kd = float_value;
+				}
+				else if (Spi1Buffer[1] == 6) // PID_T
+				{
+					if (Spi1Buffer[2] == 'p')
+						PID_T->Kp = float_value;
+					else if (Spi1Buffer[2] == 'i')
+						PID_T->Ki = float_value;
+					else if (Spi1Buffer[2] == 'd')
+						PID_T->Kd = float_value;
 				}
 			}
 			osMutexRelease(ControllerMutexHandle);
